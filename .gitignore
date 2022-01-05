@@ -37,4 +37,26 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-.Rproj.user
+
+# data files
+*.csv
+*.xlsx
+*.bib
+*.pdf
+*data/
+
+# output files
+*.docx
+*.tex
+*.log
+*.pdf
+
+# output files
+*.jpeg
+*.jpg
+*.png
+
+# markdown
+*.html
+*.log
+*.md
