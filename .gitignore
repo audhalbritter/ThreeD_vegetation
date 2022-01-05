@@ -37,3 +37,30 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# target
+*_targets/
+
+# data files
+*.csv
+*.xlsx
+*.bib
+*.pdf
+*data/
+
+# output files
+*.docx
+*.pdf
+
+# output files
+*.jpeg
+*.jpg
+*.png
+
+# markdown
+*.html
+*.log
+*.md
+*.lua
+*.tex
+

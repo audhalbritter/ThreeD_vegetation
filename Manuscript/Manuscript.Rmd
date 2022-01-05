@@ -1,0 +1,237 @@
+---
+title: Impacts of grazing and global change drivers on biodiversity and ecosystem function in alpine and arctic grasslands
+author:
+  - Aud H. Halbritter:
+      email: aud.halbritter@uib.no
+      institute: [UiB]
+      correspondence: true
+  - Jake M. Alexander:
+      institute: [ETH]
+  - Gunnar Austrheim:
+      institute: [Museum]
+  - Deborah Goldberg:
+      institute: [UoM]
+  - Kari Klanderud:
+      institute: [NMBU]
+  - Richard J. Telford:
+      institute: [UiB]
+  - Yan Yang:
+      institute: [IMHE]
+  - Vigdis Vandvik:
+      institute: [UiB]
+institute:
+  - UiB: Department of Biological Sciences and Bjerknes Center for Climate Research, Bergen, Norway
+  - ETH: Institute of Integrative Biology, ETH Zürich, Switzerland
+  - Museum: Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Norway
+  - UoM: Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA
+  - NMBU: Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway
+  - IMHE: Institute of Mountain Hazards and Environment, CAS, Chendu, China
+
+abstract: |
+  Some nice abstract text
+
+keywords: "Global change, herbivory, land-use management, meadow, pasture"
+  
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+
+# header-includes:
+#   - \usepackage{setspace}\doublespacing
+#   - \usepackage{lineno}
+#   - \linenumbers
+#   - \usepackage{xr}
+#   - \externaldocument[sm-]{SI}
+#indent: true
+  
+output:
+  # bookdown::pdf_book:
+  #   # pandoc_args:
+  #   #   - --filter=pandoc-crossref
+  #   #   - --csl=Extra/ecology-letters.csl
+  #   #   - --citation-abbreviations=Extra/abbreviations.json
+  #   #   - --template=Extra/mytemplate.tex
+  #   toc: no
+  #   number_sections: false
+  #   fig_caption: yes
+  bookdown::word_document2:
+    pandoc_args:
+      - --csl=Extra/ecology-letters.csl
+      - --citation-abbreviations=Extra/abbreviations.json
+      - --filter=pandoc-crossref
+      - --lua-filter=Extra/scholarly-metadata.lua
+      - --lua-filter=Extra/author-info-blocks.lua
+      - --reference-doc=Extra/Reference_Document.docx
+    toc: no
+    number_sections: false
+    fig_caption: yes
+documentclass: article
+classoption: a4paper
+bibliography: '`r here::here(tar_read(biblio2))`'
+#always_allow_html: true
+#keep-latex: true
+---
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = TRUE, message = TRUE, error = TRUE)
+
+#packages only loaded in this file
+library("english")
+library(tidyverse)
+library(kableExtra)
+
+#set default theme
+theme_set(theme_minimal())
+
+# load required targets
+#tar_load(daily_temp) 
+
+```
+
+
+# Introduction
+
+Global change and alpine ecosystems
+
+
+How warming, nitrogen and grazing affect vegetation. Multiple global change drivers act at the same time.
+
+
+Grazing as a tool to mitigate negative impacts. But we need more knowledge when this is the case.
+
+
+The aim of this study was to assess and disentangle the single and combined effects of warmer climate, nitrogen addition and grazing on plant species composition.
+We also tested if and at what level grazing could mediate negative impacts of warming and nitrogen (N) addition on biodiversity.
+A fully factorial, large scale, and replicated field experiment at two alpine grassland sites along an elevational gradient, representing a productivity gradient, in Western Norway and Hengduan Mountains, China was used. 
+Alpine plant communities were exposed to warmer climate (transplant to lower elevation), increased nitrogen deposition (N addition), and different grazing levels.
+We hypothesized that warming and nitrogen addition negatively impact plant diversity, by favouring competitive graminoids [@Klanderud2005-yx].
+Further, effect of grazing on species composition along a productivity gradient should vary from facilitation loss in low-productivity plant communities to competitive release in high productivity plant communities [@Bernes2015-yg; @Austrheim2008-nu].
+We therefore predict that intermediate level grazing can mediate negative impacts of the other drivers in the more productive sites (REFs). 
+
+
+# Methods
+
+## Study areas and experimental design
+
+The study was conducted between 2019 and 2022 in semi-natural sub-alpine to alpine grassland sites in Western Norway (7.17°E, 60.88°N) and Hengduan Mountains, Sichuan Province, China (102.04°E, 29.86°N).
+The sites were located along an elevational gradient, also representing a productivity gradient, ranging in mean summer air temperature (measured 15 cm above the ground) between 6.11 ± 0.236 and 12.9 ± 0.192 in Norway and ... in China.
+Species rich grassland sites were chosen to fit within an elevational gradient with three temperature levels (transplanted from 2 sites to lower elevation) that differ in approximately 400 m elevation, a temperature difference of approximately 3.3°C in summer air temperature.
+The sites in Norway are located on calcareous bedrock (loamy sand) and are dominantly grazed by sheep, goats and deer, while the sites in China are located on mountain grey-brown soil (REF) grazed by yak, horses, cows and sheep.
+Other factors such as land-use history, bedrock, vegetation type and structure, slope and exposure were kept as constant as possible among the selected sites within each country.
+
+```{r experiment, fig.cap = "Map of study sites and experimental design. a) Map of studies sites in Western Norway and Hengduan Mountains, Sichuan Province, China. b) Experimental design at three sites along a gradient from low (high elevation) to high productivity (low elevation). The treatments are control (grey), warming (darkgrey) , nitrogen deposition (gradient of greens), warming and nitrogen deposition (gradient of browns), crossed with three clipping levels: none (empty), intermediate (one scissor) and intensive (two scissors) and natural grazing outside the grazing exclosure (stippled line).", out.width = '100%'}
+
+knitr::include_graphics("figures/ExperimentalDesign.jpg")
+
+```
+
+
+A paragraph describing the plant composition at all sites.
+Liahovden alpine calcarious rich grassland by silene acaulis, Thalictrum alpinum, Alchemilla alpina, Leontodon autumnalis, Antennaria dioica, Carex capillaris, Festuca rubra.
+Joa: grazing dominated vegetation with Achillea millefolium , Agrostis capillaris , Poa pratensis, Ranunculus repens, and Rumex acetosa.
+China...
+
+Within each site, we established ten experimental blocks each containing eight 50 x 50 cm plots, permanently marked with metal poles in each corner.
+The corners of the centre 25 x 25 cm of each plot was also marked for the standardized vegetation analysis frame.
+The treatments (see below) were applied on the whole 50 x 50 cm plots, destructive harvesting of soil samples was done in the outer edges, while the inner 25 x 25 cm plot remained untouched, except for the treatments.
+The upslope left corner tubes of the inner and outer plot were marked with a colour-coded waterproof tape to ensure the same orientation of each plot. 
+Six plots of each block were fenced (in autumn 2019 in China and early spring 2020 in Norway), while the other two were located further away (< 10m) and outside the fence.
+
+Each plot received a random combination of warming, nitrogen addition and grazing treatments.
+Each block was randomly assigned a nitrogen level, meaning that each block had the same nitrogen level at each site.
+We chose to randomize the nitrogen treatment at the block level to avoid nitrogen contamination between the plots within the blocks.
+The warming and grazing treatments were then randomized within each block, except for the natural grazing treatment, which was always assigned to the plots outside the fence.
+
+
+### Warming treatment
+
+In autumn 2019, half of the plots of entire plant communities were transplanted to lower elevation, simulating a approximately 3.3°C warming.
+We used a knife to cut the plots, including the main root mass, to a depth of c. 10 - 25 cm, unless the soil was shallower, as was the case for some of plots at the highest sites.
+After excavation, the turfs were packed into cardboard boxes and transported to their respective target sites within one day.
+The control plots were not excavated or moved, because the effect of transplanting should not affect species composition as we tested in previous transplant experiments [@Vandvik2020-hu; @Yang2018-uq].
+The turfs were carefully fitted into the gaps created by excavating turfs at the destination site, except for the lowest site, where gaps first had to be made (only destination site). 
+We ensured that the turf orientation was correct and that the soil surface was in plane with the surrounding vegetation, and that the edges of the excavated plot was in good contact with the edges of the gap created when the original turf was excavated from the plot.
+If necessary, loose soil was carefully removed from the underside of the turf, or local soil was added to the gap or around the edges to achieve this.
+
+
+### Nitrogen addition
+
+Each block received one of the different nitrogen treatments: 0, 0.5, 1, 5, 10, 50, 100, 150 kg N ha^−1^ yr^−1^, where three blocks were controls and received no nitrogen addition.
+Nitrogen was added as slow dissolving fertilizer as pellets (YaraBela OPTI-NS 27-0-0 (4S) in Norway; xxx in China).
+We used oxidised nitrogen (NO~x~) formed mainly by combustion processes [@Holland2005-au], which are the main sources of atmospheric nitrogen deposition in remote regions (i.e., away from intensive agriculture and other sources or reduced nitrogen).
+The nitrogen was added once at the start and once in the middle of the growing season from 2020 - 2022, except in 2020 at the lowest site in Norway, where the whole dose of fertilizer was applied at the start of the season. 
+
+The natural annual atmospheric nitrogen deposition is much lower in Western Norway (1.5-3.5 kg N ha^−1^ yr^−1^) compared to the Hengduan Mountains in China [10 kg N ha^−1^ yr^−1^, [@Lu2007-qo], we kept the experimental nitrogen addition the same in both countries.
+The critical load for changing species composition in alpine grasslands is approximately 5-10 and 15 kg N ha^−1^ yr^−1^ in Norway and China, respectively.
+We therefore wanted to have a range of nitrogen levels that were below and well above this critical load.
+
+
+### Grazing
+
+Grazing was simulated by clipping the vegetation manually, because our major interest was in the effect of biomass removal and not the nutrient addition and trampling aspects of grazing. 
+We applied four different grazing treatments including natural grazing (N), intermediate grazing (M), intensive grazing (I), and untouched control plots (C).
+The naturally grazed plots were located outside the fence and grazed by domesticated and wild animals to control for the difference between grazing and clipping (i.e. clipping is not selective, while grazing also adds nutrients and trampling).
+The intermediate and intensive grazing plots were manually clipped using scissors two or four times in each growing season, 2-3 cm above the ground.
+
+In 2020, the intensive grazing plots at the highest site in Norway (Liahovden) received only three cuts, because of large amounts of snow and a cold spring and thus a short growing season.
+An additional cut at the end of the growing season would not have removed anymore biomass.
+In 2021 and 2022, we did not cut Carex species after the species composition was analysed in August, because they are difficult to identify without leaf tips.
+
+To simulate the natural grazing regime at each site, and to avoid accumulation of biomass, the biomass within the fence was removed at the end of each field season.
+
+
+## Data collection
+
+### Microclimate data
+
+Microclimate data was measured continuously (every 15 min), between July 2019 and xxx 2022, using Tomst TM4 loggers [@Wild2019-nk].
+Air temperature was measured 15 cm above the ground and at ground level, and soil temperature and soil moisture were measured 5 cm below ground.
+The loggers were placed all warming and grazing treatments inside the fence at 0, 0.5, 1, 10, 100 and 150 kg N ha^-1^ y^-1^ (total logger: n = 72 Norway; n = x in China).
+At the highest site in Norway, block 7 (x treatment) also received Tomst loggers, because it is separated from the other blocks.
+
+
+### Plant species composition
+
+Vegetation sampling was done in the 25 x 25 cm plots.
+We visually estimated percentage cover of all vascular plant species, and total cover of bryophyes, lichen, litter, bare ground, rocks and faeces in 2019 (before treatment) and in 2021, and 2022.
+At four fixed points in the plot, average vegetation height and moss layer depth was measured using a ruler.
+A photo of each plot was taken each year.
+For species identification we followed the nomenclature from Lid & Lid [-@Lid2010-ck] for the Norwegian flora and xxx for the Chinese flora.
+Each species of vascular plant was classified by functional type (graminoid, forb, woody) and biogeographic affinity based on information given in Lid & Lid [-@Lid2010-ck].
+
+The data was checked vizually by plotting the cover of each species per plot over time using the turfmapper package (REF) which allows to compare change in species composition over time and check for misidentifications and data entry errors.
+Together with the plot photos, clearly misidentified, misslabeled species, uncertainties in species identifications or recorder errors were corrected when possible.
+Species that could not be identified to species level without flowers or seeds, were indicated with sp (e.g. Carex, Luzula and Antennaria sp).
+
+
+### Soil data
+
+To characterize the abiotic environment at each site, we measured soil depth (at each plot), and pH, bulk density, soil texture, soil organic matter and carbon and nitrogen stocks at the site level.
+
+
+
+# Results
+
+```{r soil-plot, fig.cap = "Soil properties at three sites."}
+
+tar_read(soil_plot)
+
+```
+
+
+```{r cover-plot, fig.cap = "Functional group cover."}
+
+tar_read(cover_plot)
+
+```
+
+
+```{r richness-plot, fig.cap = "Richness"}
+
+tar_read(richness_plot)
+
+```
+
+# References
+
+
