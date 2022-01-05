@@ -38,6 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# target
+*_targets/
+
 # data files
 *.csv
 *.xlsx
@@ -47,8 +50,6 @@ vignettes/*.pdf
 
 # output files
 *.docx
-*.tex
-*.log
 *.pdf
 
 # output files
@@ -60,3 +61,6 @@ vignettes/*.pdf
 *.html
 *.log
 *.md
+*.lua
+*.tex
+
