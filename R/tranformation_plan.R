@@ -27,24 +27,46 @@ tranformation_plan <- list(
     name = cover_data,
     command = cover %>%
       left_join(sp_list, by = "species") %>%
-      group_by(turfID, origBlockID, origSiteID, warming, grazing, Namount_kg_ha_y, functional_group, year) %>%
+      group_by(turfID, origBlockID, origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, functional_group, year) %>%
       summarise(cover = sum(cover)) %>%
       pivot_wider(names_from = year, values_from = cover) %>%
       mutate(delta = `2021` - `2019`) %>%
-      filter(functional_group %in% c("forb", "graminoid")) %>%
+      #filter(functional_group %in% c("forb", "graminoid")) %>%
       ungroup()
   ),
 
   # richness
   tar_target(
-    name = richness_data,
+    name = diversity_data,
     command = cover %>%
       ungroup() %>%
-      group_by(turfID, origBlockID, origSiteID, year, warming, grazing, Namount_kg_ha_y) %>%
-      summarise(richness = n()) %>%
-      pivot_wider(names_from = year, values_from = richness) %>%
+      group_by(turfID, origBlockID, origSiteID, year, warming, grazing, Namount_kg_ha_y, Nitrogen_log) %>%
+      summarise(richness = n(),
+                diversity = diversity(cover),
+                evenness = diversity/log(richness)) %>%
+      pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
+      pivot_wider(names_from = year, values_from = value) %>%
       mutate(delta = `2021` - `2019`) %>%
       ungroup()
-  )
+  ),
+
+  # biomass
+  tar_target(
+    name = biomass_data,
+    command = {
+      biomass_raw %>%
+        # scale biomass to 50 x 50 cm plot
+        mutate(biomass_scaled = if_else(area_cm2 == 2500, biomass, biomass * 2500 / area_cm2)) %>%
+        filter(year == 2021) %>%
+        # summarise to get annual biomass/productivity
+        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, grazing, fun_group) %>%
+        summarise(productivity = sum(biomass_scaled)) %>%
+        mutate(origSiteID = recode(origSiteID, "Lia" = "High alpine", "Joa" = "Alpine"),
+               origSiteID = factor(origSiteID, levels = c("High alpine", "Alpine")),
+               grazing = factor(grazing, levels = c("C", "M", "I", "N")),
+               grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
+               warming = recode(warming, "A" = "ambient", "W" = "warming"))
+
+    })
 
 )
