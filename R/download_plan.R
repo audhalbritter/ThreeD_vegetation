@@ -1,58 +1,94 @@
 download_plan <- list(
 
   #download_data
+
+  # climate
   tar_target(
-    name = raw_cover,
-    command =  get_file(node = "pk4bg",
-                        file = "THREE-D_Cover_2019_2020.csv",
-                        path = "data",
-                        remote_path = "Vegetation")
-  ),
-  tar_target(
-    name = raw_climate,
+    name = climate_download,
     command =  get_file(node = "pk4bg",
                         file = "THREE-D_clean_microclimate_2019-2021.csv.zip",
                         path = "data",
-                        remote_path = "Climate")
+                        remote_path = "Climate"),
+    format = "file"
   ),
+
   tar_target(
-    name = raw_soil,
+    name = gridded_climate_download,
+    command =  get_file(node = "pk4bg",
+                        file = "THREE_D_GriddedDailyClimateData2008-2022.csv",
+                        path = "data",
+                        remote_path = "Climate"),
+    format = "file"
+  ),
+
+  # biomass
+  tar_target(
+    name = biomass_download,
+    command =  get_file(node = "pk4bg",
+                        file = "THREE-D_clean_biomass_2020-2021.csv",
+                        path = "data",
+                        remote_path = "Vegetation"),
+    format = "file"
+  ),
+
+  # vegetation
+  # tar_target(
+  #   name = cover_download,
+  #   command =  get_file(node = "pk4bg",
+  #                       file = "THREE-D_Cover_2019-2021.csv",
+  #                       path = "data",
+  #                       remote_path = "Vegetation"),
+  # format = "file"
+  # ),
+
+  # soil
+  tar_target(
+    name = soil_download,
     command =  get_file(node = "pk4bg",
                         file = "THREE-D_Soil_2019-2020.csv",
                         path = "data",
-                        remote_path = "Soil")
+                        remote_path = "Soil"),
+    format = "file"
   ),
+
   tar_target(
-  name = raw_soil_meta,
+  name = meta_soil_download,
   command =  get_file(node = "pk4bg",
                       file = "THREE-D_PlotLevel_Depth_2019.csv",
                       path = "data",
-                      remote_path = "Soil")
+                      remote_path = "Soil"),
+  format = "file"
   ),
 
-  # read in data
+
+  # import and transform in data
+
+  # climate
   tar_target(
-    name = cover,
-    command = read_csv(file = "data/THREE-D_Cover_2019-2021.csv") %>%
-      filter(year %in% c(2019, 2021),
-             # just for now!!!
-             !str_detect(species, "Carex"),
-             !Nlevel %in% c(3, 2)) %>%
-      mutate(origSiteID = recode(origSiteID, "Lia" = "High alpine", "Joa" = "Alpine"),
-             origSiteID = factor(origSiteID, levels = c("High alpine", "Alpine")),
-             grazing = factor(grazing, levels = c("C", "M", "I", "N")),
-             grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural")) %>%
-      left_join(metaTurfID %>% distinct(Nlevel, Namount_kg_ha_y), by = "Nlevel")
+    name = climate_unzip,
+    command = unzip(climate_download, exdir = "data")
   ),
 
   tar_target(
-    name = raw_climate2,
-    command = unzip("data/THREE-D_clean_microclimate_2019-2021.csv.zip", exdir = "data")
+    name = climate_raw,
+    command = read_csv(file = climate_unzip[1])
   ),
 
   tar_target(
-  name = climate,
-  command = read_csv(file = "data/THREE-D_clean_microclimate_2019-2021.csv")
+    name = gridded_climate_raw,
+    command = read_csv(file = gridded_climate_download)
+  ),
+
+  # biomass
+  tar_target(
+    name = biomass_raw,
+    command = read_csv(file = biomass_download)
+  ),
+
+  # cover
+  tar_target(
+    name = cover_raw,
+    command = read_csv("data/THREE-D_Cover_2019-2021.csv")
   ),
 
   tar_target(
@@ -65,14 +101,15 @@ download_plan <- list(
     command = read_excel(path = "data/metaTurfID.xlsx")
   ),
 
+  # soil
   tar_target(
-    name = soil,
-    command = read_delim(file = "data/THREE-D_Soil_2019-2020.csv", delim = ",")
+    name = soil_raw,
+    command = read_delim(file = soil_download, delim = ",")
   ),
 
   tar_target(
-    name = meta_soil,
-    command = read_csv(file ="data/THREE-D_PlotLevel_Depth_2019.csv")
+    name = meta_soil_raw,
+    command = read_csv(file = meta_soil_download)
   )
 
 )
