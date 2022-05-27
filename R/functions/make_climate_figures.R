@@ -24,14 +24,15 @@ make_daily_climate_figure <- function(daily_temp){
   daily_climate_figure <- daily_temp |>
     filter(Nlevel == 1,
            grazing == "C") |>
-    mutate(origSiteID = recode(origSiteID, Joa = "Subalpine", Lia = "Alpine"),
+    mutate(origSiteID = recode(origSiteID, Joa = "Sub-alpine", Lia = "Alpine"),
            variable = recode(variable, air_temperature = "air", ground_temperature = "ground", soil_temperature = "soil")) |>
     ggplot(aes(x = date, y = value, colour = warming)) +
     geom_line() +
     scale_color_manual(values = c("grey", "red")) +
     labs(x = "", y = "soilmoisture in % or temperature in °C") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +
-    theme_minimal()
+    theme_minimal() +
+    theme(legend.position = "top")
 
   return(daily_climate_figure)
 }
