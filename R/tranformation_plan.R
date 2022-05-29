@@ -121,7 +121,11 @@ tranformation_plan <- list(
       group_by(turfID, origBlockID, origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, functional_group, year) %>%
       summarise(cover = sum(cover)) %>%
       pivot_wider(names_from = year, values_from = cover) %>%
-      mutate(delta = `2021` - `2019`) %>%
+      # Fun groups that do not exist in one year => 0
+      # calculate difference between years
+      mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
+             `2021` = if_else(is.na(`2021`), 0, `2021`),
+             delta = `2021` - `2019`) %>%
       ungroup()
   ),
 
