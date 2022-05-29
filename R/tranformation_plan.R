@@ -138,6 +138,11 @@ tranformation_plan <- list(
                 diversity = diversity(cover),
                 evenness = diversity/log(richness)) %>%
       pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
+
+      # average for 0 kg N treatment
+      ungroup() |>
+      group_by(origSiteID, year, warming, grazing, Namount_kg_ha_y, Nitrogen_log, diversity_index) |>
+      summarise(value = mean(value)) |>
       pivot_wider(names_from = year, values_from = value) %>%
       mutate(delta = `2021` - `2019`) %>%
       ungroup()
