@@ -1,5 +1,5 @@
 ---
-title: Impacts of grazing and global change drivers on biodiversity and ecosystem function in alpine and arctic grasslands
+title: Impacts of warmer climate, nitrogen deposition and grazing on alpine plant communities
 author:
   - Aud H. Halbritter:
       email: aud.halbritter@uib.no
@@ -26,9 +26,6 @@ institute:
   - UoM: Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA
   - NMBU: Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway
   - IMHE: Institute of Mountain Hazards and Environment, CAS, Chendu, China
-
-abstract: |
-  Some nice abstract text
 
 keywords: "Global change, herbivory, land-use management, meadow, pasture"
   
@@ -73,7 +70,7 @@ bibliography: '`r here::here(tar_read(biblio2))`'
 
 ```{r setup, include=FALSE}
 
-knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = TRUE, message = TRUE, error = TRUE)
+knitr::opts_chunk$set(echo = FALSE, include = TRUE, warning = FALSE, message = FALSE, error = TRUE)
 
 #packages only loaded in this file
 library("english")
@@ -89,17 +86,27 @@ theme_set(theme_minimal())
 ```
 
 
+# Abstract
+
+
+
+
 # Introduction
 
-Global change and alpine ecosystems
+[Global change threatens alpine ecosystems]
 
 
-How warming, nitrogen and grazing affect vegetation. Multiple global change drivers act at the same time.
+[Multiple global change drivers act at different spatial and temporal scales, but they occur simultaneously. Nobody looks at multiple drivers!]
+- Short summary of how these drivers impact alpine vegetation (biomass, diversity and richness)
+- How adding/multiplying effects could be
 
 
-Grazing as a tool to mitigate negative impacts. But we need more knowledge when this is the case.
+[Grazing is special, because we can control it at local scales and it has the potential to mitigate other negative impacts]
+- When is grazing positive
+- What do we not know yet / knowledge gap
 
 
+[Aim of this study: single and combined effects]
 The aim of this study was to assess and disentangle the single and combined effects of warmer climate, nitrogen addition and grazing on plant species composition.
 We also tested if and at what level grazing could mediate negative impacts of warming and nitrogen (N) addition on biodiversity.
 A fully factorial, large scale, and replicated field experiment at two alpine grassland sites along an elevational gradient, representing a productivity gradient, in Western Norway and Hengduan Mountains, China was used. 
@@ -121,7 +128,7 @@ Other factors such as land-use history, bedrock, vegetation type and structure, 
 
 ```{r experiment, fig.cap = "Map of study sites and experimental design. a) Map of studies sites in Western Norway and Hengduan Mountains, Sichuan Province, China. b) Experimental design at three sites along a gradient from low (high elevation) to high productivity (low elevation). The treatments are control (grey), warming (darkgrey) , nitrogen deposition (gradient of greens), warming and nitrogen deposition (gradient of browns), crossed with three clipping levels: none (empty), intermediate (one scissor) and intensive (two scissors) and natural grazing outside the grazing exclosure (stippled line).", out.width = '100%'}
 
-knitr::include_graphics("figures/ExperimentalDesign.jpg")
+knitr::include_graphics("ExperimentalDesign.jpg")
 
 ```
 
@@ -212,23 +219,49 @@ To characterize the abiotic environment at each site, we measured soil depth (at
 
 # Results
 
-```{r soil-plot, fig.cap = "Soil properties at three sites."}
+### Soil properties
+
+- The soil properties vary across the sites
+- Soil depth decreases with elevation, while pH, SOM, C and N stock increase with elevation.
+- Bulk density is highest at the alpine site.
+
+
+```{r soil-plot, fig.cap = "Soil properties including soil depth, buldk density, pH, soil organic matter (SOM), soil carbon and nitrogen at the lowland, alpine and high alpine site. The colour indicates the top (ligth rose) or bottom (dark rose) layer of the soil sampling."}
 
 tar_read(soil_plot)
 
 ```
 
 
-```{r cover-plot, fig.cap = "Functional group cover."}
+# Plant community composition
+
+General pattern: 
+- forb cover decreases with increasing nitrogen treatment, while graminoid cover increases (from left to right in each panel)
+- The pattern is more pronounced with warming (dashed line)
+- Intensive grazing seems to lower the effect (slopes are less steep)
+
+```{r cover-plot, fig.cap = "Change in functional group cover between 2019 adn 2021. The x-axis shows the amount of nitrogen addition in g per ha and y. Each box indicates a different grazing level (control, intensive, intermediate and natural) and the origin site. Linetype shows the warming treatment and colour the functional group."}
 
 tar_read(cover_plot)
 
 ```
 
 
-```{r richness-plot, fig.cap = "Richness"}
+- Richness generally decreases with increasing nitrogen addition
+- More so with warming (steeper slope)
+- However, at alpine site (used to intensive grazing), only warming and nutrient seem to have an effect on richness
+- Effect of grazing is difficult to see
+
+
+```{r richness-plot, fig.cap = "Change in plant species richness between 2019 adn 2021. The x-axis shows the amount of nitrogen addition in g per ha and y. Each box indicates a different grazing level (control, intensive, intermediate and natural) and the origin site. Linetype and colour shows the warming treatment."}
 
 tar_read(richness_plot)
+
+```
+
+```{r biomass-plot, fig.cap = "Biomass in g at peak growing season in 2021. The x-axis shows the amount of nitrogen addition in g per ha and y. Each box indicates a different grazing level (control, intensive, intermediate and natural) and the origin site. Linetype shows the warming treatment and colour the functional group."}
+
+tar_read(biomass_plot)
 
 ```
 

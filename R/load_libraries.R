@@ -9,7 +9,11 @@ library(writexl)
 library(dataDownloader)
 library(usethis)
 #devtools::install_github("richardjtelford/rjt.misc")
-library(rjt.misc)
+#library(rjt.misc)
+library(broom)
+library(vegan)
+library(performance)
+library(targets)
 
 
 # Stuff
