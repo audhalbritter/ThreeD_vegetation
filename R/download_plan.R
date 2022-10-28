@@ -22,14 +22,14 @@ download_plan <- list(
   ),
 
   # biomass
-  tar_target(
-    name = biomass_download,
-    command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_biomass_2020-2022.csv",
-                        path = "data",
-                        remote_path = "Vegetation"),
-    format = "file"
-  ),
+  # tar_target(
+  #   name = biomass_download,
+  #   command =  get_file(node = "pk4bg",
+  #                       file = "Three-D_clean_biomass_2020-2022.csv",
+  #                       path = "data",
+  #                       remote_path = "Vegetation"),
+  #   format = "file"
+  # ),
 
   # vegetation
   # tar_target(
@@ -83,7 +83,13 @@ download_plan <- list(
   # biomass
   tar_target(
     name = biomass_raw,
-    command = read_csv(file = biomass_download)
+    command = read_csv(file = "data/Three-D_clean_biomass_2020-2022.csv")
+  ),
+
+  # productivity
+  tar_target(
+    name = productivity_raw,
+    command = read_csv(file = "data/Three-D_clean_productivity_2022.csv")
   ),
 
   # cover
