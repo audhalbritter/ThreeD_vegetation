@@ -3,14 +3,14 @@ download_plan <- list(
   #download_data
 
   # climate
-  tar_target(
-    name = climate_download,
-    command =  get_file(node = "pk4bg",
-                        file = "THREE-D_clean_microclimate_2019-2021.csv.zip",
-                        path = "data",
-                        remote_path = "Climate"),
-    format = "file"
-  ),
+  # tar_target(
+  #   name = climate_download,
+  #   command =  get_file(node = "pk4bg",
+  #                       file = "THREE-D_clean_microclimate_2019-2021.csv.zip",
+  #                       path = "data",
+  #                       remote_path = "Climate"),
+  #   format = "file"
+  # ),
 
   tar_target(
     name = gridded_climate_download,
@@ -25,7 +25,7 @@ download_plan <- list(
   tar_target(
     name = biomass_download,
     command =  get_file(node = "pk4bg",
-                        file = "THREE-D_clean_biomass_2020-2021.csv",
+                        file = "Three-D_clean_biomass_2020-2022.csv",
                         path = "data",
                         remote_path = "Vegetation"),
     format = "file"
@@ -64,14 +64,15 @@ download_plan <- list(
   # import and transform in data
 
   # climate
-  tar_target(
-    name = climate_unzip,
-    command = unzip(climate_download, exdir = "data")
-  ),
+  # tar_target(
+  #   name = climate_unzip,
+  #   command = unzip(climate_download, exdir = "data")
+  # ),
 
   tar_target(
     name = climate_raw,
-    command = read_csv(file = climate_unzip[1])
+    #command = read_csv(file = climate_unzip[1])
+    command = read_csv(file = "data/THREE-D_clean_microclimate_2019-2022.csv")
   ),
 
   tar_target(
@@ -88,7 +89,7 @@ download_plan <- list(
   # cover
   tar_target(
     name = cover_raw,
-    command = read_csv("data/THREE-D_Cover_2019-2021.csv")
+    command = read_csv("data/THREE-D_Cover_2019-2022.csv")
   ),
 
   tar_target(
@@ -98,7 +99,7 @@ download_plan <- list(
 
   tar_target(
     name = metaTurfID,
-    command = read_excel(path = "data/metaTurfID.xlsx")
+    command = create_threed_meta_data()
   ),
 
   # soil
