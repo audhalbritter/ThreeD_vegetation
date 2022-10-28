@@ -1,7 +1,7 @@
 library("targets")
 library("tarchetypes")
 
-tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom"))
+tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation"))
 #"rjt.misc",
 
 # source other scripts
@@ -9,6 +9,7 @@ tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vega
 source("R/functions/make_climate_figures.R")
 source("R/functions/make_vegetation_figures.R")
 source("R/functions/make_analysis.R")
+#source("R/functions/extinction_colonization.R")
 
 # source target plans - can also construct plans directly in this file.
 source("R/download_plan.R")
