@@ -66,14 +66,9 @@ tranformation_plan <- list(
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
 
-        # summarise the cuts to get annual biomass/productivity
-        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing, fun_group, year) %>%
-        summarise(productivity = sum(biomass_scaled)) %>%
-
-        # Calculate mean of 0 kg N per m2 y
-        ungroup() |>
-        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, fun_group, year) |>
-        tidylog::summarise(productivity = mean(productivity)) |>
+        # sum the corners (79 corners)
+        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, grazing, cut, year, date, fun_group, Nitrogen_log) |>
+        tidylog::summarise(biomass_scaled = sum(biomass_scaled)) |>
 
         mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
                origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
@@ -84,12 +79,29 @@ tranformation_plan <- list(
     }),
 
 
+  # annual productivity
+  tar_target(
+    name = productivity,
+    command = {
+      biomass %>%
+  # summarise the cuts to get annual biomass/productivity
+  group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing, fun_group, year) %>%
+    summarise(productivity = sum(biomass_scaled)) %>%
+
+    # Calculate mean of 0 kg N per m2 y
+    ungroup() |>
+    group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, fun_group, year) |>
+    tidylog::summarise(productivity = mean(productivity))
+
+    }),
+
+
   # prep cover
   tar_target(
     name = cover,
     command = cover_raw %>%
       # first and last year
-      filter(year %in% c(2019, 2022),
+      filter(year %in% c(2019, 2021, 2022),
              # just for now!!!
              !str_detect(species, "Carex")) %>%
 
@@ -118,6 +130,7 @@ tranformation_plan <- list(
   tar_target(
     name = functional_group_cover,
     command = cover %>%
+      filter(year != 2021) |>
       group_by(turfID, origBlockID, origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, functional_group, year) %>%
       summarise(cover = sum(cover)) %>%
       pivot_wider(names_from = year, values_from = cover) %>%
@@ -133,6 +146,7 @@ tranformation_plan <- list(
   tar_target(
     name = diversity,
     command = cover %>%
+      filter(year != 2021) |>
       group_by(turfID, origBlockID, origSiteID, year, warming, grazing, Namount_kg_ha_y, Nitrogen_log) %>%
       summarise(richness = n(),
                 diversity = diversity(cover),
