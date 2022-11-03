@@ -12,8 +12,14 @@ library(usethis)
 #library(rjt.misc)
 library(broom)
 library(vegan)
+library(ggvegan)
 library(performance)
 library(targets)
+library(DBI)
+library(RSQLite)
+library(patchwork)
+library(MuMIn)
+library(glue)
 
 
 # Stuff
