@@ -46,14 +46,12 @@ vignettes/*.pdf
 *.xlsx
 *.bib
 *.pdf
-*data/
+data/*
 !manuscript/google.R
 
 # output files
 *.docx
 *.pdf
-
-# output files
 *.jpeg
 *.jpg
 *.png
