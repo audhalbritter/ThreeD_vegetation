@@ -92,15 +92,27 @@ download_plan <- list(
     command = read_csv(file = "data/Three-D_clean_productivity_2022.csv")
   ),
 
+  # height
+  tar_target(
+    name = height_raw,
+    command = read_csv(file = "data/Three-D_clean_height_2019_2020.csv")
+  ),
+
   # cover
   tar_target(
     name = cover_raw,
-    command = read_csv("data/THREE-D_Cover_2019-2022.csv")
+    command = read_csv("data/Three-D_clean_cover_2019-2022_new.csv")
+  ),
+
+  # community structure
+  tar_target(
+    name = community_structure_raw,
+    command = read_csv("data/Three-D_clean_community_structure_2019-2022_new.csv")
   ),
 
   tar_target(
     name = sp_list,
-    command = read_csv(file = "data/species_list.csv")
+    command = read_csv(file = "data/Three-D_clean_taxonomy.csv")
   ),
 
   tar_target(
