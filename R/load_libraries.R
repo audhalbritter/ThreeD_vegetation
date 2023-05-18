@@ -20,6 +20,7 @@ library(RSQLite)
 library(patchwork)
 library(MuMIn)
 library(glue)
+library(wesanderson)
 
 
 # Stuff
