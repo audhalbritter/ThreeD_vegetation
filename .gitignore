@@ -47,6 +47,7 @@ vignettes/*.pdf
 *.bib
 *.pdf
 *data/
+!manuscript/google.R
 
 # output files
 *.docx
@@ -64,3 +65,4 @@ vignettes/*.pdf
 *.lua
 *.tex
 
+*.DS_Store
