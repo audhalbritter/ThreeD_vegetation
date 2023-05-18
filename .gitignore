@@ -47,7 +47,7 @@ vignettes/*.pdf
 *.bib
 *.pdf
 data/*
-!manuscript/google.R
+Manuscript/google.R
 
 # output files
 *.docx
