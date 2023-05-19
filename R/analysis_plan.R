@@ -56,10 +56,16 @@ analysis_plan <- list(
         pivot_longer(cols = -c(origSiteID, data),
                      names_sep = "_",
                      names_to = c(".value", "names")) |>
+        unnest(glance) |>
+        select(origSiteID:adj.r.squared, AIC) |>
         # select best model
-        filter(aic == min(aic))
+        filter(AIC == min(AIC))
     }
   ),
+
+  # check models
+  tar_quarto(name = model_check,
+             path = "R/model_output.qmd"),
 
 
   tar_target(
@@ -83,9 +89,9 @@ analysis_plan <- list(
   tar_target(
     name =   productivity_stats,
     command = productivity_output |>
+      select(origSiteID, names, result) |>
       unnest(result) |>
       ungroup() |>
-      select(-data, -model, -aic, -prediction) |>
       fancy_stats()
   ),
 
@@ -104,8 +110,10 @@ analysis_plan <- list(
       pivot_longer(cols = -c(origSiteID, functional_group, data),
                    names_sep = "_",
                    names_to = c(".value", "names")) |>
+      unnest(glance) |>
+      select(origSiteID:adj.r.squared, AIC) |>
       # select best model
-      filter(aic == min(aic))
+      filter(AIC == min(AIC))
   ),
 
   # prediction and model output
@@ -131,57 +139,57 @@ analysis_plan <- list(
   tar_target(
     name =   cover_stats,
     command = cover_output |>
+      select(origSiteID, functional_group, names, result) |>
       unnest(result) |>
       ungroup() |>
-      select(-data, -model, -aic, -prediction) |>
       fancy_stats()
   ),
 
 
-  # bryophytes, lichen and litter
-  tar_target(
-    name = cover_bryo_model,
-    command = run_full_model(dat = comm_structure |>
-                               filter(functional_group %in% c("Litter", "Bryophytes", "Lichen"),
-                                      grazing != "Natural"),
-                             group = c("origSiteID", "functional_group"),
-                             response = delta,
-                             grazing_var = grazing_num) |>
-      # make long table
-      pivot_longer(cols = -c(origSiteID, functional_group, data),
-                   names_sep = "_",
-                   names_to = c(".value", "names")) |>
-      # select best model
-      filter(aic == min(aic))
-  ),
-
-  tar_target(
-    name = cover_bryo_output,
-    command = make_prediction(cover_bryo_model)
-  ),
-
-  # prepare model output
-  tar_target(
-    name = cover_bryo_prediction,
-    command = cover_bryo_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, functional_group, output) |>
-      unnest(output) |>
-      rename(prediction = fit) |>
-      mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
-  ),
-
-
-  # stats
-  tar_target(
-    name =   cover_bryo_stats,
-    command = cover_bryo_output |>
-      unnest(result) |>
-      ungroup() |>
-      select(-data, -model, -aic, -prediction) |>
-      fancy_stats()
-  ),
+  # # bryophytes, lichen and litter
+  # tar_target(
+  #   name = cover_bryo_model,
+  #   command = run_full_model(dat = comm_structure |>
+  #                              filter(functional_group %in% c("Litter", "Bryophytes", "Lichen"),
+  #                                     grazing != "Natural"),
+  #                            group = c("origSiteID", "functional_group"),
+  #                            response = delta,
+  #                            grazing_var = grazing_num) |>
+  #     # make long table
+  #     pivot_longer(cols = -c(origSiteID, functional_group, data),
+  #                  names_sep = "_",
+  #                  names_to = c(".value", "names")) |>
+  #     # select best model
+  #     filter(aic == min(aic))
+  # ),
+  #
+  # tar_target(
+  #   name = cover_bryo_output,
+  #   command = make_prediction(cover_bryo_model)
+  # ),
+  #
+  # # prepare model output
+  # tar_target(
+  #   name = cover_bryo_prediction,
+  #   command = cover_bryo_output |>
+  #     # merge data and prediction
+  #     mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+  #     select(origSiteID, functional_group, output) |>
+  #     unnest(output) |>
+  #     rename(prediction = fit) |>
+  #     mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
+  # ),
+  #
+  #
+  # # stats
+  # tar_target(
+  #   name =   cover_bryo_stats,
+  #   command = cover_bryo_output |>
+  #     unnest(result) |>
+  #     ungroup() |>
+  #     select(-data, -model, -aic, -prediction) |>
+  #     fancy_stats()
+  # ),
 
 
   ### DIVERSITY
@@ -199,15 +207,17 @@ analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, diversity_index, data),
                      names_sep = "_",
-                     names_to = c(".value", "names"))
+                     names_to = c(".value", "names")) |>
+        unnest(glance) |>
+        select(origSiteID:adj.r.squared, AIC) |>
 
-      models |>
+      # models |>
         # select best model
-        filter(aic == min(aic)) |>
-        filter(!(origSiteID == "Alpine" & diversity_index == "richness")) |>
-        # force quadratic model for alpine richness, because it visually fits better
-        bind_rows(models |>
-                    filter(origSiteID == "Alpine" & diversity_index == "richness" & names == "quadratic"))
+        filter(AIC == min(AIC)) #|>
+        # filter(!(origSiteID == "Alpine" & diversity_index == "richness")) |>
+        # # force quadratic model for alpine richness, because it visually fits better & R squared is higher
+        # bind_rows(models |>
+        #             filter(origSiteID == "Alpine" & diversity_index == "richness" & names == "quadratic"))
 
     }
 
@@ -237,19 +247,12 @@ analysis_plan <- list(
   tar_target(
     name =   diversity_stats,
     command = diversity_output |>
+      select(origSiteID, diversity_index, names, result) |>
       unnest(result) |>
       ungroup() |>
-      select(-data, -model, -aic, -prediction) |>
       fancy_stats()
   )
 
-
-
-
-
-  # check models
-  # tar_quarto(name = model_check,
-  #            path = "R/model_output.qmd"),
 
   # # model selection cover and grazing levels
   # tar_target(
