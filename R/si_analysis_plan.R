@@ -43,8 +43,7 @@ si_analysis_plan <- list(
   tar_target(
     name = cover_CN_model,
     command = run_full_model(dat = functional_group_cover |>
-                               filter(!functional_group %in% c("legume", "shrub"),
-                                      grazing %in% c("Control", "Natural")) |>
+                               filter(grazing %in% c("Control", "Natural")) |>
                                select(-grazing_num),
                              group = c("origSiteID", "functional_group"),
                              response = delta,
@@ -53,8 +52,10 @@ si_analysis_plan <- list(
       pivot_longer(cols = -c(origSiteID, functional_group, data),
                    names_sep = "_",
                    names_to = c(".value", "names")) |>
+      unnest(glance) |>
+      select(origSiteID:adj.r.squared, AIC) |>
       # select best model
-      filter(aic == min(aic))
+      filter(AIC == min(AIC))
   ),
 
   # prediction and model output
@@ -82,9 +83,9 @@ si_analysis_plan <- list(
   tar_target(
     name =   cover_CN_stats,
     command = cover_CN_output |>
+      select(origSiteID, functional_group, names, result) |>
       unnest(result) |>
       ungroup() |>
-      select(-data, -model, -prediction) |>
       fancy_stats()
   ),
 
@@ -105,8 +106,10 @@ si_analysis_plan <- list(
       pivot_longer(cols = -c(origSiteID, diversity_index, data),
                    names_sep = "_",
                    names_to = c(".value", "names")) |>
+      unnest(glance) |>
+      select(origSiteID:adj.r.squared, AIC) |>
       # select best model
-      filter(aic == min(aic))
+      filter(AIC == min(AIC))
   ),
 
   # prediction and model output
@@ -133,9 +136,9 @@ si_analysis_plan <- list(
   tar_target(
     name =   diversity_CN_stats,
     command = diversity_CN_output |>
+      select(origSiteID, diversity_index, names, result) |>
       unnest(result) |>
       ungroup() |>
-      select(-data, -model, -prediction)  |>
       fancy_stats()
   )
 
