@@ -1,0 +1,77 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+## Checking model assuptions
+
+```{r}
+#| label: set-up
+#| echo: false
+
+library(tidyverse)
+library(performance)
+library(targets)
+library(tarchetypes)
+```
+
+
+### Annual plant productivity
+
+```{r}
+#| label: productivity-check
+#| results: asis
+
+tar_load(productivity_model)
+
+productivity_model |> 
+  mutate(check = map(model, check_model)) |> 
+  select(origSiteID, names, check) |> 
+  pwalk(.f = function(origSiteID, names, check, ...){
+  cat(paste("##", origSiteID, names, "\n"))
+  print(check)
+  cat("\n")
+})
+  
+```
+
+
+### Functional group cover
+
+```{r}
+#| label: cover-check
+#| results: asis
+
+tar_load(cover_model)
+
+cover_model |> 
+  mutate(check = map(model, check_model)) |> 
+  select(origSiteID, functional_group, names, check) |> 
+  pwalk(.f = function(origSiteID, functional_group, names, check, ...){
+  cat(paste("##", origSiteID, functional_group, names, "\n"))
+  print(check)
+  cat("\n")
+})
+  
+```
+
+
+### Diversity
+
+```{r}
+#| label: diversity-check
+#| results: asis
+
+tar_load(diversity_model)
+
+diversity_model |> 
+  mutate(check = map(model, check_model)) |> 
+  select(origSiteID, diversity_index, names, check) |> 
+  pwalk(.f = function(origSiteID, diversity_index, names, check, ...){
+  cat(paste("##", origSiteID, diversity_index, names, "\n"))
+  print(check)
+  cat("\n")
+})
+  
+```
