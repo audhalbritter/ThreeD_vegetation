@@ -8,35 +8,38 @@ run_full_model <- function(dat, group, response, grazing_var){
            .grazing = {{grazing_var}}) |>
     group_by(across(all_of({{group}})))|>
     nest() |>
+    # run linear, log and quadratic model
     mutate(model_linear = map(data, ~lm(.response ~ warming * .grazing * Namount_kg_ha_y, data = .)),
+           model_log = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
            model_quadratic = map(data, ~lm(.response ~ warming * .grazing * poly(Namount_kg_ha_y, 2), data = .)),
-           aic_linear = map(.x = model_linear, .f = ~ safely(AIC)(.x)$result),
-           aic_linear = as.numeric(aic_linear),
-           aic_quadratic = map(.x = model_quadratic, .f = ~ safely(AIC)(.x)$result),
-           aic_quadratic = as.numeric(aic_quadratic))
+
+           # get aic and r squared
+           glance_linear = map(.x = model_linear, .f = ~ safely(glance)(.x)$result),
+           glance_log = map(.x = model_log, .f = ~ safely(glance)(.x)$result),
+           glance_quadratic = map(.x = model_quadratic, .f = ~ safely(glance)(.x)$result))
 
 }
+
 
 # 3 way interaction model with log transformed N
-run_model <- function(dat, group, response, grazing_var){
-
-  dat |>
-    rename(.response = {{response}},
-           .grazing = {{grazing_var}}) |>
-    group_by(across(all_of({{group}})))|>
-    nest() |>
-    mutate(model = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
-           result = map(model, tidy),
-           prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
-
-}
+# run_model <- function(dat, group, response, grazing_var){
+#
+#   dat |>
+#     rename(.response = {{response}},
+#            .grazing = {{grazing_var}}) |>
+#     group_by(across(all_of({{group}})))|>
+#     nest() |>
+#     mutate(model = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
+#            result = map(model, tidy),
+#            prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
+#
+# }
 
 
 make_prediction <- function(model){
 
   model |>
     mutate(result = map(model, tidy),
-           sum_stats = map(model, glance),
            prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
 
 
