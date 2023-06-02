@@ -34,16 +34,14 @@ make_annual_climate_figure <- function(annual_climate){
 
 
 # daily climate in control and warming
-make_daily_climate_figure <- function(daily_temp){
-
-  tar_load(col_palette)
+make_daily_climate_figure <- function(daily_temp, col_palette){
 
   daily_climate <- daily_temp |>
     filter(Nlevel == 1,
            grazing == "Control") |>
     ggplot(aes(x = date, y = value, colour = warming)) +
     geom_line() +
-    scale_color_manual(values = col_palette) +
+    scale_color_manual(name = "", values = col_palette) +
     labs(x = "", y = "soilmoisture in %         temperature in °C",
          tag = "a)") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +
@@ -63,7 +61,7 @@ make_daily_climate_figure <- function(daily_temp){
     geom_violin(draw_quantiles = c(0.5)) +
     # geom_point(size = 2, shape = 16) +
     # geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2) +
-    scale_fill_manual(values = col_palette) +
+    scale_fill_manual(name = "", values = col_palette) +
     annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
     labs(x = "", y = "",
          tag = "b)") +
