@@ -63,8 +63,8 @@ make_functional_group_biomass_figure <- function(biomass){
     scale_fill_manual(values = c("darkgreen", "limegreen", "lawngreen", "plum4", "plum2", "orange", "peru"), name = "") +
     labs(y = "Proportional functional group composition",
          x = bquote(Nitrogen~(kg~ha^-1~y^-1))) +
-    facet_grid(warm_site ~ grazing) +
-    theme_minimal() +
+    facet_grid(origSiteID * warming ~ grazing) +
+    theme_bw() +
     theme(legend.position = "top",
           text = element_text(size = 12))
 
