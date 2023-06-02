@@ -9,3 +9,10 @@ tar_make()
 tar_visnetwork()
 
 fs::file_show("manuscript/manuscript.pdf")#display pdf
+
+remotes::install_github("claudiozandonella/trackdown",
+                        build_vignettes = TRUE)
+library(trackdown)
+trackdown::upload_file(file = "Main.qmd",
+                       hide_code = TRUE,
+                       path_output = "Main.html")
