@@ -1,0 +1,495 @@
+---
+format: html
+title: Grazing can mitigate global change in alpine grasslands in Norway
+execute:
+  echo: false
+  
+bibliography: bibliography.bib
+csl: nature.csl
+---
+
+```{r}
+#| label: set-up
+#| echo: false
+#| message: false
+library(targets)
+library(tarchetypes)
+library(tidyverse)
+library(lubridate)
+library(gt)
+```
+
+
+Aud H. Halbritter^1^, Jake M. Alexander^2^, Gunnar Austrheim^3^, Deborah Goldberg^4^, Kari Klanderud^5^, Richard J. Telford^1^, Yan Yang^6^, and Vigdis Vandvik^1^
+
+^1^Department of Biological Sciences and Bjerknes Center for Climate Research, Bergen, Norway
+^2^Institute of Integrative Biology, ETH Zürich, Switzerland
+^3^Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Norway
+^4^Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA
+^5^Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway
+^6^Institute of Mountain Hazards and Environment, CAS, Chendu, China
+
+Correspondence: Aud H. Halbritter <aud.halbritter@uib.no>
+
+
+## Abstract (271/200 words)
+
+Reduced grazing, warmer climate, and atmospheric nitrogen deposition are some of the main global change drivers in alpine environments and they impact biodiversity through the same underlying mechanism.
+They interact and occur simultaneously, and while warming and nitrogen addition often have a negative effect on biodiversity, for grazing this depends on grazing intensity and productivity. 
+Intermediate grazing can increase diversity when productivity is high enough (= competitive release), and has the potential to mitigate negative impacts of warming and nitrogen addition, which increase productivity.
+In addition, grazing occurs locally and at shorter time scales, it can therefore more easily be manipulated.
+To study the single and interactive effects of these three drivers on alpine biodiversity and under which conditions grazing is beneficial for diversity, we manipulated warmer climate (transplant to lower elevation), nitrogen deposition (fertilizer) and grazing (removal of biomass) along an elevational gradient (alpine and sub-alpine site) and assessed change in vascular plant composition over 3 years.
+
+At low productivity (alpine site) warming in combination with increased nitrogen decreases diversity, but simulated grazing can mitigate this, especially at high nitrogen levels (> 10 kg N ha^-1^ y^-1^).
+However, at higher productivity (sub-alpine site), nitrogen addition was the main driver for decrease in diversity.
+The change in species composition was mainly driven by increased productivity and abundance of graminoids and a decrease for forbs.
+The changes in community composition in the alpine were mainly driven by changes in abundance (evenness), while three years of treatment in the sub-alpine had already led to species loss.
+This study shows that grazing can benefit biodiversity if grazing intensity is high enough for competitive release, and thus has the potential to be a ecosystem management tool.
+
+
+## Main (3500 words)
+
+Mountains support livelihoods for hundreds of millions, by providing biodiversity, and important ecosystem functions and services such as clean water, carbon sequestration, and grazing pastures [@egan2017mountain].
+Alpine ecosystems are temperature limited, have low nutrient availability and have been managed for grazing and fodder production within socio-ecological systems of transhumance or mixed agriculture for centuries [@Austrheim2008-nu; @Bunce2004-kn].
+During the last decades, mountains have been impacted by multiple global change drivers such as land-use change, climate change and pollution threatening biodiversity, ecosystem functions and services and human well-being (some IPBES report).
+<!-- I have difficulties to find a transition to the next paragraph and to say why I focus on these 3 drivers: grazing = main land-use change globally (IPCC, 2019: Summary for Policymakers) and reduced grazing is one of the problems in mountains; mountains are warming faster than global average [@pepin2015elevation] and nitrogen one of the most important global change drivers (Galloway 2008). -->
+
+These global change drivers can occur simultaneously and impact plant communities through the same underlying mechanisms: change in productivity and biomass (@fig-concept a).
+Productivity and biomass are linked and higher productivity generally increases the amount of biomass, which generates a positive feedback to plant productivity.
+Warmer climate and nitrogen deposition often (in)directly increase nutrient availability (e.g. longer growing season), with a positive effect on plant productivity and biomass (arrows in @fig-concept b).
+Grazing affects the same mechanisms in a more complex way, by increasing productivity via nutrient input (urin, dung), and also decreasing biomass.
+<!-- This are probably a bit more complicated, when considering grazing history and moisture, e.g. Milchunas et al. Am Nat 1987. In our case, long-term grazing history and moist environment, so a humped shape relationship should be ok. Mabye that needs to be claryfied -->
+The net outcome for productivity depends on the grazing intensity, grazing history and environmental context (e.g. moisture, temperature) and is a non-linear relationship with the highest productivity at intermediate grazing intensity [@mcnaughton1979grazing; @cingolani2005grazing].
+
+The relationship between biomass/productivity and diversity is also non-linear and context dependent (@fig-concept b).
+Colder and nutrient-poor ecosystems, characterised by facilitative species interactions [@bertness1994positive; choler2001facilitation], often support low-productivity plant communities with little biomass, but are often relatively species rich [@milchunas1993quantitative; @grime1973competitive].
+Warmer and productive plant communities usually have increased competition for light and nutrients among species and lower species diversity [@grime1973competitive].
+Removal of biomass can therefore increase diversity, where productivity is high and grazing leads to competitive release (grey area in @fig-concept b and c), but less so in low productive systems [@Austrheim2008-nu; @Bernes2015-yg].
+Grazing is generally managed at a local and short-term scale and can therefore be more easily manipulated compared to warming and nitrogen addition and thus has the potential to be an ecosystem management tool (REF).
+Surprisingly few studies have looked at the interaction of multiple global change drivers in alpine grassland.
+
+
+::: {#fig-concept layout-ncol=1}
+
+![](figures/3_drivers.jpg){#fig-concept}
+
+Conceptual figure of global change impact on plant communities. a) Grazing, climate warming and nitrogen deposition impact diversity through the same mechanism (productivity and biomass). b) Hump-shaped relationship between biomass/productivity and diversity. The arrows indicate the direction in which the different global change drivers push productivity. c) The effect of intermediate grazing on diversity in relation to productivity. Positive values show an increase and negative values a decrease in diversity. The arrows indicate that climate warming and nitrogen deposition increase productivity The dashed arrows show in which direction grazing would push diversity. The grey are shows the conditions when grazing is benefitial for diversity (competitive release).
+:::
+
+```{r}
+#| label: fig-concept
+#| echo: false
+#| eval: false
+#| fig-cap: Conceptual figure
+
+knitr::include_graphics("figures/3_drivers.jpg")
+
+
+```
+
+The aim of this study is to disentangle the single and combined effects of warmer climate, nitrogen addition and grazing on plant productivity and diversity in alpine grasslands.
+In addition, we test if grazing can mediate negative impacts of warming and nitrogen addition on biodiversity. 
+We used a fully factorial and replicated field experiment along an elevational gradient, representing a productivity gradient, in Western Norway.
+Alpine plant communities were exposed to warmer climate (transplant to lower elevation), increased nitrogen deposition (N addition), and simulated grazing by removing biomass at two different intensities.
+We simulated grazing because our main interest was in the effect of biomass removal. 
+We hypothesised that warming and nitrogen addition increase annual aboveground plant productivity and decrease vascular plant diversity, by favouring competitive graminoids (Klanderud & Totland 2005). 
+We also hypothesised that intermediate grazing can reduce productivity, and avoid species loss.
+<!-- Unclear what the last prediction should be: stonger response to warming and nitrogen or would we suspect that less grazing would do the trick? -->
+Finally, we expect stronger responses at higher elevation/low productive site, because it is more temperature and nutrient limited and facilitation is more important.
+
+
+
+## Results
+
+### Global change affects microclimate
+
+```{r}
+#| label: summer-temp
+#| echo: false
+#| eval: false
+
+tar_load(daily_temp)
+
+climate <- daily_temp |>
+    mutate(month = month(date),
+           year = year(date)) |>
+    filter(month %in% c(5, 6, 7, 8, 9),
+           grazing == "Control",
+           Namount_kg_ha_y == 0)
+
+range <- climate |> 
+  group_by(variable, origSiteID) |> 
+  summarise(mean = mean(value),
+            min = min(value),
+            max = max(value))
+
+X <- climate |> 
+  group_by(destSiteID, variable) |> 
+  summarise(mean = mean(value)) |> 
+  pivot_wider(names_from = destSiteID, values_from = mean) |> 
+  mutate(diff_low = Vik - Joa,
+         diff_up = Joa - Lia,
+         diff = round((diff_low + diff_up)/2, 2)) |> 
+  select(variable, diff)
+
+Y <- climate |> 
+  group_by(year, variable) |> 
+  summarise(mean = round(mean(value), 2)) |>
+  arrange(variable, -mean)
+
+```
+
+The temperature varied on average between the sites (~400 m) by 3.33 °C for air temperature, 3.26 °C for ground temperature, and 3.05 °C for soil temperature.
+Soil moisture was highest at the alpine site (0.388 %), and decreased with elevation (subalpine: 0.307 %, lowland: 0.259 %).
+2021 was the warmest and driest year with an average air temperature of 10.18 °C and 0.25 % soil moisture content. 2019 was the coldest and wettest year with an average air temperature of 6.18 °C and 0.4 % soil moisture content (Supplement Figure S1).
+
+<!-- Check these values!!! -->
+Average summer temperature was 3.16 °C (air), 3.22 °C (ground), and 3.10 °C (soil) higher in the warming treatment (transplant) compared to the controls across all the sites (Supplement Figure S1).
+Soil moisture was 8 % lower in the warming treatment compared to the control.
+Temperature did not differ among the grazing or different nitrogen addition levels.
+However, soil moisture was higher in the intensive grazing treatment, and decreased with increasing nitrogen addition.
+
+
+### Annual productivity and functional group cover
+
+Annual productivity decreased with elevation and was almost six times higher in the sub-alpine, compared to the alpine site.
+At the alpine site, annual productivity increased five times with warming and even more in combination with nitrogen addition.
+Productivity was highest at 100 g N m^-2^ y^-1^, but decreased at the highest nitrogen level (concave relationship; WxN^2^).
+Simulated grazing had no effect on productivity, but tended to reduce productivity, with warming and nitrogen addition (no significant effect!).
+At the sub-alpine site, nitrogen addition increased productivity, except for the highest level (concave relationship), while simulated grazing reduces productivity.
+There was no effect of warming.
+
+Graminoid cover increased with warming at the sub-alpine site, but not at the alpine site.
+Warming also tended to reduce forb cover (similar effect size compared to grminoids), but this was not significant.
+Nitrogen addition and grazing had no effect on graminoid and forb cover.
+And none of the drivers had any effect on sedge or legume cover.
+
+
+```{r}
+#| label: fig-prod-cover
+#| echo: false
+#| fig-cap: Global change impacts on productivity and functional group cover. a) Annual productivity (g m^-2^ y^-1^) and b) change in graminoid, forb, sedge or legume cover between 2019 (before treatment) and 2022 (after 4 years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The colours indicate ambient (grey) and warm conditions (pink) and the dots show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. Note that sedge and legumes only occured in high enough abundance at one of the locations to run a model.
+
+tar_load(prod_cover_figure)
+prod_cover_figure
+```
+
+
+```{r}
+#| label: tab-prod-stats
+#| echo: false
+#| tab-cap: stats
+
+tar_load(productivity_stats)
+tar_load(cover_stats)
+
+productivity_stats |> 
+  mutate(functional_group = "productivity") |> 
+    bind_rows(cover_stats) |> 
+  select(-names, -std.error,	-statistic) |> 
+  pivot_wider(names_from = functional_group, 
+              values_from = c(estimate, p.value)) |>
+  select(term, estimate_productivity, p.value_productivity, estimate_graminoid, p.value_graminoid, estimate_forb, p.value_forb, estimate_sedge, p.value_sedge, estimate_legume, p.value_legume) |> 
+  gt() |> 
+  cols_label(term = "Term",
+             estimate_productivity = "Estimate",
+             p.value_productivity = "P value") |> 
+  tab_spanner(label = "Productivity", columns = c(2, 3)) |> 
+  cols_label(estimate_graminoid = "Estimate",
+             p.value_graminoid	= "P value") |>
+  tab_spanner(label = "Graminoid", columns = c(4, 5)) |> 
+  cols_label(estimate_forb = "Estimate",
+             p.value_forb	= "P value") |> 
+  tab_spanner(label = "Forb", columns = c(6, 7)) |> 
+  cols_label(estimate_sedge = "Estimate",
+             p.value_sedge	= "P value") |> 
+  tab_spanner(label = "Sedge", columns = c(8, 9)) |> 
+    cols_label(estimate_legume = "Estimate",
+             p.value_legume	= "P value") |> 
+  tab_spanner(label = "Legume", columns = c(10, 11)) |>
+  fmt_number(columns = c(2, 4, 6, 8, 10), decimals = 1) |> 
+  fmt_number(columns = c(3, 5, 7, 9, 11), decimals = 3) |> 
+    tab_row_group(
+    label = "Sub-alpine",
+    rows = 13:24
+  ) |>  
+  tab_row_group(
+    label = "Alpine",
+    rows = 1:12
+  ) |> 
+   tab_caption(caption = md("Stats table"))
+
+```
+
+
+
+### Diversity
+
+At the alpine site, there was a three-way interaction among warming, nitrogen addition and grazing on diversity and evenness.
+Nitrogen addition and warming alone had no effect on diversity or evenness.
+However, warming in combination with nitrogen addition above 10 kg N ha^-1^ y^-1^, tended to decreased diversity and evenness.
+Simulated grazing reduced this negative impact on diversity and evenness, especially the intensive grazing treatment and for nitrogen addition up to 100 kg N ha^-1^ y^-1^.
+These negative impacts were not reduced above 150 kg N ha^-1^ y^-1^.
+At the sub-alpine site, diversity decreased with nitrogen addition (*P* = 0.05), and for evenness there was a trend (*P* = 0.077).
+Non of the drivers affected richness at any of the sites.
+
+<!-- Interpretation -->
+Interestingly, at the alpine site, change in diversity was driven by change in abundance (evenness), while at the sub-alpine site, the change in diversity was driven by species loss (richness).
+This suggests that change in species composition happens faster in the warmer and more productive sub-alpine site.
+
+```{r}
+#| label: fig-diversity
+#| echo: false
+#| warning: false
+#| fig-cap: Global change impact on diversity indices. Change in species richness, diversity and evenness between 2019 (before treatment) and 2022 (after 4 years of treatment) plotted against nitrogen addition (kg N ha^-1^ y^-1^) at the alpine and sub-alpine site. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The colours indicate ambient (grey) and warm climate (pink) and the shapes show the different grazing treatments, control (round), medium simulated grazing (square), and intensive simulated grazing (triangle). The points show the data, while the lines indicate model predictions with confidence intervals.
+
+tar_load(diversity_figure)
+diversity_figure
+
+```
+
+
+```{r}
+#| label: tab-div-stats
+#| echo: false
+#| tab-cap: stats
+
+tar_load(diversity_stats)
+
+diversity_stats |> 
+  select(-names, -std.error,	-statistic) |> 
+  pivot_wider(names_from = diversity_index, 
+              values_from = c(estimate, p.value)) |>
+  select(term, estimate_richness, p.value_richness, estimate_diversity, p.value_diversity, estimate_evenness, p.value_evenness) |> 
+  gt() |> 
+  cols_label(term = "Term",
+             estimate_richness = "Estimate",
+             p.value_richness = "P value") |> 
+  tab_spanner(label = "Richness", columns = c(2, 3)) |> 
+  cols_label(estimate_diversity = "Estimate",
+             p.value_diversity	= "P value") |>
+  tab_spanner(label = "Diversity", columns = c(4, 5)) |> 
+  cols_label(estimate_evenness = "Estimate",
+             p.value_evenness	= "P value") |> 
+  tab_spanner(label = "Evenness", columns = c(6, 7)) |> 
+  fmt_number(columns = c(2,4,6), decimals = 1) |> 
+  fmt_number(columns = c(3,5,7), decimals = 3) |> 
+    tab_row_group(
+    label = "Sub-alpine",
+    rows = 13:20
+  ) |>  
+  tab_row_group(
+    label = "Alpine",
+    rows = 1:12
+  ) |> 
+   tab_caption(caption = md("Stats table"))
+
+```
+
+
+
+
+## Methods
+
+### Study area and experimental design
+
+Three semi-natural, species rich, and perennial grassland sites (469, 920, 1290 m a.s.l) were established along an elevational gradient in Western Norway (@fig-experiment; 7.17°E, 60.88°N).
+The sites were located on calcareous bedrock with loamy sand and dominantly grazed by sheep, goats, deer and reindeer.
+Other factors such as land-use history, vegetation type, slope and exposure were kept as constant as possible.
+The sites were 400 m apart in elevation, corresponding to a temperature difference of approximately 3°C in summer air temperature over the duration of the experiment (FIG/TABL in appendix).
+Annual precipitation was similar at the two lowest sites and approximately 800 mm higher at the higest site (modelled climate data from the period of 2008 - 2021 by met.no).
+
+
+::: {#fig-experiment layout-ncol=1}
+
+![](figures/ExperimentalDesign_2023.png){#fig-concept}
+
+Conceptual figure of experimental design with three sites along a gradient from high (sub-alpine) to low productivity (alpine). The lowest site has only warmed plots. The treatments are control (grey), warming (pink), nitrogen deposition (shades of brown), crossed with three levels og simulated grazing; none (empty), intermediate (one scissor) and intensive (two scissors) and natural grazing outside the grazing exclosure (dashed line). The arrows indicate the direction of transplant.
+Inset shows map of studies site in Western Norway.
+:::
+
+```{r}
+#| label: fig-experiment
+#| echo: false
+#| eval: false
+#| fig-cap: Map of study sites and experimental design. 0) Map of studies sites in Western Norway. A) Experimental design at three sites along a gradient from low (high elevation) to high productivity (low elevation). The treatments are control (grey), warming (dark grey) , nitrogen deposition (gradient of green), warming and nitrogen deposition (gradient of brown), crossed with three clipping levels, none (empty), intermediate (one scissor) and intensive (two scissors) and natural grazing outside the grazing exclosure (stippled line). The arrows indicate the direction of transplant.
+
+knitr::include_graphics("figures/ExperimentalDesign_2023.png")
+
+```
+
+<!-- Should I describe the natural grazing treatment? -->
+In summer 2019, ten experimental blocks containing six 50 x 50 cm plots (*n* = 120) were established at each site (@fig-experiment; for more details see ThreeD data paper) and fenced in early spring 2020.
+Each plot received a combination of warming, nitrogen addition and grazing treatments in two steps.
+First, each block was randomly assigned a nitrogen level, to avoid nitrogen contamination between the plots within the blocks.
+Second, the warming and grazing treatments were randomized within each block.
+
+At the end of the growing season in 2019, half of the plots of entire plant communities including roots were cut to a depth of 5 - 25 cm and transplanted to lower elevation, simulating an approximately 3.0 °C warmer growing season temperature.
+The control plots were not excavated, because the effect of transplanting should not affect species composition [@Vandvik2020-hu; @Yang2018-uq].
+If necessary, loose soil was carefully removed from the underside of the turf, or local soil was added to the gap or around the edges to ensure the soil surface was in plane with the surrounding vegetation
+
+Each block received one of the following nitrogen treatments: 0, 0.5, 1, 5, 10, 50, 100, 150 kg N ha^−1^ yr^−1^, where three blocks were controls and received no nitrogen addition. 
+Nitrogen was added as slow dissolving fertilizer as pellets (YaraBela OPTI-NS 27-0-0 (4S)). 
+We used oxidised nitrogen (NOx) formed mainly by combustion processes [@holland2005nitrogen], which are the main sources of atmospheric nitrogen deposition in remote regions (i.e., away from intensive agriculture and other sources or reduced nitrogen).
+The nitrogen was added once at the start and once in the middle of the growing season from 2020 - 2022, except in 2020 at the lowest site, where the whole dose of fertilizer was applied at the start of the season.
+<!-- Is this important? Should it be at the start of the paragraph or move to appendix? -->
+The natural annual atmospheric nitrogen deposition in Western Norway is 1.5-3.5 kg N ha^−1^ yr^−1^.
+The critical load for changing species composition in alpine grasslands is approximately 5-10 kg N ha^−1^ yr^−1^.
+We chose a range of nitrogen levels that were below and well above this critical load.
+
+Finally, each plot was assigned one of three grazing treatments: grazing exclosure (control), simulated intermediate grazing, or simulated intensive grazing.
+We simulated grazing by manually clipping the vegetation using scissors, because our main focus was the effect of biomass removal and not the fertilization and trampling effect of the grazers.
+The simulated intermediate and intensive grazing plots were clipped two or four times about 2-3 cm above the ground during each growing season.
+The plots located outside the fence were naturally grazed by domestic and wild animals to control for the difference between grazing and clipping (i.e. selectivity of grazers and nutrients addition and trampling of grazers).
+
+<!-- Move to appendix? or read this in the data paper? -->
+In 2020, the intensive grazing plots at the highest site (Liahovden) was only cut three times because it was a short growing season due to late snowmelt.
+An additional cut at the end of the growing season would not have yielded any biomass.
+In 2021 and 2022, we did not cut Carex species before the species composition was analysed in early August (first and second cut), because they are difficult to identify without leaf tips.
+To simulate the natural grazing regime at each site, and to avoid accumulation of biomass, the biomass within the fence was removed at the end of each field season.
+
+
+### Data collection
+
+Microclimate data was recorded continuously (every 15 min), between July 2019 and September 2022, using Tomst TM4 loggers [@Wild2019-nk].
+Air, ground and soil temperature as well as soil moisture were measured at 15, 0 and -6 cm above or below the ground in all warming and grazing treatments inside the fence and at 0, 1, 10, 100 and 150 kg N ha^-1^ y^-1^ (total logger: n = 72 ).
+At the high alpine site in Norway, the block with 0.5 kg N ha^-1^ y^-1^ also received climate loggers, because this block are located further away from the other blocks.
+
+To estimate annual above ground plant productivity, the biomass in all plots was harvested 2-3 cm above the ground at peak growing season in 2022.
+The biomass was sorted to plant functional groups (graminoids with cyperaceae sorted separately, forbs, legumes, shrubs, bryophytes, lichen and litter; dead unattached plant material), dried at 65 °C for 72h and weighed. 
+For the simulated grazing treatments the biomass of each cut (see above) during the growing season was summed to calculate annual productivity.
+<!-- Do we want to say this and present productivity at the 3 sties? -->
+For the natural grazing treatment, annual productivity is not available, because the biomass was removed by the grazers.
+However, we estimated productivity using cages etc.
+
+Plant species composition was recorded annually at peak growing season in all plots before the treatment in 2019 and after 3 years in 2022.
+We visually estimated the percentage cover of all vascular plant species to the nearest 1 % on the 25 x 25 cm inner area of each plot.
+The total coverage in each plot can exceed 100, due to layering of the vegetation.
+For species identification we followed the nomenclature from Lid and Lid @Lid2010-ck.
+
+
+### Statistical analysis
+
+The effects of warming, nitrogen addition and simulated grazing and their interactions on annual productivity was analysed separately for the alpine and sub-alpine sites using a fixed effects linear model with a normal error distribution.
+The model contained a three-way interaction of warming, nitrogen addition and simulated grazing as predictors.
+<!-- Is this necessary? -->
+The experimental design, did not allow running a mixed-effects model, because there is no replication at the plot level.
+Simulated grazing was transformed to a numerical scale with 0 (control), 2 (intermediate) or 4 (intensive) cuts.
+<!-- unsure how to phrase this -->
+The nitrogen addition treatment levels were unevenly distributed with some very high levels, and we did not expect a linear response along this gradient.
+We therefore used 3 models using different terms for the nitrogen addition treatment to reflect different assumptions for the response to nitrogen addition:
+a) a linear term as a null model, b) a logarithmic term (log(nitrogen)) to account for the unevenness in the nitrogen levels, and c) a quadratic term (nitrogen^2^) allowing for a concave/convex relationship.
+We compared the AIC values (and R^2^ as well?) of all three models and chose the one with the lowest AIC values.
+If the models had the same AIC value (or within 2 units?), we chose the simplest model (need to check if that is the case and unsure which one is the simplest? linear vs. log).
+Using this approach means that we used different models, but we used to use the model that fits the data best.
+
+To test the effect of the three global change drivers on change in plant functional group cover and diversity, using a fixed effects linear model with a normal error distribution.
+Change in functional group cover was calculated as the cover of each functional group (graminoids, forbs, sedges and legumes) at the end of the experiment in 2022 minus the cover before the start of the treatments in 2019.
+<!-- Maybe drop this? -->
+For sedges there was only enough data to run the models from the alpine site, and for legumes only at the sub-alpine site.
+We calculated 3 diversity indices: species richness (number of species), diversity and species evenness (Shannon diversity/log[richness]) using the vegan package [@oksanen2022vegan] and calculated the change in each diversity index in the same way as for functional group cover.
+For each of these response variables we used the same model approach as described above.
+
+## Data availability
+All data underlying these analyses (including raw and processed data) are openly available on the OSF repository (REF).
+
+
+## Code availability
+All R code for downloading the data from the repository, and (hopefully) reproducing data transformation, analyses and producing this manuscript are available on GitHub (the final version will be on zenodo).
+
+
+## References
+
+
+## Supplementary Information
+
+### Microclimate and global change treatment effects
+
+Warming treatment over time and the effect of the transplanting to lower elevation.
+Figure shows:
+
+- Summer temperature is higher in the warming treatment
+- Soil moisture is generally lower in the warming treatment
+- 2021 was very warm and dry
+
+```{r}
+#| label: fig-daily-climate
+#| echo: false
+#| warning: false
+#| fig-cap: a) Daily microclimate measured over the period of the experiment in the alpine and subalpine sites and b) average microclimate between May and September. Shown are air (30 cm), ground (0 cm), soil temperature (-5 cm), and soil moisture measured with Tomst loggers between August 2019 and October 2022. Colour indicates the ambient (grey) and warming (pink) treatment.
+
+
+tar_load(daily_climate_figure)
+daily_climate_figure
+
+```
+
+
+Effect of grazing and nitrogen addition treatment on microclimate.
+
+- There was no effect of grazing in microclimate
+- Nitrogen addition had no effect on microclimate except for soil moisture decreasing in the alpine site with increasing nitrogen.
+
+```{r}
+#| label: fig-climate-treatment
+#| echo: false
+#| warning: false
+#| fig-cap: Grazing and nitrogen addition treatment effect on microclimate. a) grazing (control (grey), medium (orange), and intensive (red) grazing) and b) nitrogen addition (gradient from light yellow to dark purple indicate Nitrogen addition in kg N ha^-1^ y^-1^) for average summer air (30 cm), ground (0 cm), soil temperature (-5 cm), and soil moisture measured.
+
+tar_load(climate_treatment_figure)
+climate_treatment_figure
+
+```
+
+
+
+
+### Functional group composition
+
+Proportional composition of functional groups in the different treatments and sites.
+
+- Forbs decrease and graminoids increase with increasing nitrogen
+- I am unsure if this figure is really needed
+
+
+```{r}
+#| label: fig-biomass-fg
+#| echo: false
+#| warning: false
+#| fig-height: 5
+#| fig-cap: Proportion of biomass per plant functional group at peak growing season in 2022. Shown are the proportion of shrubs, graminoids (without Cyperaceae), Cyperaceae (mostly Carex species), forbs, legumes, bryophytes, and litter, for the different nitrogen addition treatments in non-grazed (Control), medium and intensive grazed plots. The two top rows are the ambient and warmed plots in the alpine site, while the two lower rows are ambient and warmed plots at the subalpine site.
+
+tar_load(biomass_fun_group)
+biomass_fun_group
+
+```
+
+
+
+
+### Natural grazing and cover/diversity
+
+
+```{r}
+#| label: fig-cover-CN
+#| echo: false
+#| warning: false
+#| fig-cap: Change in graminoid (top) and forb (bottom) between the last and first year (2022 - 2019) with increasing nitrogen addition (kg N ha-1 y-1) in the alpine (top row) and sub-alpine site (bottom row). Positive numbers indicate an increase and negative numbers a decrease in cover. The colours indicate ambient (green) and warm conditions (pink) and the dots show the different grazing treatments (round = control, square = natural grazing).
+
+tar_load(cover_CN_figure)
+cover_CN_figure
+
+```
+
+
+
+```{r}
+#| label: fig-diversity-CN
+#| echo: false
+#| warning: false
+#| fig-cap: Change in diversity indices (richness, diversity and evenness) between the last and first year (2022 - 2019) with increasing nitrogen addition (kg N ha-1 y-1) in the alpine (left column) and sub-alpine site (right column). Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The colours indicate ambient (green) and warm conditions (pink) and the dots show the different grazing treatments (round = control, square = natural grazing).
+
+tar_load(diversity_CN_figure)
+diversity_CN_figure
+
+```
