@@ -98,7 +98,14 @@ figure_plan <- list(
                     left_join(cover_text, by = c("origSiteID", "functional_group")) |>
                     mutate(term = if_else(is.na(term), "", term)),
                   aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
+                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4) +
+        theme(axis.text.x=element_blank())
+
+
+      # forb <- grid::rasterGrob(png::readPNG("forb.png"), interpolate = TRUE)
+      # sedge_figure +
+      #   annotation_custom(forb, xmin = -2, xmax = 10, ymin = -25, ymax = -30) +
+      #   coord_cartesian(clip = "off")
 
       legumes_figure <- make_vegetation_figure(dat = cover_prediction |>
                                                filter(functional_group == "legume"),
