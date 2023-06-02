@@ -22,12 +22,12 @@ analysis_plan <- list(
              # only controls
              Nlevel %in% c(1, 2, 3),
              grazing == "Control") %>%
-      group_by(year, variable, origSiteID, warming) %>%
+      group_by(year, variable, destSiteID, warming) %>%
       summarise(mean = mean(value),
                 se = sd(value)/sqrt(n())) |>
       pivot_wider(names_from = warming, values_from = c(mean, se)) |>
       mutate(diff = mean_Warming - mean_Ambient) |>
-      mutate(destSiteID = factor(origSiteID, levels = c("Lia", "Joa"))) |>
+      mutate(destSiteID = factor(destSiteID, levels = c("Lia", "Joa"))) |>
       arrange(year, variable, destSiteID)
   ),
 
@@ -57,7 +57,7 @@ analysis_plan <- list(
                      names_sep = "_",
                      names_to = c(".value", "names")) |>
         unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC) |>
+        select(origSiteID:adj.r.squared, AIC, deviance) |>
         # select best model
         filter(AIC == min(AIC))
     }
@@ -111,7 +111,7 @@ analysis_plan <- list(
                    names_sep = "_",
                    names_to = c(".value", "names")) |>
       unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC) |>
+      select(origSiteID:adj.r.squared, AIC, deviance) |>
       # select best model
       filter(AIC == min(AIC))
   ),
@@ -209,7 +209,7 @@ analysis_plan <- list(
                      names_sep = "_",
                      names_to = c(".value", "names")) |>
         unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC) |>
+        select(origSiteID:adj.r.squared, AIC, deviance) |>
 
       # models |>
         # select best model
