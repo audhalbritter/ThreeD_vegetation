@@ -75,7 +75,7 @@ si_analysis_plan <- list(
       unnest(output) |>
       rename(prediction = fit,
              grazing = .grazing) |>
-      mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge")))
+      mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
   ),
 
 
