@@ -1,0 +1,33 @@
+---
+format: html
+execute:
+  echo: false
+  
+bibliography: bibliography.bib
+---
+
+```{r}
+#| label: set-up
+#| echo: false
+library(targets)
+library(tarchetypes)
+```
+
+## Supporting Information
+
+```{r}
+#| label: tbl-sites
+#| echo: false
+#| tab-cap: Some text
+
+
+tibble(Variable = c("Elevation m a.s.l.", "Latitude °N", "Longitude °E", "Mean summer temp. °C", "Annual precip in mm"),
+         Lowland = c(469.0, 60.88019, 7.16990, 13, 1292),
+         "Sub-alpine" = c(920.0, 60.86183, 7.16800, 10.4, 1256),
+         Alpine = c(1290.0, 60.85994, 7.19504, 7.3, 2080)) |> 
+  gt()
+```
+
+The alpine site was a species rich grassland dominated by *Silene acaulis*, *Thalictrum alpinum*, *Alchemilla alpina*, *Leontodon autumnalis*, *Antennaria dioica*, *Carex capillaris*, and *Festuca rubra*.
+The sub-alpine site was located close to a summer farm and the vegetation was dominated by species adapted to grazing: *Achillea millefolium* , *Agrostis capillaris*, *Poa pratensis*, *Ranunculus repens*, and *Rumex acetosa* and the lowest site was located close to a farm and the vegetation is dominated by *Potentilla erecta*, *Knautia arvensis*, *Agrostis capillaris*, *Rumex acetosa*, *Festuca ovina*, and  *Poa pratense*.
+
