@@ -31,6 +31,8 @@ fancy_stats <- function(dat){
                          "Nitrogen_log" = "N",
                          "warmingWarming:Nitrogen_log" = "WxN",
                          ".grazing:Nitrogen_log" = "GxN",
-                         "warmingWarming:.grazing:Nitrogen_log" = "WxGxN"))
+                         "warmingWarming:.grazing:Nitrogen_log" = "WxGxN",
+                         ".grazingNatural:Nitrogen_log" = "GxN",
+                         "warmingWarming:.grazingNatural:Nitrogen_log" = "WxGxN"))
   return(dat)
 }
