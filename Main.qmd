@@ -5,7 +5,7 @@ execute:
   echo: false
   
 bibliography: bibliography.bib
-csl: nature.csl
+csl: journal-of-ecology.csl
 ---
 
 ```{r}
@@ -32,19 +32,21 @@ Aud H. Halbritter^1^, Jake M. Alexander^2^, Gunnar Austrheim^3^, Deborah Goldber
 Correspondence: Aud H. Halbritter <aud.halbritter@uib.no>
 
 
-## Abstract (271/200 words)
+## Abstract (268/200 words)
 
-Reduced grazing, warmer climate, and atmospheric nitrogen deposition are some of the main global change drivers in alpine environments and they impact biodiversity through the same underlying mechanism.
-They interact and occur simultaneously, and while warming and nitrogen addition often have a negative effect on biodiversity, for grazing this depends on grazing intensity and productivity. 
-Intermediate grazing can increase diversity when productivity is high enough (= competitive release), and has the potential to mitigate negative impacts of warming and nitrogen addition, which increase productivity.
-In addition, grazing occurs locally and at shorter time scales, it can therefore more easily be manipulated.
-To study the single and interactive effects of these three drivers on alpine biodiversity and under which conditions grazing is beneficial for diversity, we manipulated warmer climate (transplant to lower elevation), nitrogen deposition (fertilizer) and grazing (removal of biomass) along an elevational gradient (alpine and sub-alpine site) and assessed change in vascular plant composition over 3 years.
+Reduced grazing, warmer climate, and atmospheric nitrogen deposition are some of the main global change drivers in alpine environments.
+They occur simultaneously, interact and impact biodiversity through the same underlying mechanism.
+Warming and nitrogen addition affect biodiversity often negatively, while for grazing this depends on grazing intensity and plant productivity. 
+Grazing occurs locally and at shorter time scales, and can therefore be more easily manipulated.
+Grazing can benefit diversity when it leads to competitive release and therefore has the potential to mitigate negative impacts of warming and nitrogen addition.
+We studied the single and interactive effects of these three drivers on alpine biodiversity and under which conditions grazing is beneficial for diversity.
+For this, we manipulated warmer climate (transplant to lower elevation), nitrogen deposition (fertilizer) and grazing (removal of biomass) along an elevational gradient (alpine and sub-alpine site) and assessed change in vascular plant composition over three years.
 
-At low productivity (alpine site) warming in combination with increased nitrogen decreases diversity, but simulated grazing can mitigate this, especially at high nitrogen levels (> 10 kg N ha^-1^ y^-1^).
+At low productivity (alpine site) warming in combination with increased nitrogen decreases diversity, but simulated grazing can mitigate this, especially at nigtrogen addtion above 10 kg N ha^-1^ y^-1^.
 However, at higher productivity (sub-alpine site), nitrogen addition was the main driver for decrease in diversity.
 The change in species composition was mainly driven by increased productivity and abundance of graminoids and a decrease for forbs.
 The changes in community composition in the alpine were mainly driven by changes in abundance (evenness), while three years of treatment in the sub-alpine had already led to species loss.
-This study shows that grazing can benefit biodiversity if grazing intensity is high enough for competitive release, and thus has the potential to be a ecosystem management tool.
+This study shows that grazing can benefit biodiversity if grazing leads to competitive release, and thus has the potential to be an ecosystem management tool.
 
 
 ## Main (3500 words)
@@ -54,33 +56,24 @@ Alpine ecosystems are temperature limited, have low nutrient availability and ha
 During the last decades, mountains have been impacted by multiple global change drivers such as land-use change, climate change and pollution threatening biodiversity, ecosystem functions and services and human well-being (some IPBES report).
 <!-- I have difficulties to find a transition to the next paragraph and to say why I focus on these 3 drivers: grazing = main land-use change globally (IPCC, 2019: Summary for Policymakers) and reduced grazing is one of the problems in mountains; mountains are warming faster than global average [@pepin2015elevation] and nitrogen one of the most important global change drivers (Galloway 2008). -->
 
-These global change drivers can occur simultaneously and impact plant communities through the same underlying mechanisms: change in productivity and biomass (@fig-concept a).
+These global change drivers can occur simultaneously and impact plant communities through the same underlying mechanisms: change in productivity and biomass (@fig-concept).
 Productivity and biomass are linked and higher productivity generally increases the amount of biomass, which generates a positive feedback to plant productivity.
-Warmer climate and nitrogen deposition often (in)directly increase nutrient availability (e.g. longer growing season), with a positive effect on plant productivity and biomass (arrows in @fig-concept b).
+Warmer climate and nitrogen deposition often (in)directly increase nutrient availability (e.g. longer growing season), with a positive effect on plant productivity and biomass.
 Grazing affects the same mechanisms in a more complex way, by increasing productivity via nutrient input (urin, dung), and also decreasing biomass.
-<!-- This are probably a bit more complicated, when considering grazing history and moisture, e.g. Milchunas et al. Am Nat 1987. In our case, long-term grazing history and moist environment, so a humped shape relationship should be ok. Mabye that needs to be claryfied -->
-The net outcome for productivity depends on the grazing intensity, grazing history and environmental context (e.g. moisture, temperature) and is a non-linear relationship with the highest productivity at intermediate grazing intensity [@mcnaughton1979grazing; @cingolani2005grazing].
+The net outcome for productivity depends on the grazing intensity, grazing history and environmental context (e.g. moisture, temperature) and in long-term grazed systems, this is a non-linear relationship with the highest productivity at intermediate grazing intensity [@mcnaughton1979grazing; @cingolani2005grazing].
 
 The relationship between biomass/productivity and diversity is also non-linear and context dependent (@fig-concept b).
-Colder and nutrient-poor ecosystems, characterised by facilitative species interactions [@bertness1994positive; choler2001facilitation], often support low-productivity plant communities with little biomass, but are often relatively species rich [@milchunas1993quantitative; @grime1973competitive].
+Colder and nutrient-poor ecosystems, characterised by facilitative species interactions [@bertness1994positive; @choler2001facilitation], often support low-productivity plant communities with little biomass, but are often relatively species rich [@milchunas1993quantitative; @grime1973competitive].
 Warmer and productive plant communities usually have increased competition for light and nutrients among species and lower species diversity [@grime1973competitive].
-Removal of biomass can therefore increase diversity, where productivity is high and grazing leads to competitive release (grey area in @fig-concept b and c), but less so in low productive systems [@Austrheim2008-nu; @Bernes2015-yg].
+In productive systems, removal of biomass can therefore release competition and increase diversity (grey area in @fig-concept b and c), but less so in low productive systems [@Austrheim2008-nu; @Bernes2015-yg].
 Grazing is generally managed at a local and short-term scale and can therefore be more easily manipulated compared to warming and nitrogen addition and thus has the potential to be an ecosystem management tool (REF).
-Surprisingly few studies have looked at the interaction of multiple global change drivers in alpine grassland.
+Surprisingly few studies have looked at the interaction of multiple global change drivers in alpine grassland (but see Zhu et al. 2015 on carbon fluxes).
 
-
-::: {#fig-concept layout-ncol=1}
-
-![](figures/3_drivers.jpg){#fig-concept}
-
-Conceptual figure of global change impact on plant communities. a) Grazing, climate warming and nitrogen deposition impact diversity through the same mechanism (productivity and biomass). b) Hump-shaped relationship between biomass/productivity and diversity. The arrows indicate the direction in which the different global change drivers push productivity. c) The effect of intermediate grazing on diversity in relation to productivity. Positive values show an increase and negative values a decrease in diversity. The arrows indicate that climate warming and nitrogen deposition increase productivity The dashed arrows show in which direction grazing would push diversity. The grey are shows the conditions when grazing is benefitial for diversity (competitive release).
-:::
 
 ```{r}
 #| label: fig-concept
 #| echo: false
-#| eval: false
-#| fig-cap: Conceptual figure
+#| fig-cap: Conceptual figure of global change impact on plant communities. a) Grazing, climate warming and nitrogen deposition impact diversity through the same mechanism (productivity and biomass). b) Hump-shaped relationship between biomass/productivity and diversity. The arrows indicate the direction in which the different global change drivers push productivity. c) The effect of intermediate grazing on diversity in relation to productivity. Positive values show an increase and negative values a decrease in diversity. The arrows indicate that climate warming and nitrogen deposition increase productivity The dashed arrows show in which direction grazing would push diversity. The grey are shows the conditions when grazing is benefitial for diversity (competitive release).
 
 knitr::include_graphics("figures/3_drivers.jpg")
 
@@ -90,7 +83,7 @@ knitr::include_graphics("figures/3_drivers.jpg")
 The aim of this study is to disentangle the single and combined effects of warmer climate, nitrogen addition and grazing on plant productivity and diversity in alpine grasslands.
 In addition, we test if grazing can mediate negative impacts of warming and nitrogen addition on biodiversity. 
 We used a fully factorial and replicated field experiment along an elevational gradient, representing a productivity gradient, in Western Norway.
-Alpine plant communities were exposed to warmer climate (transplant to lower elevation), increased nitrogen deposition (N addition), and simulated grazing by removing biomass at two different intensities.
+Alpine plant communities were exposed to a combination of warmer climate (transplant to lower elevation), increased nitrogen deposition (N addition), and simulated grazing by removing biomass at two different intensities.
 We simulated grazing because our main interest was in the effect of biomass removal. 
 We hypothesised that warming and nitrogen addition increase annual aboveground plant productivity and decrease vascular plant diversity, by favouring competitive graminoids (Klanderud & Totland 2005). 
 We also hypothesised that intermediate grazing can reduce productivity, and avoid species loss.
@@ -228,8 +221,7 @@ productivity_stats |>
 At the alpine site, there was a three-way interaction among warming, nitrogen addition and grazing on diversity and evenness.
 Nitrogen addition and warming alone had no effect on diversity or evenness.
 However, warming in combination with nitrogen addition above 10 kg N ha^-1^ y^-1^, tended to decreased diversity and evenness.
-Simulated grazing reduced this negative impact on diversity and evenness, especially the intensive grazing treatment and for nitrogen addition up to 100 kg N ha^-1^ y^-1^.
-These negative impacts were not reduced above 150 kg N ha^-1^ y^-1^.
+Simulated grazing increased diversity and evenness, especially the intensive grazing treatment and for nitrogen addition up to 100 kg N ha^-1^ y^-1^.
 At the sub-alpine site, diversity decreased with nitrogen addition (*P* = 0.05), and for evenness there was a trend (*P* = 0.077).
 Non of the drivers affected richness at any of the sites.
 
@@ -365,7 +357,7 @@ However, we estimated productivity using cages etc.
 Plant species composition was recorded annually at peak growing season in all plots before the treatment in 2019 and after 3 years in 2022.
 We visually estimated the percentage cover of all vascular plant species to the nearest 1 % on the 25 x 25 cm inner area of each plot.
 The total coverage in each plot can exceed 100, due to layering of the vegetation.
-For species identification we followed the nomenclature from Lid and Lid @Lid2010-ck.
+For species identification we followed the nomenclature from @Lid2010-ck.
 
 
 ### Statistical analysis
@@ -376,14 +368,14 @@ The model contained a three-way interaction of warming, nitrogen addition and si
 The experimental design, did not allow running a mixed-effects model, because there is no replication at the plot level.
 Simulated grazing was transformed to a numerical scale with 0 (control), 2 (intermediate) or 4 (intensive) cuts.
 <!-- unsure how to phrase this -->
-The nitrogen addition treatment levels were unevenly distributed with some very high levels, and we did not expect a linear response along this gradient.
+The nitrogen addition levels were unevenly distributed with some very high levels, and we did not expect a linear response along this gradient.
 We therefore used 3 models using different terms for the nitrogen addition treatment to reflect different assumptions for the response to nitrogen addition:
 a) a linear term as a null model, b) a logarithmic term (log(nitrogen)) to account for the unevenness in the nitrogen levels, and c) a quadratic term (nitrogen^2^) allowing for a concave/convex relationship.
 We compared the AIC values (and R^2^ as well?) of all three models and chose the one with the lowest AIC values.
 If the models had the same AIC value (or within 2 units?), we chose the simplest model (need to check if that is the case and unsure which one is the simplest? linear vs. log).
-Using this approach means that we used different models, but we used to use the model that fits the data best.
+This approach means that we used the model that fits the data best.
 
-To test the effect of the three global change drivers on change in plant functional group cover and diversity, using a fixed effects linear model with a normal error distribution.
+To test the effect of the three global change drivers on change in plant functional group cover and diversity, we also used a fixed effects linear model with a normal error distribution.
 Change in functional group cover was calculated as the cover of each functional group (graminoids, forbs, sedges and legumes) at the end of the experiment in 2022 minus the cover before the start of the treatments in 2019.
 <!-- Maybe drop this? -->
 For sedges there was only enough data to run the models from the alpine site, and for legumes only at the sub-alpine site.
