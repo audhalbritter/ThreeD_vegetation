@@ -53,7 +53,7 @@ si_figure_plan <- list(
              siteID = factor(siteID, levels = c("lowland", "sub-alpine", "alpine")),
              treatment = factor(treatment, levels = c("Control", "Cage")),
              doy = yday(date)) |>
-      group_by(date, siteID, treatment) |>
+      group_by(date, doy, siteID, treatment) |>
       summarise(se = sd(productivity)/sqrt(n()),
                 mean = mean(productivity)) |>
       ggplot(aes(x = date, y = mean, colour = treatment, shape = treatment)) +
@@ -92,55 +92,71 @@ si_figure_plan <- list(
         filter(significance == "sign") |>
         ### BY HAND CODE!!!
         filter(!term %in% c("WxN", "G")) |>
-        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
+        mutate(term = case_when(term == "WxGxN" ~ "WxN + WxGxN",
+                                term == "GxN" ~ "G + WxGxN",
+                                TRUE ~ term),
+               functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
 
-      cover_figure <- make_vegetation_figure(dat = cover_CN_prediction |>
-                               filter(functional_group %in% c("graminoid", "forb")),
+      cover = cover_CN_output |>
+        unnest(data) |>
+        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume"))) |>
+        mutate(grazing = .grazing)
+
+      cover_figure <- make_vegetation_figure(dat1 = cover  |>
+                                               filter(functional_group %in% c("graminoid", "forb")),
                              x_axis = Nitrogen_log,
                              yaxislabel = "Change in cover",
                              colourpalette = col_palette,
                              linetypepalette = c("solid", "dashed"),
                              shapepalette = c(16, 0),
-                             facet_2 = "functional_group") +
+                             facet_2 = "functional_group",
+                             dat2 = cover_CN_prediction |>
+                               filter(functional_group %in% c("graminoid", "forb"))) +
         # add stats
-        geom_text(data = cover_CN_prediction |>
+        geom_text(data = cover |>
                     filter(functional_group %in% c("graminoid", "forb")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_CN_text |>
-                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")) |>
-                    mutate(term = if_else(is.na(term), "", term)),
+                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")) #|>
+                    #mutate(term = if_else(is.na(term), "", term))
+                    ,
                   aes(x = Inf, y = Inf, label = term),
                   size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
 
 
-      sedge_figure <- make_vegetation_figure(dat = cover_CN_prediction |>
+      sedge_figure <- make_vegetation_figure(dat1 = cover |>
                                                filter(functional_group == "sedge"),
                                              x_axis = Nitrogen_log,
                                              yaxislabel = "Change in cover",
                                              colourpalette = col_palette,
                                              linetypepalette = c("solid", "dashed", "dotted"),
                                              shapepalette = c(16, 0, 2),
-                                             facet_2 = "functional_group") +
+                                             facet_2 = "functional_group",
+                                             dat2 = cover_CN_prediction |>
+                                               filter(functional_group == "sedge")) +
         labs(x = "", y = "") +
         theme(axis.text.x=element_blank())
 
-      legumes_figure <- make_vegetation_figure(dat = cover_CN_prediction |>
+      legumes_figure <- make_vegetation_figure(dat1 = cover |>
                                                  filter(functional_group == "legume"),
                                                x_axis = Nitrogen_log,
                                                yaxislabel = "Change in cover",
                                                colourpalette = col_palette,
                                                linetypepalette = c("solid", "dashed", "dotted"),
                                                shapepalette = c(16, 0, 2),
-                                               facet_2 = "functional_group") +
+                                               facet_2 = "functional_group",
+                                               dat2 = cover_CN_prediction |>
+                                                 filter(functional_group == "legume")) +
         labs(x = "", y = "") +
         # add stats
-        geom_text(data = cover_CN_prediction |>
+        geom_text(data = cover |>
                     filter(functional_group == "legume") |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_CN_text |>
                                 filter(functional_group == "legume")
-                              , by = c("origSiteID", "functional_group")) |>
-                    mutate(term = if_else(is.na(term), "", term)),
+                              , by = c("origSiteID", "functional_group")) #|>
+                    #mutate(term = if_else(is.na(term), "", term))
+                  ,
                   aes(x = Inf, y = Inf, label = term),
                   size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
 
@@ -166,20 +182,27 @@ si_figure_plan <- list(
         ### BY HAND!!!
         filter(significance == "sign") |>
         distinct(origSiteID, diversity_index, term) |>
-        mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity" & term == "WxN", "WxN + ~WxGxN", term)) |>
+        # CHECK !!!
+        # mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity" & term == "WxN", "WxN + ~WxGxN", term)) |>
         mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
 
 
-      make_vegetation_figure(dat = diversity_CN_prediction,
+      div <- diversity_CN_output |>
+        unnest(data) |>
+        mutate(grazing = .grazing) |>
+        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
+
+      make_vegetation_figure(dat1 = div,
                              x_axis = Nitrogen_log,
                              yaxislabel = "Change in diversity index",
                              colourpalette = col_palette,
                              linetypepalette = c("solid", "dashed"),
                              shapepalette = c(16, 0),
-                             facet_2 = "diversity_index")  +
+                             facet_2 = "diversity_index",
+                             dat2 = diversity_CN_prediction)  +
         facet_grid2(origSiteID ~ diversity_index, scales = "free_y", independent = "y") +
         # add stats
-        geom_text(data = diversity_CN_prediction |>
+        geom_text(data = div |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
                     left_join(diversity_CN_text, by = c("origSiteID", "diversity_index")),
                   aes(x = Inf, y = Inf, label = term),
