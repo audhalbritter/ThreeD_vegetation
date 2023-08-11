@@ -1,12 +1,17 @@
 ### make vegetation figures
 
-make_vegetation_figure <- function(dat,
+make_vegetation_figure <- function(dat1,
                                    x_axis,
                                    yaxislabel,
                                    colourpalette, linetypepalette, shapepalette,
-                                   facet_2){
+                                   facet_2,
+                                   # predictions
+                                   dat2){
 
-plot <- dat |>
+dat2 <- dat2 |>
+    rename(.x_axis = {{x_axis}})
+
+plot <- dat1 |>
     rename(.x_axis = {{x_axis}}) |>
     ggplot(aes(x = .x_axis,
                y = .response,
@@ -16,14 +21,14 @@ plot <- dat |>
     # zero line
     geom_hline(yintercept = 0, colour = "lightgrey") +
     # CI from prediction
-    geom_ribbon(aes(ymin = lwr,
+    geom_ribbon(data = dat2, aes(y = prediction, ymin = lwr,
                     ymax = upr,
                     fill = warming),
                 alpha = 0.1,
                 linetype = 0) +
     geom_point(size = 2) +
     # prediction line
-    geom_line(aes(y = prediction), linewidth = 0.5) +
+    geom_line(data = dat2, aes(y = prediction), linewidth = 0.5) +
     labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
          y = yaxislabel) +
     # scales
@@ -31,6 +36,8 @@ plot <- dat |>
     scale_fill_manual(name = "Warming", values = colourpalette) +
     scale_linetype_manual(name = "Grazing", values = linetypepalette) +
     scale_shape_manual(name = "Grazing", values = shapepalette) +
+    # change labels to real values
+    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
     # facet
     facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
     theme_bw() +
@@ -45,6 +52,7 @@ plot <- dat |>
   }
 
 }
+
 
 
 ### biomass and productivity
