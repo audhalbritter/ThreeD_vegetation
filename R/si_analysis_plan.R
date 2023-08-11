@@ -61,7 +61,7 @@ si_analysis_plan <- list(
   # prediction and model output
   tar_target(
     name = cover_CN_output,
-    command = make_prediction(cover_CN_model)
+    command = make_CN_prediction(cover_CN_model)
 
   ),
 
@@ -70,7 +70,7 @@ si_analysis_plan <- list(
     name = cover_CN_prediction,
     command = cover_CN_output |>
       # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, functional_group, output) |>
       unnest(output) |>
       rename(prediction = fit,
@@ -115,7 +115,7 @@ si_analysis_plan <- list(
   # prediction and model output
   tar_target(
     name = diversity_CN_output,
-    command = make_prediction(diversity_CN_model)
+    command = make_CN_prediction(diversity_CN_model)
 
   ),
 
@@ -124,7 +124,7 @@ si_analysis_plan <- list(
     name = diversity_CN_prediction,
     command = diversity_CN_output |>
       # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, diversity_index, output) |>
       unnest(output) |>
       rename(prediction = fit,
