@@ -38,92 +38,142 @@ run_full_model <- function(dat, group, response, grazing_var){
 
 make_prediction <- function(model){
 
+  # model |>
+  #   mutate(result = map(model, tidy),
+  #          prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
+
+  # make predictions for more data points
+  Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  Nitrogen_log = seq(from = 0, to = 5, by = 0.1)
+
   model |>
     mutate(result = map(model, tidy),
-           prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
-
-
-}
-
-
-
-
-do_model_selection <- function(functional_group_cover){
-
-  dat <- functional_group_cover |>
-    filter(grazing != "Natural")
-
-  alp_gram <- dat |>
-    filter(origSiteID == "Alpine",
-           functional_group == "graminoid")
-
-  fit <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = alp_gram,
-            na.action = "na.fail")
-
-  model_selection_1 <- dredge(fit, rank = "AICc", extra = "R^2")
-
-
-  alp_forb <- dat |>
-    filter(origSiteID == "Alpine",
-           functional_group == "forb")
-
-  fit2 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = alp_forb,
-             na.action = "na.fail")
-
-  model_selection_2 <- dredge(fit2, rank = "AICc", extra = "R^2")
-
-
-  sub_gram <- dat |>
-    filter(origSiteID == "Sub-alpine",
-           functional_group == "graminoid")
-
-  fit3 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = sub_gram,
-             na.action = "na.fail")
-
-  model_selection_3 <- dredge(fit3, rank = "AICc", extra = "R^2")
-
-
-  sub_forb <- dat |>
-    filter(origSiteID == "Sub-alpine",
-           functional_group == "forb")
-
-  fit4 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = sub_forb,
-             na.action = "na.fail")
-
-  model_selection_4 <- dredge(fit4, rank = "AICc", extra = "R^2")
-
-
-  model_selection_output <- bind_rows(
-    Alpine_graminoid = model_selection_1 |> as_tibble(),
-    Alpine_forb = model_selection_2 |> as_tibble(),
-    Subalpine_graminoid = model_selection_3 |> as_tibble(),
-    Subalpine_forb = model_selection_4 |> as_tibble(),
-    .id = "origSiteID_fungroup") |>
-    separate(col = origSiteID_fungroup, into = c("origSiteID", "functional_group"), sep = "_") |>
-    # select for models within dAIC 2
-    filter(delta < 2) |>
-    rename(Intercept = `(Intercept)`, G = grazing_num, N = Nitrogen_log, W = warming,
-           GxN = `grazing_num:Nitrogen_log`, GxW = `grazing_num:warming`,
-           NxW = `Nitrogen_log:warming`, GxNxW = `grazing_num:Nitrogen_log:warming`)
-
-
-  return(model_selection_output)
+           # make new data
+           newdata = ifelse(names == "log",
+                            # for log model
+                            map(.x = data, .f = ~. |>
+                                    distinct(warming, grazing, .grazing) |>
+                                    crossing(Nitrogen_log)),
+                            # for linear and quadratic models
+                            map(.x = data, .f = ~. |>
+                                    distinct(warming, grazing, .grazing) |>
+                                    crossing(Namount_kg_ha_y) |>
+                                  mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)))),
+           # predict with newdata
+           prediction = map2(.x = model, .y = newdata, .f = predict, interval = "confidence"))
 
 }
 
+# CN prediction
+make_CN_prediction <- function(model){
 
-run_best_models <- function(dat){
-
-  cover_result <- dat |>
-  nest() |>
-  mutate(model = map(data, ~lm(formula = best_model, data = .)),
-         check = map(model, check_model),
-         tidy_result = map(model, tidy),
-         fitted_result = map(model, augment))
-
-  return(cover_result)
+  # make predictions for more data points
+  Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  Nitrogen_log = seq(from = 0, to = 5, by = 0.1)
+model |>
+  mutate(result = map(model, tidy),
+         # make new data
+         newdata = ifelse(names == "log",
+                          # for log model
+                          map(.x = data, .f = ~. |>
+                                distinct(warming, .grazing) |>
+                                crossing(Nitrogen_log)),
+                          # for linear and quadratic models
+                          map(.x = data, .f = ~. |>
+                                distinct(warming, .grazing) |>
+                                crossing(Namount_kg_ha_y) |>
+                                mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)))),
+         # predict with newdata
+         prediction = map2(.x = model, .y = newdata, .f = predict, interval = "confidence"))
 
 }
+
+# productivity_model |>
+#   unnest(data) |>
+#   distinct(warming, .grazing) |>
+#   crossing(Namount_kg_ha_y)
+#
+# productivity_model %>%
+#   mutate(newdata = map(.x = data, .f = ~. |> distinct(warming, .grazing) |> crossing(Namount_kg_ha_y)),
+#          prediction = map2(.x = model, .y = newdata, .f = predict, interval = "confidence"))
+
+
+# do_model_selection <- function(functional_group_cover){
+#
+#   dat <- functional_group_cover |>
+#     filter(grazing != "Natural")
+#
+#   alp_gram <- dat |>
+#     filter(origSiteID == "Alpine",
+#            functional_group == "graminoid")
+#
+#   fit <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = alp_gram,
+#             na.action = "na.fail")
+#
+#   model_selection_1 <- dredge(fit, rank = "AICc", extra = "R^2")
+#
+#
+#   alp_forb <- dat |>
+#     filter(origSiteID == "Alpine",
+#            functional_group == "forb")
+#
+#   fit2 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = alp_forb,
+#              na.action = "na.fail")
+#
+#   model_selection_2 <- dredge(fit2, rank = "AICc", extra = "R^2")
+#
+#
+#   sub_gram <- dat |>
+#     filter(origSiteID == "Sub-alpine",
+#            functional_group == "graminoid")
+#
+#   fit3 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = sub_gram,
+#              na.action = "na.fail")
+#
+#   model_selection_3 <- dredge(fit3, rank = "AICc", extra = "R^2")
+#
+#
+#   sub_forb <- dat |>
+#     filter(origSiteID == "Sub-alpine",
+#            functional_group == "forb")
+#
+#   fit4 <- lm(delta ~ Nitrogen_log * warming * grazing_num, data = sub_forb,
+#              na.action = "na.fail")
+#
+#   model_selection_4 <- dredge(fit4, rank = "AICc", extra = "R^2")
+#
+#
+#   model_selection_output <- bind_rows(
+#     Alpine_graminoid = model_selection_1 |> as_tibble(),
+#     Alpine_forb = model_selection_2 |> as_tibble(),
+#     Subalpine_graminoid = model_selection_3 |> as_tibble(),
+#     Subalpine_forb = model_selection_4 |> as_tibble(),
+#     .id = "origSiteID_fungroup") |>
+#     separate(col = origSiteID_fungroup, into = c("origSiteID", "functional_group"), sep = "_") |>
+#     # select for models within dAIC 2
+#     filter(delta < 2) |>
+#     rename(Intercept = `(Intercept)`, G = grazing_num, N = Nitrogen_log, W = warming,
+#            GxN = `grazing_num:Nitrogen_log`, GxW = `grazing_num:warming`,
+#            NxW = `Nitrogen_log:warming`, GxNxW = `grazing_num:Nitrogen_log:warming`)
+#
+#
+#   return(model_selection_output)
+#
+# }
+
+
+# run_best_models <- function(dat){
+#
+#   cover_result <- dat |>
+#   nest() |>
+#   mutate(model = map(data, ~lm(formula = best_model, data = .)),
+#          check = map(model, check_model),
+#          tidy_result = map(model, tidy),
+#          fitted_result = map(model, augment))
+#
+#   return(cover_result)
+#
+# }
 
 
 
