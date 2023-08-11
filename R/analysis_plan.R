@@ -13,7 +13,7 @@ analysis_plan <- list(
 
   # summer temp (note that temp recording in 2019 starts in August! Temp is too low.)
   tar_target(
-    name = mean_summer_climate,
+    name = summer_T,
     command = daily_temp |>
       mutate(month = month(date),
              year = year(date)) %>%
@@ -22,13 +22,12 @@ analysis_plan <- list(
              # only controls
              Nlevel %in% c(1, 2, 3),
              grazing == "Control") %>%
-      group_by(year, variable, destSiteID, warming) %>%
+      group_by(variable, warming) %>%
       summarise(mean = mean(value),
                 se = sd(value)/sqrt(n())) |>
       pivot_wider(names_from = warming, values_from = c(mean, se)) |>
-      mutate(diff = mean_Warming - mean_Ambient) |>
-      mutate(destSiteID = factor(destSiteID, levels = c("Lia", "Joa"))) |>
-      arrange(year, variable, destSiteID)
+      mutate(diff = round((mean_Warming - mean_Ambient), 2),
+             se_diff = round((sqrt(se_Warming^2+se_Ambient^2)), 3))
   ),
 
   ### PRODUCTIVITY
@@ -58,7 +57,7 @@ analysis_plan <- list(
                      names_to = c(".value", "names")) |>
         unnest(glance) |>
         select(origSiteID:adj.r.squared, AIC, deviance) |>
-        # select best model
+        # select parsimonious model
         filter(AIC == min(AIC))
     }
   ),
@@ -79,7 +78,7 @@ analysis_plan <- list(
     name =   productivity_prediction,
     command = productivity_output |>
       # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, output) |>
       unnest(output) |>
       rename(prediction = fit)
@@ -112,8 +111,10 @@ analysis_plan <- list(
                    names_to = c(".value", "names")) |>
       unnest(glance) |>
       select(origSiteID:adj.r.squared, AIC, deviance) |>
-      # select best model
-      filter(AIC == min(AIC))
+      # select parsimonious model (checked by hand!!!)
+      filter((origSiteID == "Sub-alpine" & names == "log") |
+             (origSiteID == "Alpine" & functional_group == "forb" & names == "log") |
+             (origSiteID == "Alpine" & functional_group != "forb" & AIC == min(AIC)))
   ),
 
   # prediction and model output
@@ -128,7 +129,7 @@ analysis_plan <- list(
     name = cover_prediction,
     command = cover_output |>
       # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, functional_group, output) |>
       unnest(output) |>
       rename(prediction = fit) |>
@@ -212,12 +213,9 @@ analysis_plan <- list(
         select(origSiteID:adj.r.squared, AIC, deviance) |>
 
       # models |>
-        # select best model
-        filter(AIC == min(AIC)) #|>
-        # filter(!(origSiteID == "Alpine" & diversity_index == "richness")) |>
-        # # force quadratic model for alpine richness, because it visually fits better & R squared is higher
-        # bind_rows(models |>
-        #             filter(origSiteID == "Alpine" & diversity_index == "richness" & names == "quadratic"))
+        # select parsimonious model (done by hand!!!)
+        filter((diversity_index != "richness" & AIC == min(AIC)) |
+                 (diversity_index == "richness" & names == "log"))
 
     }
 
@@ -226,7 +224,8 @@ analysis_plan <- list(
 
   tar_target(
     name = diversity_output,
-    command = make_prediction(diversity_model)
+    command = make_prediction(diversity_model) |>
+      mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
 
   ),
 
@@ -235,7 +234,7 @@ analysis_plan <- list(
     name = diversity_prediction,
     command = diversity_output |>
       # merge data and prediction
-      mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, diversity_index, output) |>
       unnest(output) |>
       rename(prediction = fit) |>
