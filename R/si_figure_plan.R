@@ -1,19 +1,4 @@
 si_figure_plan <- list(
-  # site map
-  # tar_target(
-  #   name = site_map,
-  #   command = {
-  #     world_df <- map_data("world")
-  #
-  #     ggplot(world_df, aes(x = long, y = lat, group = group)) +
-  #       geom_polygon(fill = "#8AAAA9") +
-  #       geom_point(aes(x = 7.16990, y = 60.88019), colour = "#5B424B") +
-  #       geom_point(aes(x = 102.036, y = 29.8619), colour = "#5B424B") +
-  #       labs(x = NULL, y = NULL) +
-  #       coord_sf(xlim = c(0, 110), ylim = c(10, 72), expand = FALSE) +
-  #       theme_void()
-  #   }),
-
 
   ### CLIMATE
   # annual climate figure
@@ -31,6 +16,42 @@ si_figure_plan <- list(
   tar_target(
     name = climate_treatment_figure,
     command = make_climate_treatment_figure(daily_temp)
+  ),
+
+  # climate figure
+  tar_target(
+    name = climate_figure,
+    command = {
+
+      climate_text <- climate_stats |>
+        mutate(significance = case_when(p.value >= 0.05 ~ "non-sign",
+                                        term == "Intercept" ~ "non-sign",
+                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
+                                        TRUE ~ "sign")) |>
+        filter(significance == "sign")
+
+
+      clim <- climate_output |>
+        unnest(data) |>
+        mutate(variable = factor(variable, levels = c("air", "ground", "soil", "soilmoisture")))
+
+      make_vegetation_figure(dat1 = clim,
+                             x_axis = Nitrogen_log,
+                             yaxislabel = "Climate variable",
+                             colourpalette = col_palette,
+                             linetypepalette = c("solid", "dashed", "dotted"),
+                             shapepalette = c(16, 0, 2),
+                             facet_2 = "variable",
+                             dat2 = climate_prediction)  +
+        facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y") +
+        # add stats
+        geom_text(data = clim |>
+                    distinct(origSiteID, variable, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(climate_text, by = c("origSiteID", "variable")),
+                  aes(x = Inf, y = Inf, label = term),
+                  size = 4, colour = text_colour, hjust = 1.2, vjust = 1.4)
+
+    }
   ),
 
   ### BIOMASS AND PRODUCTIVTY
@@ -67,17 +88,7 @@ si_figure_plan <- list(
       theme_bw()
   ),
 
-  # Height
-  # tar_target(
-  #   name = height_figure,
-  #   command = make_vegetation_figure(dat = height_model_output,
-  #                                    yaxislabel = "Change in height",
-  #                                    colourpalette = NxW_col_palette,
-  #                                    linetypepalette = c("solid", "dashed", "dotted"),
-  #                                    shapepalette = c(16, 0, 2),
-  #                                    facet_2 = "vegetation_layer") +
-  #     facet_wrap(origSiteID ~ vegetation_layer, scales = "free_y")
-  # ),
+
 
   # Functional group cover - natural
   tar_target(
@@ -183,7 +194,7 @@ si_figure_plan <- list(
         filter(significance == "sign") |>
         distinct(origSiteID, diversity_index, term) |>
         # CHECK !!!
-        # mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity" & term == "WxN", "WxN + ~WxGxN", term)) |>
+        mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity" & term == "WxN", "WxN (+ WxGxN)", term)) |>
         mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
 
 
@@ -212,3 +223,15 @@ si_figure_plan <- list(
   )
 
 )
+
+# Height
+# tar_target(
+#   name = height_figure,
+#   command = make_vegetation_figure(dat = height_model_output,
+#                                    yaxislabel = "Change in height",
+#                                    colourpalette = NxW_col_palette,
+#                                    linetypepalette = c("solid", "dashed", "dotted"),
+#                                    shapepalette = c(16, 0, 2),
+#                                    facet_2 = "vegetation_layer") +
+#     facet_wrap(origSiteID ~ vegetation_layer, scales = "free_y")
+# ),

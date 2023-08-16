@@ -23,7 +23,7 @@ figure_plan <- list(
     command = {
 
       productivity_text <- productivity_stats |>
-        mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
+        mutate(significance = case_when(p.value >= 0.05 ~ "non-sign",
                                         term == "Intercept" ~ "non-sign",
                                         names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
                                         TRUE ~ "sign")) |>
@@ -31,8 +31,8 @@ figure_plan <- list(
         filter(significance == "sign",
                !term %in% c("W", "G")) |>
         mutate(term = recode(term,
-                             "WxN²" = "W + WxN²",
-                             "N²" = "G+N²")) |>
+                             "WxN²" = "W(+WxG)+WxN²",
+                             "N²" = "G+N²(+WxN²)")) |>
         distinct(origSiteID, term)
 
       productivity_figure <- make_vegetation_figure(dat1 = productivity_output |>
@@ -51,7 +51,7 @@ figure_plan <- list(
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
                     left_join(productivity_text, by = "origSiteID"),
                   aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
+                  size = 3, colour = text_colour, hjust = 1.4, vjust = 1.4)
 
 
       cover_text <- cover_stats |>
@@ -85,7 +85,7 @@ figure_plan <- list(
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_text, by = c("origSiteID", "functional_group")),
                   aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4) +
+                  size = 3, colour = text_colour, hjust = 1.4, vjust = 1.4) +
         theme(strip.background.y = element_blank(),
               strip.text.y = element_blank(),
               plot.margin = margin(r = 1, unit = "pt"))
@@ -268,12 +268,14 @@ figure_plan <- list(
       bind_rows(tibble(origSiteID = "Sub-alpine",
                        diversity_index = "diversity",
                        term = "N")) |>
+      mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity", "(WxG+WxN²)+WxGxN²", term),
+             term = if_else(origSiteID == "Alpine" & diversity_index == "evenness", "(WxG+)WxGxN²", term)) |>
       mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
   ),
 
   # figure
   tar_target(
-    name = diversity_figure,
+    name = div_index_figure,
     command = make_vegetation_figure(dat1 = diversity_output |>
                                        unnest(data),
                              x_axis = Nitrogen_log,
@@ -290,7 +292,7 @@ figure_plan <- list(
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
                     left_join(diversity_text, by = c("origSiteID", "diversity_index")),
                   aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.2, vjust = 1.4)
+                  size = 3, colour = text_colour, hjust = 1.2, vjust = 1.4)
 
   )
 
