@@ -9,14 +9,20 @@ run_full_model <- function(dat, group, response, grazing_var){
     group_by(across(all_of({{group}})))|>
     nest() |>
     # run linear, log and quadratic model
-    mutate(model_linear = map(data, ~lm(.response ~ warming * .grazing * Namount_kg_ha_y, data = .)),
-           model_log = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
-           model_quadratic = map(data, ~lm(.response ~ warming * .grazing * poly(Namount_kg_ha_y, 2), data = .)),
+    mutate(model_interaction_linear = map(data, ~lm(.response ~ warming * .grazing * Namount_kg_ha_y, data = .)),
+           model_single_linear = map(data, ~lm(.response ~ warming + .grazing + Namount_kg_ha_y, data = .)),
+           model_interaction_log = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
+           model_single_log = map(data, ~lm(.response ~ warming + .grazing + Nitrogen_log, data = .)),
+           model_interaction_quadratic = map(data, ~lm(.response ~ warming * .grazing * poly(Namount_kg_ha_y, 2), data = .)),
+           model_single_quadratic = map(data, ~lm(.response ~ warming + .grazing + poly(Namount_kg_ha_y, 2), data = .)),
 
            # get aic and r squared
-           glance_linear = map(.x = model_linear, .f = ~ safely(glance)(.x)$result),
-           glance_log = map(.x = model_log, .f = ~ safely(glance)(.x)$result),
-           glance_quadratic = map(.x = model_quadratic, .f = ~ safely(glance)(.x)$result))
+           glance_interaction_linear = map(.x = model_interaction_linear, .f = ~ safely(glance)(.x)$result),
+           glance_single_linear = map(.x = model_single_linear, .f = ~ safely(glance)(.x)$result),
+           glance_interaction_log = map(.x = model_interaction_log, .f = ~ safely(glance)(.x)$result),
+           glance_single_log = map(.x = model_single_log, .f = ~ safely(glance)(.x)$result),
+           glance_interaction_quadratic = map(.x = model_interaction_quadratic, .f = ~ safely(glance)(.x)$result),
+           glance_single_quadratic = map(.x = model_interaction_quadratic, .f = ~ safely(glance)(.x)$result))
 
 }
 

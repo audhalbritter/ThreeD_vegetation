@@ -33,7 +33,7 @@ analysis_plan <- list(
   ### PRODUCTIVITY
 
   tar_target(
-    name = productivity_model,
+    name = productivity_model_all,
     command = {
 
       # sum fun groups
@@ -45,7 +45,7 @@ analysis_plan <- list(
         summarise(sum_productivity = sum(productivity))
 
       # test productiviy in 2022
-      productivity_model <- run_full_model(dat = total_productivity |>
+      productivity_model_all <- run_full_model(dat = total_productivity |>
                                               filter(grazing != "Natural",
                                                      year == 2022),
                                             group = c("origSiteID"),
@@ -54,12 +54,20 @@ analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, data),
                      names_sep = "_",
-                     names_to = c(".value", "names")) |>
+                     names_to = c(".value", "effects", "names")) |>
         unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC, deviance) |>
-        # select parsimonious model
-        filter(AIC == min(AIC))
+        select(origSiteID:adj.r.squared, AIC, deviance)
     }
+  ),
+
+  # only interaction model
+  tar_target(
+    name = productivity_model,
+    command = productivity_model_all |>
+      # remove model with single effects
+      filter(effects == "interaction") |>
+      # select parsimonious model
+      filter(AIC == min(AIC))
   ),
 
   # check models
@@ -98,7 +106,7 @@ analysis_plan <- list(
   # grazing intensity
   # run 3-way interaction model for cover
   tar_target(
-    name = cover_model,
+    name = cover_model_all,
     command = run_full_model(dat = functional_group_cover |>
                                filter(#!functional_group %in% c("legume", "shrub"),
                                       grazing != "Natural"),
@@ -108,13 +116,22 @@ analysis_plan <- list(
       # make long table
       pivot_longer(cols = -c(origSiteID, functional_group, data),
                    names_sep = "_",
-                   names_to = c(".value", "names")) |>
+                   names_to = c(".value", "effects", "names")) |>
       unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC, deviance) |>
-      # select parsimonious model (checked by hand!!!)
-      filter((origSiteID == "Sub-alpine" & names == "log") |
-             (origSiteID == "Alpine" & functional_group == "forb" & names == "log") |
-             (origSiteID == "Alpine" & functional_group != "forb" & AIC == min(AIC)))
+      select(origSiteID:adj.r.squared, AIC, deviance)
+  ),
+
+
+    # only interaction model
+    tar_target(
+      name = cover_model,
+      command = cover_model_all |>
+        filter(effects == "interaction") |>
+        # select parsimonious model (checked by hand!!!)
+        filter((origSiteID == "Sub-alpine" & names == "log") |
+                 (origSiteID == "Alpine" & functional_group == "forb" & names == "log") |
+                 (origSiteID == "Alpine" & functional_group != "forb" & AIC == min(AIC)))
+
   ),
 
   # prediction and model output
@@ -146,61 +163,12 @@ analysis_plan <- list(
       fancy_stats()
   ),
 
-
-  # # bryophytes, lichen and litter
-  # tar_target(
-  #   name = cover_bryo_model,
-  #   command = run_full_model(dat = comm_structure |>
-  #                              filter(functional_group %in% c("Litter", "Bryophytes", "Lichen"),
-  #                                     grazing != "Natural"),
-  #                            group = c("origSiteID", "functional_group"),
-  #                            response = delta,
-  #                            grazing_var = grazing_num) |>
-  #     # make long table
-  #     pivot_longer(cols = -c(origSiteID, functional_group, data),
-  #                  names_sep = "_",
-  #                  names_to = c(".value", "names")) |>
-  #     # select best model
-  #     filter(aic == min(aic))
-  # ),
-  #
-  # tar_target(
-  #   name = cover_bryo_output,
-  #   command = make_prediction(cover_bryo_model)
-  # ),
-  #
-  # # prepare model output
-  # tar_target(
-  #   name = cover_bryo_prediction,
-  #   command = cover_bryo_output |>
-  #     # merge data and prediction
-  #     mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
-  #     select(origSiteID, functional_group, output) |>
-  #     unnest(output) |>
-  #     rename(prediction = fit) |>
-  #     mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
-  # ),
-  #
-  #
-  # # stats
-  # tar_target(
-  #   name =   cover_bryo_stats,
-  #   command = cover_bryo_output |>
-  #     unnest(result) |>
-  #     ungroup() |>
-  #     select(-data, -model, -aic, -prediction) |>
-  #     fancy_stats()
-  # ),
-
-
   ### DIVERSITY
   # grazing intensity
   # run 3-way interaction model for cover
   tar_target(
-    name = diversity_model,
-    command = {
-
-      models <- run_full_model(dat = diversity |>
+    name = diversity_model_all,
+    command = run_full_model(dat = diversity |>
                        filter(grazing != "Natural"),
                      group = c("origSiteID", "diversity_index"),
                      response = delta,
@@ -208,19 +176,25 @@ analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, diversity_index, data),
                      names_sep = "_",
-                     names_to = c(".value", "names")) |>
+                     names_to = c(".value", "effects", "names")) |>
         unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC, deviance) |>
-
-      # models |>
-        # select parsimonious model (done by hand!!!)
-        filter((diversity_index != "richness" & AIC == min(AIC)) |
-                 (diversity_index == "richness" & names == "log"))
-
-    }
+        select(origSiteID:adj.r.squared, AIC, deviance)
 
 
   ),
+
+  tar_target(
+    name = diversity_model,
+    command = diversity_model_all |>
+      # select only interaction model
+      filter(effects == "interaction") |>
+      # models |>
+      # select parsimonious model (done by hand!!!)
+      filter((diversity_index != "richness" & AIC == min(AIC)) |
+               (diversity_index == "richness" & names == "log"))
+
+
+      ),
 
   tar_target(
     name = diversity_output,
@@ -280,3 +254,50 @@ analysis_plan <- list(
   # ),
 
 )
+
+
+
+# # bryophytes, lichen and litter
+# tar_target(
+#   name = cover_bryo_model,
+#   command = run_full_model(dat = comm_structure |>
+#                              filter(functional_group %in% c("Litter", "Bryophytes", "Lichen"),
+#                                     grazing != "Natural"),
+#                            group = c("origSiteID", "functional_group"),
+#                            response = delta,
+#                            grazing_var = grazing_num) |>
+#     # make long table
+#     pivot_longer(cols = -c(origSiteID, functional_group, data),
+#                  names_sep = "_",
+#                  names_to = c(".value", "names")) |>
+#     # select best model
+#     filter(aic == min(aic))
+# ),
+#
+# tar_target(
+#   name = cover_bryo_output,
+#   command = make_prediction(cover_bryo_model)
+# ),
+#
+# # prepare model output
+# tar_target(
+#   name = cover_bryo_prediction,
+#   command = cover_bryo_output |>
+#     # merge data and prediction
+#     mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
+#     select(origSiteID, functional_group, output) |>
+#     unnest(output) |>
+#     rename(prediction = fit) |>
+#     mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
+# ),
+#
+#
+# # stats
+# tar_target(
+#   name =   cover_bryo_stats,
+#   command = cover_bryo_output |>
+#     unnest(result) |>
+#     ungroup() |>
+#     select(-data, -model, -aic, -prediction) |>
+#     fancy_stats()
+# ),
