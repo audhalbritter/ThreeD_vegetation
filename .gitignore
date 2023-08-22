@@ -46,7 +46,9 @@ vignettes/*.pdf
 *.xlsx
 *.bib
 *.pdf
+*.rds
 data/*
+trackdown/*
 Manuscript/google.R
 
 # output files
