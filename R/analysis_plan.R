@@ -224,34 +224,50 @@ analysis_plan <- list(
       unnest(result) |>
       ungroup() |>
       fancy_stats()
+  ),
+
+  # interactions vs single effects
+  tar_target(
+    name =   single_vs_interaction,
+    command = {
+
+      # select the correct models with interactions and single effects and bind them together
+      bind_rows(
+
+        # productivity
+        productivity = productivity_model_all |>
+          select(origSiteID, effects, names, adj.r.squared) |>
+          # inner join with correct models (previously selected based on AIC)
+          inner_join(productivity_model |>
+                       select(origSiteID, names),
+                     join_by(origSiteID, names)) |>
+          mutate(group = "productivity"),
+
+        # productivity
+        cover = cover_model_all |>
+          select(origSiteID, functional_group, effects, names, adj.r.squared) |>
+          # inner join with correct models (previously selected based on AIC)
+          inner_join(cover_model |>
+                       select(origSiteID, functional_group, names),
+                     join_by(origSiteID, functional_group, names)) |>
+          rename(group = functional_group),
+
+        # diversity
+        diversity = diversity_model_all |>
+          select(origSiteID, diversity_index, effects, names, adj.r.squared) |>
+          # inner join with correct models (previously selected based on AIC)
+          inner_join(diversity_model |>
+                       select(origSiteID, diversity_index, names),
+                     join_by(origSiteID, diversity_index, names)) |>
+          rename(group = diversity_index),
+
+        .id = "variable"
+      )
+
+
+    }
+
   )
-
-
-  # # model selection cover and grazing levels
-  # tar_target(
-  #   name = cover_model_selection,
-  #   command = do_model_selection(functional_group_cover)
-  #   ),
-  #
-  # tar_target(
-  #   name = cover_result,
-  #   command = {
-  #
-  #     dat <- functional_group_cover |>
-  #       filter(grazing != "Natural",
-  #              functional_group %in% c("graminoid", "forb")) |>
-  #
-  #       # best model
-  #       mutate(best_model = case_when(origSiteID == "Alpine" & functional_group == "graminoid" ~ "delta ~ grazing_num * warming + Nitrogen_log * warming",
-  #                                     origSiteID == "Alpine" & functional_group == "forb" ~ "delta ~ Nitrogen_log * warming",
-  #                                     origSiteID == "Sub-alpine" & functional_group == "graminoid" ~ "delta ~ grazing_num + Nitrogen_log + warming",
-  #                                     origSiteID == "Sub-alpine" & functional_group == "forb" ~ "delta ~ Nitrogen_log + warming")) |>
-  #       group_by(origSiteID, functional_group, best_model)
-  #
-  #       cover_result <- run_best_models(dat)
-  #
-  #   }
-  # ),
 
 )
 

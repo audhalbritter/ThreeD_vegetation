@@ -35,7 +35,7 @@ si_figure_plan <- list(
         unnest(data) |>
         mutate(variable = factor(variable, levels = c("air", "ground", "soil", "soilmoisture")))
 
-      make_vegetation_figure(dat1 = clim,
+      make_climate_figure(dat1 = clim,
                              x_axis = Nitrogen_log,
                              yaxislabel = "Climate variable",
                              colourpalette = col_palette,
@@ -48,8 +48,8 @@ si_figure_plan <- list(
         geom_text(data = clim |>
                     distinct(origSiteID, variable, warming, Namount_kg_ha_y, grazing) |>
                     left_join(climate_text, by = c("origSiteID", "variable")),
-                  aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.2, vjust = 1.4)
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
+                  size = 3, colour = text_colour)
 
     }
   ),
@@ -102,11 +102,24 @@ si_figure_plan <- list(
                                         TRUE ~ "sign")) |>
         filter(significance == "sign") |>
         ### BY HAND CODE!!!
-        filter(!term %in% c("WxN", "G")) |>
-        mutate(term = case_when(term == "WxGxN" ~ "WxN + WxGxN",
-                                term == "GxN" ~ "G + WxGxN",
-                                TRUE ~ term),
+        group_by(origSiteID, functional_group) |>
+        slice(1) |>
+        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume"))) |>
+        select(origSiteID, functional_group, term)
+
+      cover_CN_text2 <- cover_CN_text |>
+        mutate(term = case_when(term == "WxN" ~ "WxGxN",
+                                term == "G" ~ "GxN",
+                                TRUE ~ ""),
                functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
+
+      marginal_CN_cover_text <- cover_CN_text |>
+        mutate(term = case_when(term == "G" ~ "WxG",
+                                TRUE ~ "")) |>
+        bind_rows(tibble(origSiteID = "Sub-alpine",
+                         functional_group = "graminoid",
+                         term = "W")) |>
+        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
 
       cover = cover_CN_output |>
         unnest(data) |>
@@ -128,11 +141,23 @@ si_figure_plan <- list(
                     filter(functional_group %in% c("graminoid", "forb")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_CN_text |>
-                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")) #|>
-                    #mutate(term = if_else(is.na(term), "", term))
-                    ,
-                  aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
+                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group %in% c("graminoid", "forb")) |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(cover_CN_text2 |>
+                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 2.8, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group %in% c("graminoid", "forb")) |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(marginal_CN_cover_text |>
+                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
+                  size = 3, colour = "grey50")
 
 
       sedge_figure <- make_vegetation_figure(dat1 = cover |>
@@ -165,11 +190,30 @@ si_figure_plan <- list(
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_CN_text |>
                                 filter(functional_group == "legume")
-                              , by = c("origSiteID", "functional_group")) #|>
-                    #mutate(term = if_else(is.na(term), "", term))
-                  ,
-                  aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
+                              , by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group == "legume") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(cover_CN_text2 |>
+                                filter(functional_group == "legume")
+                              , by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 2.8, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group == "legume") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(marginal_CN_cover_text |>
+                                filter(functional_group == "legume"),
+                  by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 4.4, label = term),
+                  size = 3, colour = "grey50")
+
+      # merge figures
+      cover_figure + sedge_figure/legumes_figure +
+        plot_layout(guides = "collect", widths = c(2, 1)) &
+        theme(legend.position = "top")
 
       cover_figure + sedge_figure/legumes_figure +
         plot_layout(guides = "collect", widths = c(2, 1)) &
@@ -193,8 +237,11 @@ si_figure_plan <- list(
         ### BY HAND!!!
         filter(significance == "sign") |>
         distinct(origSiteID, diversity_index, term) |>
-        # CHECK !!!
-        mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity" & term == "WxN", "WxN (+ WxGxN)", term)) |>
+        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
+
+      marginal_div_CN_text <- diversity_CN_text |>
+      mutate(term = case_when(origSiteID == "Alpine" & diversity_index == "diversity" ~ "WxGxN",
+                              TRUE ~ "")) |>
         mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
 
 
@@ -216,8 +263,13 @@ si_figure_plan <- list(
         geom_text(data = div |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
                     left_join(diversity_CN_text, by = c("origSiteID", "diversity_index")),
-                  aes(x = Inf, y = Inf, label = term),
-                  size = 4, colour = text_colour, hjust = 1.2, vjust = 1.4)
+                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -2.5, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = div |>
+                    distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(marginal_div_CN_text, by = c("origSiteID", "diversity_index")),
+                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -1.1, label = term),
+                  size = 3, colour = "grey50")
 
     }
   )

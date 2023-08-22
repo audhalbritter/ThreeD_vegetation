@@ -1,5 +1,57 @@
 ### make climate figures
 
+make_climate_figure <- function(dat1,
+                                   x_axis,
+                                   yaxislabel,
+                                   colourpalette, linetypepalette, shapepalette,
+                                   facet_2,
+                                   # predictions
+                                   dat2){
+
+  dat2 <- dat2 |>
+    rename(.x_axis = {{x_axis}})
+
+  plot <- dat1 |>
+    rename(.x_axis = {{x_axis}}) |>
+    ggplot(aes(x = .x_axis,
+               y = .response,
+               color = warming,
+               linetype = grazing,
+               shape = grazing)) +
+    # CI from prediction
+    geom_ribbon(data = dat2, aes(y = prediction, ymin = lwr,
+                                 ymax = upr,
+                                 fill = warming),
+                alpha = 0.1,
+                linetype = 0) +
+    geom_point(size = 2) +
+    # prediction line
+    geom_line(data = dat2, aes(y = prediction), linewidth = 0.5) +
+    labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
+         y = yaxislabel) +
+    # scales
+    scale_colour_manual(name = "Warming", values = colourpalette) +
+    scale_fill_manual(name = "Warming", values = colourpalette) +
+    scale_linetype_manual(name = "Grazing", values = linetypepalette) +
+    scale_shape_manual(name = "Grazing", values = shapepalette) +
+    # change labels to real values
+    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
+    # facet
+    facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
+    theme_bw() +
+    theme(legend.position = "top",
+          legend.box ="vertical",
+          text = element_text(size = 12))
+
+  if(is.na(facet_2)){
+    plot + facet_grid(origSiteID ~ "", scales = "free")
+  } else {
+    plot
+  }
+
+}
+
+
 # annual climate
 make_annual_climate_figure <- function(annual_climate){
 

@@ -55,6 +55,7 @@ plot <- dat1 |>
 
 
 
+
 ### biomass and productivity
 
 make_functional_group_biomass_figure <- function(biomass){
