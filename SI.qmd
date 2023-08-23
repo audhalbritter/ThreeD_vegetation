@@ -9,25 +9,260 @@ bibliography: bibliography.bib
 ```{r}
 #| label: set-up
 #| echo: false
+#| message: false
 library(targets)
 library(tarchetypes)
+library(tidyverse)
+library(lubridate)
+library(broom)
+library(gt)
 ```
 
-## Supporting Information
+## Supplementary Information
+
+### Global change effects on the microclimate
 
 ```{r}
-#| label: tbl-sites
+#| label: fig-daily-climate
 #| echo: false
-#| tab-cap: Some text
+#| warning: false
+#| fig-cap: a) Daily microclimate values, measured over the period of the experiment in the alpine and sub-alpine sites and b) average summer microclimate between May and September. Shown are air (30 cm), ground (0 cm), soil temperature (-5 cm), and soil moisture measured with Tomst loggers between August 2019 and October 2022. Colour indicates the ambient (grey) and warming (pink) treatment. Air, ground and soil temperature were higher and soil moisture was lower in the warming treatment, indicated by the star.
 
 
-tibble(Variable = c("Elevation m a.s.l.", "Latitude °N", "Longitude °E", "Mean summer temp. °C", "Annual precip in mm"),
-         Lowland = c(469.0, 60.88019, 7.16990, 13, 1292),
-         "Sub-alpine" = c(920.0, 60.86183, 7.16800, 10.4, 1256),
-         Alpine = c(1290.0, 60.85994, 7.19504, 7.3, 2080)) |> 
-  gt()
+tar_load(daily_climate_figure)
+daily_climate_figure
+
 ```
 
-The alpine site was a species rich grassland dominated by *Silene acaulis*, *Thalictrum alpinum*, *Alchemilla alpina*, *Leontodon autumnalis*, *Antennaria dioica*, *Carex capillaris*, and *Festuca rubra*.
-The sub-alpine site was located close to a summer farm and the vegetation was dominated by species adapted to grazing: *Achillea millefolium* , *Agrostis capillaris*, *Poa pratensis*, *Ranunculus repens*, and *Rumex acetosa* and the lowest site was located close to a farm and the vegetation is dominated by *Potentilla erecta*, *Knautia arvensis*, *Agrostis capillaris*, *Rumex acetosa*, *Festuca ovina*, and  *Poa pratense*.
+```{r}
 
+#| label: climate-test
+#| echo: false
+
+tar_load(daily_temp)
+
+warming <- daily_temp |>
+    mutate(month = month(date),
+           year = year(date)) |>
+    filter(month %in% c(5, 6, 7, 8, 9),
+           grazing == "Control",
+           Namount_kg_ha_y == 0)
+
+test_warming <- warming |> 
+  group_by(origSiteID, variable) |> 
+  nest() |> 
+  mutate(linMod = map(data, ~lm(value ~ warming, data = .)),
+         result = map(linMod, tidy)) |> 
+  unnest(result) |> 
+  select(-data, -linMod) |> 
+  mutate(estimate = round(estimate, 2),
+         std.error = round(std.error, 2),
+         statistic = round(statistic, 2),
+         p.value = round(p.value, 3))
+
+
+```
+
+<!-- 2021 was the warmest and driest year with an average air temperature of 10.18 °C and 0.25 % soil moisture content. -->
+
+<!-- 2019 was the coldest and wettest year with an average air temperature of 6.18 °C and 0.4 % soil moisture content (Supplement Figure S1). -->
+
+```{r}
+#| label: fig-climate
+#| echo: false
+#| warning: false
+#| fig-cap: Global change impact on microclimate. Average summer (June - Spetember) air, ground soil temperture and soil moisture over between 2019 and 2022 with increasing nitrogen addition (kg N ha^-1^ y^-1^) at the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpreation of the data. The colours indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. Letters indicate significant model terms.
+
+tar_load(climate_figure)
+climate_figure
+```
+
+
+```{r}
+#| label: tbl-climate
+#| echo: false
+#| eval: false
+#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on microclimate (air, ground, soil temperature and soilmoisture) at the alpine and sub-alpine site. Shown are estimates ± standard error, t statistics and P value.
+
+tar_load(climate_stats)
+
+dat <- climate_stats |> 
+  mutate(estimate = round(estimate, 2),
+         std.error = round(std.error, 2),
+         statistic = round(statistic, 2),
+         p.value = round(p.value, 3),
+         estimate = paste(estimate, "±", std.error, sep = " ")) |> 
+  select(-names, -std.error) |> 
+  pivot_wider(names_from = variable, values_from = c(estimate, statistic, p.value)) |>
+  mutate(term = factor(term, levels = c("Intercept", "W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²"))) |>
+  arrange(origSiteID, term) |> 
+  select(origSiteID, Term = term, estimate_air, statistic_air, p.value_air, estimate_ground, statistic_ground, p.value_ground, estimate_soil, statistic_soil, p.value_soil, estimate_soilmoisture, statistic_soilmoisture, p.value_soilmoisture)
+
+dat |> 
+  gt() |> 
+  tab_spanner(label = "Air", columns = c(2:4)) |> 
+  cols_label(estimate_air = "Estimate ± SE",
+             statistic_air = "t",
+             p.value_air	= "P") |> 
+  tab_spanner(label = "Ground", columns = c(5:7)) |> 
+  cols_label(estimate_ground = "Estimate ± SE",
+             statistic_ground = "t",
+             p.value_ground	= "P") |> 
+  tab_spanner(label = "Soil", columns = c(8:10)) |> 
+  cols_label(estimate_soil = "Estimate ± SE",
+             statistic_soil = "t",
+             p.value_soil	= "P") |> 
+  tab_spanner(label = "Soilmoisture", columns = c(11:13)) |> 
+  cols_label(estimate_soilmoisture = "Estimate ± SE",
+             statistic_soilmoisture = "t",
+             p.value_soilmoisture	= "P") |>
+  tab_row_group(
+    label = "Sub-alpine",
+    rows = 9:16
+  ) |> 
+  tab_row_group(
+    label = "Alpine",
+    rows = 1:8
+  ) |> 
+  tab_options(
+  table.font.size = 12,
+  data_row.padding = gt::px(1)
+  )
+
+```
+
+### Functional group composition
+
+```{r}
+#| label: fig-biomass-fg
+#| echo: false
+#| warning: false
+#| fig-height: 5
+#| fig-cap: Proportion of biomass per plant functional group at peak growing season in 2022. Shown are the proportion of shrubs, graminoids (without Cyperaceae), Cyperaceae (mostly Carex species), forbs, legumes, bryophytes, and litter, for the different nitrogen addition treatments in non-grazed (Control), medium and intensive grazed plots. The two top rows are the ambient and warmed plots in the alpine site, while the two lower rows are ambient and warmed plots at the subalpine site. The general pattern is that graminoids increase and forbs decrease with higher nitrogen addition treatment.
+
+tar_load(biomass_fun_group)
+biomass_fun_group
+
+```
+
+### Functional group cover and natural grazing
+
+```{r}
+#| label: fig-cover-CN
+#| echo: false
+#| warning: false
+#| fig-cap: Change in functional group cover. The figure shows change in graminoid excluding sedges, forb, sedge or legume cover between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha-1 y-1) in the alpine (upper row) and sub-alpine (lower row) sites. Positive numbers indicate an increase and negative numbers a decrease in functional group cover. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpreation of the data. The colours indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = natural grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in grey show marginal significant terms. Note that sedge and legumes only occured in high enough abundance at one of the locations to run a model.
+
+tar_load(cover_CN_figure)
+cover_CN_figure
+
+```
+
+
+```{r}
+#| label: tbl-cover-CN
+#| echo: false
+#| eval: false
+#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on graminoid, forb, sedge and legume cover at the alpine and sub-alpine site. Shown are estimates ± standard error, t statistics and P value. Other refer to sedges in the alpine and legumes in the sub-alpine site. Note that NAs indicate that the results are from the logarithmic model and the term N² does not exist.
+
+tar_load(cover_CN_stats)
+
+dat <- cover_CN_stats |> 
+  mutate(estimate = round(estimate, 2),
+         std.error = round(std.error, 2),
+         statistic = round(statistic, 2),
+         p.value = round(p.value, 3),
+         estimate = paste(estimate, "±", std.error, sep = " "),
+         functional_group = if_else(functional_group %in% c("sedge", "legume"), "other", functional_group)) |> 
+  select(-names, -std.error) |> 
+  pivot_wider(names_from = functional_group, values_from = c(estimate, statistic, p.value)) |>
+  mutate(term = factor(term, levels = c("Intercept", "W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²"))) |>
+  arrange(origSiteID, term) |> 
+  select(Term = term, estimate_graminoid, statistic_graminoid, p.value_graminoid, estimate_forb, statistic_forb, p.value_forb, estimate_other, statistic_other, p.value_other)
+
+dat |> 
+  gt() |> 
+  tab_spanner(label = "Graminoid", columns = c(2:4)) |> 
+  cols_label(estimate_graminoid = "Estimate ± SE",
+             statistic_graminoid = "t",
+             p.value_graminoid	= "P") |> 
+  tab_spanner(label = "Forb", columns = c(5:7)) |> 
+  cols_label(estimate_forb = "Estimate ± SE",
+             statistic_forb = "t",
+             p.value_forb	= "P") |> 
+  tab_spanner(label = "Other", columns = c(8:10)) |> 
+  cols_label(estimate_other = "Estimate ± SE",
+             statistic_other = "t",
+             p.value_other	= "P") |> 
+  tab_row_group(
+    label = "Sub-alpine",
+    rows = 13:20
+  ) |> 
+  tab_row_group(
+    label = "Alpine",
+    rows = 1:12
+  ) |> 
+  tab_options(
+  table.font.size = 12,
+  data_row.padding = gt::px(1)
+  )
+
+```
+
+
+```{r}
+#| label: fig-diversity-CN
+#| echo: false
+#| warning: false
+#| fig-cap: Change in functional group cover. Change in diversity indices (richness, diversity and evenness) between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha-1 y-1) in the alpine (upper row) and sub-alpine (lower row) sites. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpreation of the data. The colours indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = natural grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in grey show marginal significant terms.
+
+tar_load(diversity_CN_figure)
+diversity_CN_figure
+
+```
+
+
+```{r}
+#| label: tbl-div-CN
+#| echo: false
+#| eval: false
+#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on change in diversity at the alpine and sub-alpine site. Shown are estimates ± standard error, t statistics and P value. Note that NAs indicate that the results are from the linear or logarithmic model and the term N² does not exist.
+
+tar_load(diversity_CN_stats)
+
+div <- diversity_CN_stats |>
+  mutate(estimate = round(estimate, 2),
+         std.error = round(std.error, 2),
+         statistic = round(statistic, 2),
+         p.value = round(p.value, 3),
+         estimate = paste(estimate, "±", std.error, sep = " ")) |> 
+  select(-names, -std.error) |> 
+  pivot_wider(names_from = diversity_index, values_from = c(estimate, statistic, p.value)) |> 
+  select(Term = term, estimate_richness, statistic_richness, p.value_richness, estimate_diversity, statistic_diversity, p.value_diversity, `estimate_evenness`, `statistic_evenness`, `p.value_evenness`)
+
+div |> 
+  gt() |> 
+  tab_spanner(label = "Richness", columns = c(2:4)) |> 
+  cols_label(estimate_richness = "Estimate ± SE",
+             statistic_richness = "t",
+             p.value_richness	= "P") |> 
+  tab_spanner(label = "Diversity", columns = c(5:7)) |> 
+  cols_label(`estimate_diversity` = "Estimate ± SE",
+             `statistic_diversity` = "t",
+             `p.value_diversity`	= "P") |> 
+    tab_spanner(label = "Evenness", columns = c(8:10)) |> 
+  cols_label(`estimate_evenness` = "Estimate ± SE",
+             `statistic_evenness` = "t",
+             `p.value_evenness`	= "P") |> 
+  tab_row_group(
+    label = "Sub-alpine",
+    rows = 9:16
+  ) |> 
+  tab_row_group(
+    label = "Alpine",
+    rows = 1:8
+  ) |> 
+  tab_options(
+  table.font.size = 12,
+  data_row.padding = gt::px(1))
+```
