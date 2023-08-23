@@ -1,26 +1,8 @@
 #
 manuscript_plan <- list(
 
-  # bibliography
-  tar_target(
-    name = bibliography,
-    command = "Manuscript/bibliography.bib",
-    format = "file"
-  ),
-
-  # add packages to bibliography
-  tar_target(
-    name = biblio2,
-    command = rjt.misc::package_citations(
-      packages = c("targets", "tidyverse", "rmarkdown"),
-      old_bib = bibliography,
-      new_bib = "Manuscript/bibliography2.bib"),
-    format = "file"
-  ),
-
-  #render manuscript
-  tar_render(name = ms,
-             path = "Manuscript/Manuscript.Rmd")
-
+  # manuscript
+  tar_quarto(name = manuscript,
+             path = "Main.qmd")
 
 )

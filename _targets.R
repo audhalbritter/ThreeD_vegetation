@@ -1,21 +1,10 @@
 library("targets")
 library("tarchetypes")
 
-tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom"))
-#"rjt.misc",
+tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "wesanderson", "ggh4x"))
 
 # source other scripts
-#source("R/load_libraries.R")
-source("R/functions/make_climate_figures.R")
-source("R/functions/make_vegetation_figures.R")
-source("R/functions/make_analysis.R")
-
-# source target plans - can also construct plans directly in this file.
-source("R/download_plan.R")
-source("R/tranformation_plan.R")
-source("R/analysis_plan.R")
-source("R/figure_plan.R")
-# source("R/manuscript_plan.R")
+tar_source()
 
 
 #Combine target plans
@@ -23,6 +12,8 @@ combined_plan <- c(
   download_plan,
   tranformation_plan,
   analysis_plan,
-  figure_plan
-  # manuscript_plan
+  figure_plan,
+  manuscript_plan,
+  si_analysis_plan,
+  si_figure_plan
 )

@@ -1,38 +1,96 @@
 ### make vegetation figures
 
+make_vegetation_figure <- function(dat1,
+                                   x_axis,
+                                   yaxislabel,
+                                   colourpalette, linetypepalette, shapepalette,
+                                   facet_2,
+                                   # predictions
+                                   dat2){
+
+dat2 <- dat2 |>
+    rename(.x_axis = {{x_axis}})
+
+plot <- dat1 |>
+    rename(.x_axis = {{x_axis}}) |>
+    ggplot(aes(x = .x_axis,
+               y = .response,
+               color = warming,
+               linetype = grazing,
+               shape = grazing)) +
+    # zero line
+    geom_hline(yintercept = 0, colour = "lightgrey") +
+    # CI from prediction
+    geom_ribbon(data = dat2, aes(y = prediction, ymin = lwr,
+                    ymax = upr,
+                    fill = warming),
+                alpha = 0.1,
+                linetype = 0) +
+    geom_point(size = 2) +
+    # prediction line
+    geom_line(data = dat2, aes(y = prediction), linewidth = 0.5) +
+    labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
+         y = yaxislabel) +
+    # scales
+    scale_colour_manual(name = "Warming", values = colourpalette) +
+    scale_fill_manual(name = "Warming", values = colourpalette) +
+    scale_linetype_manual(name = "Grazing", values = linetypepalette) +
+    scale_shape_manual(name = "Grazing", values = shapepalette) +
+    # change labels to real values
+    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
+    # facet
+    facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
+    theme_bw() +
+    theme(legend.position = "top",
+          legend.box ="vertical",
+          text = element_text(size = 12))
+
+  if(is.na(facet_2)){
+    plot + facet_grid(origSiteID ~ "", scales = "free")
+  } else {
+    plot
+  }
+
+}
+
+
+
+
+### biomass and productivity
 
 make_functional_group_biomass_figure <- function(biomass){
 
-  biomass_fg_figure <- biomass |>
-    filter(grazing != "Natural") |>
+  biomass |>
+    # filter only 2022. Filter for only one cut at peak growing season.
+    filter(year == 2022,
+           (grazing == "Medium" & cut == 2) |
+           (grazing %in% c("Intensive", "Control") & cut == 3)) |>
     mutate(warm_site = paste(origSiteID, warming, sep = " "),
-           fun_group = factor(fun_group, levels = c("shrub", "graminoids", "cyperaceae", "forbs", "legumes", "bryophytes", "lichen", "litter"))) |>
-    ggplot(aes(x = factor(Namount_kg_ha_y), y = productivity, fill = fun_group)) +
+           fun_group = factor(fun_group, levels = c("shrub", "graminoids", "cyperaceae", "forbs", "legumes", "bryophytes", "litter"))) |>
+    ggplot(aes(x = factor(Namount_kg_ha_y), y = biomass_scaled, fill = fun_group)) +
     geom_col(position = "fill") +
-    scale_fill_manual(values = c("darkgreen", "limegreen", "lawngreen", "plum4", "plum2", "orange", "red", "peru"), name = "") +
-    labs(y = bquote(Productivity~(g~m^-2~y^-1)),
+    scale_fill_manual(values = c("darkgreen", "limegreen", "lawngreen", "plum4", "plum2", "orange", "peru"), name = "") +
+    labs(y = "Proportional functional group composition",
          x = bquote(Nitrogen~(kg~ha^-1~y^-1))) +
-    facet_grid(warm_site ~ grazing) +
-    theme_minimal() +
+    facet_grid(origSiteID * warming ~ grazing) +
+    theme_bw() +
     theme(legend.position = "top",
           text = element_text(size = 12))
-
-  return(biomass_fg_figure)
-
 
 }
 
 make_productivity_figure <- function(biomass){
 
-  productivity_figure <- biomass %>%
-    filter(!fun_group %in% c("litter")) %>%
-    mutate(site_warm = paste0(origSiteID, warming)) %>%
-    group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Namount_kg_ha_y, Nitrogen_log, grazing) %>%
-    summarise(annual_productivity = sum(productivity)) %>%
+  productivity_figure <- biomass |>
+    filter(#grazing != "Natural",
+           !fun_group %in% c("litter")) %>%
+    # summarise the cuts to get annual productivity
+    group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing, year) %>%
+    summarise(annual_productivity = sum(biomass_scaled)) %>%
     filter(annual_productivity < 700,
            warming == "Ambient",
            Namount_kg_ha_y == 0) |>
-    ggplot(aes(y = annual_productivity, fill = grazing)) +
+    ggplot(aes(x = factor(year), y = annual_productivity, fill = grazing)) +
     geom_boxplot() +
     labs(y = bquote(Productivity~(g~m^-2~y^-1)),
          x = "") +
@@ -44,63 +102,3 @@ make_productivity_figure <- function(biomass){
   return(productivity_figure)
 
 }
-
-# 3 colour palette (grey, orange, pink)
-#three_col_palette <- c("#999999", "#E69F00", "#CC79A7")
-
-#        sign = if_else(is.na(sign),  "no effect", sign),
-#        sign = recode(sign, W_sign = "Warming", NxW_sign = "Interaction"),
-#        sign = factor(sign, levels = c("no effect", "Warming", "Interaction"))) |>
-
-make_cover_fig <- function(subset, fig_title, colour_palette, facet_1) {
-
-  p <- subset |>
-    ggplot(aes(x = Nitrogen_log, y = delta, colour = sign, linetype = warming, shape = warming)) +
-    geom_smooth(method = "lm", se = TRUE, aes(fill = sign)) +
-    geom_point(size = 2) +
-    labs(x = bquote(log(Nitrogen)~(kg~ha^-1~y^-1))) +
-    scale_colour_manual(name = "Effect", values = colour_palette) +
-    scale_fill_manual(name = "Effect", values = colour_palette) +
-    scale_linetype_manual(name = "Warming", values = c("dashed", "solid")) +
-    scale_shape_manual(name = "Warming", values = c(1, 16)) +
-    theme_minimal() +
-    theme(legend.position = "top",
-          text = element_text(size = 16))
-
-  if(facet_1 == "functional_group"){
-    cover_figure <- p +
-      labs(y = "Change in cover",
-           title = fig_title) +
-      facet_grid(functional_group ~ grazing)
-
-  } else
-    {
-
-      cover_figure <- p +
-        labs(y = "Change in richness",
-             title = fig_title) +
-        facet_grid(origSiteID ~ grazing)
-
-  }
-
-  return(cover_figure)
-
-}
-
-
-
-# first panel for presentations
-# panel1 <- cover_data %>%
-#   filter(functional_group == "graminoid",
-#          grazing =="Control",
-#          origSiteID == "High alpine") %>%
-#   ggplot(aes(x = Nitrogen_log, y = delta, colour = functional_group, linetype = warming, shape = warming)) +
-#   geom_point() +
-#   geom_smooth(method = "lm", se = FALSE) +
-#   labs(x = bquote(log(Nitrogen)~(kg~ha^-1~y^-1)),
-#        y = "Difference in cover (2021 - 2019)") +
-#   scale_colour_manual(name = "", values = c("limegreen")) +
-#   scale_linetype_manual(name = "warming", values = c("solid", "dashed")) +
-#   scale_shape_manual(name = "warming", values = c(16, 1)) +
-#   lims(y = c(-60, 80)) +
-#   theme_minimal()

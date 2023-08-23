@@ -46,13 +46,14 @@ vignettes/*.pdf
 *.xlsx
 *.bib
 *.pdf
-*data/
+*.rds
+data/*
+trackdown/*
+Manuscript/google.R
 
 # output files
 *.docx
 *.pdf
-
-# output files
 *.jpeg
 *.jpg
 *.png
@@ -64,3 +65,4 @@ vignettes/*.pdf
 *.lua
 *.tex
 
+*.DS_Store
