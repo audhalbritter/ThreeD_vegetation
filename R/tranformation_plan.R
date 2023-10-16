@@ -197,10 +197,6 @@ tranformation_plan <- list(
                                           functional_group == "pteridophyte" ~ "forb",
                                           grepl("Carex", species) ~ "sedge",
                                           TRUE ~ functional_group)) |>
-      # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
-      filter(functional_group != "shrub",
-             !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
-             !(functional_group == "legume" & origSiteID == "Alpine")) |>
       ungroup() |>
       select(-genus, -family)
   ),
@@ -209,6 +205,10 @@ tranformation_plan <- list(
   tar_target(
     name = functional_group_cover,
     command = cover %>%
+      # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
+      filter(functional_group != "shrub",
+             !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
+             !(functional_group == "legume" & origSiteID == "Alpine")) |>
       group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, functional_group, year) %>%
       summarise(cover = sum(cover)) %>%
       pivot_wider(names_from = year, values_from = cover) %>%
