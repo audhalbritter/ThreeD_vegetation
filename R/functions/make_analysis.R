@@ -27,21 +27,6 @@ run_full_model <- function(dat, group, response, grazing_var){
 }
 
 
-# 3 way interaction model with log transformed N
-# run_model <- function(dat, group, response, grazing_var){
-#
-#   dat |>
-#     rename(.response = {{response}},
-#            .grazing = {{grazing_var}}) |>
-#     group_by(across(all_of({{group}})))|>
-#     nest() |>
-#     mutate(model = map(data, ~lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
-#            result = map(model, tidy),
-#            prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
-#
-# }
-
-
 make_prediction <- function(model){
 
   # model |>
@@ -54,6 +39,8 @@ make_prediction <- function(model){
 
   model |>
     mutate(result = map(model, tidy),
+           anova = map(model, car::Anova),
+           anova_tidy = map(anova, tidy),
            # make new data
            newdata = ifelse(names == "log",
                             # for log model
@@ -78,6 +65,8 @@ make_CN_prediction <- function(model){
   Nitrogen_log = seq(from = 0, to = 5, by = 0.1)
 model |>
   mutate(result = map(model, tidy),
+         anova = map(model, car::Anova),
+         anova_tidy = map(anova, tidy),
          # make new data
          newdata = ifelse(names == "log",
                           # for log model

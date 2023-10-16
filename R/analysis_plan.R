@@ -39,15 +39,15 @@ analysis_plan <- list(
       # sum fun groups
       total_productivity <- productivity |>
         # remove litter, because it is not really productivity
-        filter(!fun_group %in% c("litter")) |>
+        filter(!fun_group %in% c("litter"),
+               year == 2022) |>
         ungroup() |>
         group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
         summarise(sum_productivity = sum(productivity))
 
       # test productiviy in 2022
       productivity_model_all <- run_full_model(dat = total_productivity |>
-                                              filter(grazing != "Natural",
-                                                     year == 2022),
+                                              filter(grazing != "Natural"),
                                             group = c("origSiteID"),
                                             response = sum_productivity,
                                             grazing_var = grazing_num) |>
@@ -94,7 +94,17 @@ analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   productivity_stats,
+    name =   productivity_anova_table,
+    command = productivity_output |>
+      select(origSiteID, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  # stats
+  tar_target(
+    name =   productivity_summary_table,
     command = productivity_output |>
       select(origSiteID, names, result) |>
       unnest(result) |>
@@ -155,7 +165,17 @@ analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   cover_stats,
+    name =  cover_anova_table,
+    command = cover_output |>
+      select(origSiteID, functional_group, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  # stats
+  tar_target(
+    name =   cover_summary_table,
     command = cover_output |>
       select(origSiteID, functional_group, names, result) |>
       unnest(result) |>
@@ -188,10 +208,12 @@ analysis_plan <- list(
     command = diversity_model_all |>
       # select only interaction model
       filter(effects == "interaction") |>
-      # models |>
+      group_by(origSiteID, diversity_index) |>
       # select parsimonious model (done by hand!!!)
-      filter((diversity_index != "richness" & AIC == min(AIC)) |
-               (diversity_index == "richness" & names == "log"))
+      filter(origSiteID == "Sub-alpine" & names == "linear" |
+               origSiteID == "Alpine" & diversity_index == "richness" & names == "linear" |
+               origSiteID == "Alpine" & AIC == min(AIC)) |>
+      filter(!(origSiteID == "Alpine" & diversity_index == "richness" & names == "quadratic"))
 
 
       ),
@@ -218,7 +240,16 @@ analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   diversity_stats,
+    name =   diversity_anova_table,
+    command = diversity_output |>
+      select(origSiteID, diversity_index, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  tar_target(
+    name =   diversity_summary_table,
     command = diversity_output |>
       select(origSiteID, diversity_index, names, result) |>
       unnest(result) |>
