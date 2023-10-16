@@ -23,10 +23,9 @@ si_figure_plan <- list(
     name = climate_figure,
     command = {
 
-      climate_text <- climate_stats |>
+      climate_text <- climate_anova_table |>
         mutate(significance = case_when(p.value >= 0.05 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
+                                        term == "Residuals" ~ "non-sign",
                                         TRUE ~ "sign")) |>
         filter(significance == "sign")
 
@@ -35,22 +34,48 @@ si_figure_plan <- list(
         unnest(data) |>
         mutate(variable = factor(variable, levels = c("air", "ground", "soil", "soilmoisture")))
 
-      make_climate_figure(dat1 = clim,
+      temp <- make_climate_figure(dat1 = clim |>
+                            filter(variable != "soilmoisture"),
                              x_axis = Nitrogen_log,
-                             yaxislabel = "Climate variable",
+                             yaxislabel = "Temperature in °C",
                              colourpalette = col_palette,
                              linetypepalette = c("solid", "dashed", "dotted"),
                              shapepalette = c(16, 0, 2),
                              facet_2 = "variable",
-                             dat2 = climate_prediction)  +
-        facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y") +
+                             dat2 = climate_prediction |>
+                            filter(variable != "soilmoisture")) +
+        labs(tags = "a)") +
         # add stats
         geom_text(data = clim |>
+                    filter(variable != "soilmoisture") |>
                     distinct(origSiteID, variable, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(climate_text, by = c("origSiteID", "variable")),
+                    left_join(climate_text |>
+                                filter(variable != "soilmoisture"), by = c("origSiteID", "variable")),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
                   size = 3, colour = text_colour)
 
+      moisture <- make_climate_figure(dat1 = clim |>
+                            filter(variable == "soilmoisture"),
+                          x_axis = Nitrogen_log,
+                          yaxislabel = "Soilmoisture in %",
+                          colourpalette = col_palette,
+                          linetypepalette = c("solid", "dashed", "dotted"),
+                          shapepalette = c(16, 0, 2),
+                          facet_2 = "variable",
+                          dat2 = climate_prediction |>
+                            filter(variable == "soilmoisture")) +
+        labs(tags = "b)") +
+        # add stats
+        geom_text(data = clim |>
+                    filter(variable == "soilmoisture") |>
+                    distinct(origSiteID, variable, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(climate_text |>
+                                filter(variable == "soilmoisture"), by = c("origSiteID", "variable")),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
+                  size = 3, colour = text_colour)
+
+      temp + moisture + plot_layout(guides = "collect", widths = c(3, 1)) &
+        theme(legend.position = "top")
     }
   ),
 
@@ -68,58 +93,142 @@ si_figure_plan <- list(
 
   # control vs cage biomass
   tar_target(
-    name = cage_control_biomass_figure,
-    command = productivity_raw |>
-      mutate(siteID = recode(siteID, "Vik" = "lowland", "Joa" = "sub-alpine", "Lia" = "alpine"),
-             siteID = factor(siteID, levels = c("lowland", "sub-alpine", "alpine")),
-             treatment = factor(treatment, levels = c("Control", "Cage")),
-             doy = yday(date)) |>
-      group_by(date, doy, siteID, treatment) |>
-      summarise(se = sd(productivity)/sqrt(n()),
-                mean = mean(productivity)) |>
-      ggplot(aes(x = date, y = mean, colour = treatment, shape = treatment)) +
-      geom_point(position = position_jitter(0.6)) +
-      geom_errorbar(aes(ymin = mean - se, ymax = mean + se), position = position_jitter(0.6)) +
-      scale_colour_manual(values = c("#999999", "#009E73")) +
-      scale_shape_manual(values = c(1, 16)) +
-      labs(y = "Biomass in g",
-           x = "") +
-      facet_wrap(~ siteID, scales = "free_y") +
-      theme_bw()
+    name = productivity_consumption_figure,
+    command = {
+
+      dat <- productivity_raw |>
+        # calculate productivity in mg per m^2
+        mutate(productivity_mg_m2 = productivity / area_cm / 10000 * 1000) |>
+        # productivity per day
+        mutate(productivity_mg_m2_d = productivity_mg_m2 / duration) |>
+        mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
+               siteID = factor(siteID, levels = c("Lowland", "Sub-alpine", "Alpine")),
+               treatment = case_match(treatment,
+                                      "Control" ~ "Grazed",
+                                      "Cage" ~ "Ungrazed"),
+               treatment = factor(treatment, levels = c("Grazed", "Ungrazed")))
+
+      # avaerage duration
+      dat |>
+        summarise(se = sd(duration, na.rm = TRUE)/sqrt(n()),
+                  mean = mean(duration, na.rm = TRUE))
+
+      # # Daily productivity over the growing season
+        # plot1 <- dat |>
+        #   group_by(date_out, siteID, treatment) |>
+        #   summarise(se = sd(productivity_mg_m2_d)/sqrt(n()),
+        #             mean = mean(productivity_mg_m2_d)) |>
+        #   ggplot(aes(x = date_out, y = mean, colour = treatment)) +
+        #   geom_point(position = position_jitter(0.9)) +
+        #   geom_errorbar(aes(ymin = mean - se, ymax = mean + se), position = position_jitter(0.9)) +
+        #   scale_colour_manual(name = "", values = c("#E9BD7F", "grey30")) +
+        #   labs(y = bquote(Biomass~g~m^-2),
+        #        x = "",
+        #        tag = "a)") +
+        #   facet_wrap(~ siteID) +
+        #   theme_bw()
+
+        # annual productivity
+        dat |>
+          summarise(sum = sum(productivity_mg_m2),
+                    .by = c(siteID, treatment, plot_nr)) |>
+          summarise(se = sd(sum)/sqrt(n()),
+                    mean = mean(sum),
+                    .by = c(siteID, treatment)) |>
+          select(siteID, treatment, mean, se)
+
+        # Annual productivity in grazed and ungrazed plots
+        plot2 <- dat |>
+          # remove first round without control
+          filter(!is.na(date_in)) |>
+          group_by(siteID, treatment, plot_nr) |>
+          summarise(sum = sum(productivity_mg_m2)) |>
+          ggplot(aes(x = siteID, y = sum, fill = treatment)) +
+          geom_boxplot() +
+          scale_fill_manual(name = "", values = c("#E9BD7F", "grey30")) +
+          labs(y = bquote(Annual~productivity~mg~m^-2~y^-1),
+               x = "",
+               tag = "a)") +
+          theme_bw()
+
+
+        # Seasonal biomass consumption
+        dat2 <- dat |>
+          # remove first round without control
+          filter(!is.na(date_in)) |>
+          select(-productivity, -productivity_mg_m2) |>
+          pivot_wider(names_from = treatment, values_from = productivity_mg_m2_d) |>
+          mutate(Consumption = Ungrazed - Grazed)
+
+        dat2 |>
+          summarise(sum = sum(Consumption),
+                    .by = c(siteID, plot_nr)) |>
+          summarise(se = sd(sum)/sqrt(n()),
+                    mean = mean(sum),
+                    .by = c(siteID)) |>
+          select(siteID, mean, se)
+
+
+      # plot3 <- dat2 |>
+      #   ggplot(aes(x = date, y = Consumption)) +
+      #   geom_hline(yintercept = 0, colour = "grey70") +
+      #   geom_point(colour = "#E9BD7F") +
+      #   labs(y = bquote(Biomass~consumption~g~m^-2),
+      #        x = "",
+      #        tag = "c)",
+      #        title = "Seasonal biomass consumption") +
+      #   facet_wrap(~ siteID) +
+      #   theme_bw()
+
+      # Annual biomass consumption
+      plot4 <- dat |>
+        select(-productivity, -productivity_mg_m2_d) |>
+        group_by(siteID, treatment, plot_nr) |>
+        summarise(sum = sum(productivity_mg_m2)) |>
+        pivot_wider(names_from = treatment, values_from = sum) |>
+        mutate(Consumption = Ungrazed - Grazed) |>
+        ggplot(aes(x = siteID, y = Consumption)) +
+        geom_hline(yintercept = 0, colour = "grey70") +
+        geom_boxplot(fill = "#E9BD7F") +
+        labs(y = bquote(Annual~biomass~consumption~mg~m^-2~y-1),
+             x = "",
+             tag = "b)") +
+        theme_bw()
+
+      (plot2 + plot4) + plot_layout(guides = "collect")
+
+    }
+
+
   ),
 
 
 
-  # Functional group cover - natural
+
+
+  ### FUNCTIONAL GROUP COVER - NATURAL GRAZING
   tar_target(
     name = cover_CN_figure,
     command = {
 
-      cover_CN_text <- cover_CN_stats  |>
-        mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
+      cover_CN_text <- cover_CN_anova_table |>
+        mutate(significance = case_when(is.na(p.value) ~ "non-sign",
+                                        p.value > 0.07 ~ "non-sign",
+                                        p.value > 0.05 & p.value <= 0.07 ~ "marginal",
                                         TRUE ~ "sign")) |>
-        filter(significance == "sign") |>
-        ### BY HAND CODE!!!
-        group_by(origSiteID, functional_group) |>
-        slice(1) |>
-        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume"))) |>
-        select(origSiteID, functional_group, term)
-
-      cover_CN_text2 <- cover_CN_text |>
-        mutate(term = case_when(term == "WxN" ~ "WxGxN",
-                                term == "G" ~ "GxN",
-                                TRUE ~ ""),
-               functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
-
-      marginal_CN_cover_text <- cover_CN_text |>
-        mutate(term = case_when(term == "G" ~ "WxG",
-                                TRUE ~ "")) |>
-        bind_rows(tibble(origSiteID = "Sub-alpine",
-                         functional_group = "graminoid",
-                         term = "W")) |>
+        filter(significance %in% c("sign", "marginal")) |>
+        select(origSiteID, functional_group, significance, term) |>
+        mutate(x_pos = if_else(functional_group == "legume", Inf, -Inf),
+               y_pos = if_else(functional_group ==  "graminoid", -Inf, Inf),
+               hjust_var = if_else(functional_group ==  "legume", 1, 0),
+               vjust_var = if_else(functional_group ==  "graminoid", 0, 1)) |>
         mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
+
+      sign_text <- cover_CN_text |>
+        filter(significance == "sign")
+
+      marg_text <- cover_CN_text |>
+        filter(significance == "marginal")
 
       cover = cover_CN_output |>
         unnest(data) |>
@@ -137,27 +246,56 @@ si_figure_plan <- list(
                              dat2 = cover_CN_prediction |>
                                filter(functional_group %in% c("graminoid", "forb"))) +
         # add stats
+        # forbs
         geom_text(data = cover |>
-                    filter(functional_group %in% c("graminoid", "forb")) |>
+                    filter(functional_group %in% c("forb")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(cover_CN_text |>
-                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
+                    left_join(sign_text |>
+                                filter(functional_group %in% c("forb")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(1), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 1.4, label = term),
                   size = 3, colour = text_colour) +
+        # add stats
         geom_text(data = cover |>
-                    filter(functional_group %in% c("graminoid", "forb")) |>
+                    filter(functional_group %in% c("forb")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(cover_CN_text2 |>
-                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 2.8, label = term),
+                    left_join(marg_text |>
+                                filter(functional_group %in% c("forb")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(1), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 1.4, label = term),
+                  size = 3, colour = "grey50") +
+        # graminoid
+        geom_text(data = cover |>
+                    filter(functional_group %in% c("graminoid")) |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(sign_text |>
+                                filter(functional_group %in% c("graminoid")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(1), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = -4.4, label = term),
                   size = 3, colour = text_colour) +
+        # add stats
         geom_text(data = cover |>
-                    filter(functional_group %in% c("graminoid", "forb")) |>
+                    filter(functional_group %in% c("graminoid")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(marginal_CN_cover_text |>
-                                filter(functional_group %in% c("graminoid", "forb")), by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
-                  size = 3, colour = "grey50")
+                    left_join(sign_text |>
+                                filter(functional_group %in% c("graminoid")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(2), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = -2.8, label = term),
+                  size = 3, colour = text_colour) +
+        # add stats
+        geom_text(data = cover |>
+                    filter(functional_group %in% c("graminoid")) |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(sign_text |>
+                                filter(functional_group %in% c("graminoid")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(3), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = -1.2, label = term),
+                  size = 3, colour = text_colour)
 
 
       sedge_figure <- make_vegetation_figure(dat1 = cover |>
@@ -171,7 +309,16 @@ si_figure_plan <- list(
                                              dat2 = cover_CN_prediction |>
                                                filter(functional_group == "sedge")) +
         labs(x = "", y = "") +
-        theme(axis.text.x=element_blank())
+        theme(axis.text.x=element_blank()) +
+        geom_text(data = cover |>
+                    filter(functional_group %in% c("sedge")) |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(marg_text |>
+                                filter(functional_group %in% c("sedge")) |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(1), by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 1.4, label = term),
+                  size = 3, colour = "grey50")
 
       legumes_figure <- make_vegetation_figure(dat1 = cover |>
                                                  filter(functional_group == "legume"),
@@ -188,27 +335,54 @@ si_figure_plan <- list(
         geom_text(data = cover |>
                     filter(functional_group == "legume") |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(cover_CN_text |>
-                                filter(functional_group == "legume")
-                              , by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.2, label = term),
+                    left_join(sign_text |>
+                                filter(functional_group == "legume") |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(5),
+                              by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 7.6, label = term),
                   size = 3, colour = text_colour) +
         geom_text(data = cover |>
                     filter(functional_group == "legume") |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(cover_CN_text2 |>
-                                filter(functional_group == "legume")
-                              , by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 2.8, label = term),
+                    left_join(sign_text |>
+                                filter(functional_group == "legume") |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(4),
+                              by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 6, label = term),
                   size = 3, colour = text_colour) +
         geom_text(data = cover |>
                     filter(functional_group == "legume") |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(marginal_CN_cover_text |>
-                                filter(functional_group == "legume"),
-                  by = c("origSiteID", "functional_group")),
-                  aes(x = Inf, y = Inf, hjust = 1, vjust = 4.4, label = term),
-                  size = 3, colour = "grey50")
+                    left_join(sign_text |>
+                                filter(functional_group == "legume") |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(3),
+                              by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 4.4, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group == "legume") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(sign_text |>
+                                filter(functional_group == "legume") |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(2),
+                              by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 2.8, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = cover |>
+                    filter(functional_group == "legume") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(sign_text |>
+                                filter(functional_group == "legume") |>
+                                group_by(origSiteID, functional_group) |>
+                                slice(1),
+                              by = c("origSiteID", "functional_group")),
+                  aes(x = x_pos, y = y_pos, hjust = hjust_var, vjust = 1.2, label = term),
+                  size = 3, colour = text_colour)
+
 
       # merge figures
       cover_figure + sedge_figure/legumes_figure +
@@ -224,25 +398,22 @@ si_figure_plan <- list(
 
         ),
 
-  # diversity figure
+  ### DIVERSITY CN FIGURE
   tar_target(
     name = diversity_CN_figure,
     command = {
 
-      diversity_CN_text <- diversity_CN_stats |>
-        mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
+      diversity_CN_text <- diversity_CN_anova_table |>
+        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
+                                        p.value > 0.07 ~ "non-sign",
+                                        p.value > 0.05 & p.value <= 0.07 ~ "marginal",
                                         TRUE ~ "sign")) |>
-        ### BY HAND!!!
-        filter(significance == "sign") |>
-        distinct(origSiteID, diversity_index, term) |>
+        filter(significance %in% c("sign", "marginal")) |>
+        distinct(origSiteID, diversity_index, term, significance) |>
         mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
 
-      marginal_div_CN_text <- diversity_CN_text |>
-      mutate(term = case_when(origSiteID == "Alpine" & diversity_index == "diversity" ~ "WxGxN",
-                              TRUE ~ "")) |>
-        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
+      div_sign <- diversity_CN_text |>
+        filter(significance == "sign")
 
 
       div <- diversity_CN_output |>
@@ -262,14 +433,33 @@ si_figure_plan <- list(
         # add stats
         geom_text(data = div |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(diversity_CN_text, by = c("origSiteID", "diversity_index")),
+                    left_join(div_sign |>
+                                group_by(origSiteID, diversity_index) |>
+                                slice(1), by = c("origSiteID", "diversity_index")),
+                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -5.3, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = div |>
+                    distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(div_sign |>
+                                group_by(origSiteID, diversity_index) |>
+                                slice(2), by = c("origSiteID", "diversity_index")),
+                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -3.9, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = div |>
+                    distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(div_sign |>
+                                group_by(origSiteID, diversity_index) |>
+                                slice(3), by = c("origSiteID", "diversity_index")),
                   aes(x = -Inf, y = -Inf, hjust = 0, vjust = -2.5, label = term),
                   size = 3, colour = text_colour) +
         geom_text(data = div |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(marginal_div_CN_text, by = c("origSiteID", "diversity_index")),
+                    left_join(div_sign |>
+                                group_by(origSiteID, diversity_index) |>
+                                slice(4), by = c("origSiteID", "diversity_index")),
                   aes(x = -Inf, y = -Inf, hjust = 0, vjust = -1.1, label = term),
-                  size = 3, colour = "grey50")
+                  size = 3, colour = text_colour)
+
 
     }
   )
