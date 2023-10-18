@@ -26,7 +26,7 @@ Aud H. Halbritter^1^, Kari Klanderud^2^, Richard J. Telford^1^, Deborah Goldberg
 
 <!-- Unclear if Yan should be part of this: Yan Yang^6^,  ^6^Institute of Mountain Hazards and Environment, CAS, Chendu, China -->
 
-^1^Department of Biological Sciences and Bjerknes Center for Climate Research, Bergen, Norway; ^5^Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway; ^3^Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA; ^4^Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Norway; ^5^Institute of Integrative Biology, ETH Zürich, Switzerland
+^1^Department of Biological Sciences and Bjerknes Center for Climate Research, Bergen, Norway; ^2^Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway; ^3^Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA; ^4^Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Norway; ^5^Institute of Integrative Biology, ETH Zürich, Switzerland
 
 Correspondence: Aud H. Halbritter [aud.halbritter\@uib.no](mailto:aud.halbritter@uib.no){.email}
 
@@ -65,7 +65,7 @@ Warming, nitrogen addition and reduced grazing occur simultaneously, they intera
 #| label: fig-concept
 #| echo: false
 #| warning: false
-#| fig-cap: Conceptual figures of global change impact on alpine plant communities and experimental design. a) Climate warming, atmospheric nitrogen deposition and grazing impact plant diversity through the same mechanism (productivity and standing biomass). The plus and minus signs define the relationship between the drivers and mechanisms and the rack-wheel indicates a positive feedback between diversity and biomass. b) Hump-shaped relationship between standing biomass and diversity. The arrows indicate the direction in which the different global change drivers affect standing biomass. c) The effect of intermediate grazing on diversity in relation to warming or nitrogen addition. Positive values show an increase and negative values a decrease in diversity. The gray line shows the expected relationship, the dashed line is zero and the dashed arrows indicate if grazing decreases or increases diversity, depending on faciliation loss or competition release. The gray square in panel b and c shows where grazing can be benefitial for diversity due to competitive release. d) Experimental design at an alpine and sub-alpine site. The lowland site lowland site has only transplanted communities (= warming treatment). The treatments are ambient (gray), warming (pink), nitrogen deposition (shades of gray to brown or pink to brown), crossed with four levels og simulated grazing; none (empty), intermediate (one scissor), intensive (two scissors) and natural grazing outside the grazing exclosure (dashed line). The arrows indicate the direction of transplant and the faded plots indicate the origin of transplant. Inset shows map of studies site in Western Norway.
+#| fig-cap: Conceptual figures of global change impact on alpine plant communities and experimental design. a) Climate warming, atmospheric nitrogen deposition and grazing impact plant diversity through the same mechanism (productivity and standing biomass). The plus and minus signs define the relationship between the drivers and mechanisms and the rack-wheel indicates a positive feedback between productivity and biomass. b) Hump-shaped relationship between standing biomass and diversity. The arrows indicate the direction in which the different global change drivers affect standing biomass. c) The effect of intermediate grazing on diversity in relation to warming or nitrogen addition. Positive values show an increase and negative values a decrease in diversity. The gray line shows the expected relationship, the dashed line is zero and the dashed arrows indicate if grazing decreases or increases diversity, depending on faciliation loss or competition release. The gray square in panel b and c shows where grazing can be benefitial for diversity due to competitive release. d) Experimental design at an alpine and sub-alpine site. The lowland site lowland site has only transplanted communities (= warming treatment). The treatments are ambient (gray), warming (pink), nitrogen deposition (shades of gray to brown or pink to brown), crossed with four levels og simulated grazing; none (empty), intermediate (one scissor), intensive (two scissors) and natural grazing outside the grazing exclosure (dashed line). The arrows indicate the direction of transplant and the faded plots indicate the origin of transplant. Inset shows map of studies site in Western Norway.
 
 knitr::include_graphics("figures/concept.jpg")
 
@@ -135,7 +135,7 @@ Nitrogen addition and grazing had no effect on graminoid and forb cover and none
 #| label: fig-prod-cover
 #| echo: false
 #| warning: false
-#| fig-cap: Global change impacts on productivity and functional group cover. a) Annual productivity (g m^-2^ y^-1^) and b) change in graminoid excluding sedges, forb, sedge or legume cover between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. For cover, positive numbers indicate an increase and negative numbers a decrease in functional group cover. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpretation of the data. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in gray show marginal significant terms. Note that sedge and legumes only occured in high enough abundance at one of the locations to run a model.
+#| fig-cap: Global change impacts on productivity and functional group cover. a) Annual productivity (g m^-2^ y^-1^) and b) change in graminoid excluding sedges, forb, sedge or legume cover between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) communities. For functional group cover, positive numbers indicate an increase and negative numbers a decrease in functional group cover. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpretation of the data. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in gray show marginal significant terms. Note that sedge and legumes only occured in high enough abundance at one of the locations to run a model.
 
 tar_load(prod_cover_figure)
 prod_cover_figure
@@ -144,83 +144,137 @@ prod_cover_figure
 ```{r}
 #| label: tbl-prod
 #| echo: false
-#| eval: false
-#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on annual plant productivity at the alpine and sub-alpine site. Shown are estimates ± standard error, t statistics and P value.
+#| eval: true
+#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on annual plant productivity at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold.
 
-tar_load(productivity_stats)
+tar_load(productivity_anova_table)
 
-productivity_stats |>
-  mutate(estimate = round(estimate, 2),
-         std.error = round(std.error, 2),
+productivity_anova_table |>
+  mutate(sumsq = round(sumsq, 2),
          statistic = round(statistic, 2),
-         p.value = round(p.value, 3),
-         estimate = paste(estimate, "±", std.error, sep = " ")) |> 
-  select(-names, -std.error) |> 
-  pivot_wider(names_from = origSiteID, values_from = c(estimate, statistic, p.value)) |> 
-  select(Term = term, estimate_Alpine, statistic_Alpine, p.value_Alpine, `estimate_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`) |> 
+         p.value = round(p.value, 3)) |> 
+  select(-names) |> 
+  pivot_wider(names_from = origSiteID, values_from = c(sumsq, df, statistic, p.value)) |> 
+  select(Term = term, sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine, `sumsq_Sub-alpine`, `df_Sub-alpine`,  `statistic_Sub-alpine`, `p.value_Sub-alpine`) |> 
   gt() |> 
-  tab_spanner(label = "Alpine", columns = c(2:4)) |> 
-  cols_label(estimate_Alpine = "Estimate ± SE",
-             statistic_Alpine = "t",
+  tab_spanner(label = "Alpine", columns = c(2:5)) |> 
+  cols_label(sumsq_Alpine = "Sum of Squares",
+             df_Alpine = "df",
+             statistic_Alpine = "F",
              p.value_Alpine	= "P") |> 
-  tab_spanner(label = "Sub-alpine", columns = c(5:7)) |> 
-  cols_label(`estimate_Sub-alpine` = "Estimate ± SE",
-             `statistic_Sub-alpine` = "t",
+  tab_spanner(label = "Sub-alpine", columns = c(6:9)) |> 
+  cols_label(`sumsq_Sub-alpine` = "Sum of Squares",
+             `df_Sub-alpine` = "df",
+             `statistic_Sub-alpine` = "F",
              `p.value_Sub-alpine`	= "P") |> 
   tab_options(
   table.font.size = 12,
   data_row.padding = gt::px(1)
-  )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine),
+      rows = p.value_Alpine <= 0.05
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(`sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`),
+      rows = `p.value_Sub-alpine` <= 0.05
+    )
+  ) |> 
+  cols_align(
+  align = c("left"),
+  columns = Term
+)
 
 ```
 
 ```{r}
 #| label: tbl-cover
 #| echo: false
-#| eval: false
-#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on graminoid, forb and sedge cover at the alpine site. Shown are estimates ± standard error, t statistics and P value. Other refer to sedges in the alpine and legumes in the sub-alpine site. Note that NAs indicate that the results are from the logarithmic model and the term N² does not exist.
+#| eval: true
+#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on functional group cover at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold. Other refer to sedges in the alpine and legumes in the sub-alpine community.
 
-tar_load(cover_stats)
+tar_load(cover_anova_table)
 
-dat <- cover_stats |> 
-  mutate(estimate = round(estimate, 2),
-         std.error = round(std.error, 2),
+dat <- cover_anova_table |> 
+  mutate(sumsq = round(sumsq, 2),
          statistic = round(statistic, 2),
          p.value = round(p.value, 3),
-         estimate = paste(estimate, "±", std.error, sep = " "),
          functional_group = if_else(functional_group %in% c("sedge", "legume"), "other", functional_group)) |> 
-  select(-names, -std.error) |> 
-  pivot_wider(names_from = functional_group, values_from = c(estimate, statistic, p.value)) |>
-  mutate(term = factor(term, levels = c("Intercept", "W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²"))) |>
+  select(-names) |> 
+  pivot_wider(names_from = functional_group, values_from = c(sumsq, df, statistic, p.value)) |>
+  mutate(term = factor(term, levels = c("W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²", "Residuals"))) |>
   arrange(origSiteID, term) |> 
-  select(Term = term, estimate_graminoid, statistic_graminoid, p.value_graminoid, estimate_forb, statistic_forb, p.value_forb, estimate_other, statistic_other, p.value_other)
+  select(Term = term, sumsq_graminoid, df_graminoid, statistic_graminoid, p.value_graminoid, sumsq_forb, df_forb,  statistic_forb, p.value_forb, sumsq_other, df_other, statistic_other, p.value_other)
 
 dat |> 
   gt() |> 
-  tab_spanner(label = "Graminoid", columns = c(2:4)) |> 
-  cols_label(estimate_graminoid = "Estimate ± SE",
-             statistic_graminoid = "t",
+  tab_spanner(label = "Graminoid", columns = c(2:5)) |> 
+  cols_label(sumsq_graminoid = "Sum of Squares",
+             df_graminoid = "df",
+             statistic_graminoid = "F",
              p.value_graminoid	= "P") |> 
-  tab_spanner(label = "Forb", columns = c(5:7)) |> 
-  cols_label(estimate_forb = "Estimate ± SE",
-             statistic_forb = "t",
+  tab_spanner(label = "Forb", columns = c(6:9)) |> 
+  cols_label(sumsq_forb = "Sum of Squares",
+             df_forb = "df",
+             statistic_forb = "F",
              p.value_forb	= "P") |> 
-  tab_spanner(label = "Other", columns = c(8:10)) |> 
-  cols_label(estimate_other = "Estimate ± SE",
-             statistic_other = "t",
+  tab_spanner(label = "Other", columns = c(10:13)) |> 
+  cols_label(sumsq_other = "Sum of Squares",
+             df_other = "df",
+             statistic_other = "F",
              p.value_other	= "P") |> 
   tab_row_group(
     label = "Sub-alpine",
-    rows = 13:20
+    rows = 9:16
   ) |> 
   tab_row_group(
     label = "Alpine",
-    rows = 1:12
+    rows = 1:8
   ) |> 
   tab_options(
   table.font.size = 11,
   data_row.padding = gt::px(1)
-  )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_graminoid, df_graminoid, statistic_graminoid, p.value_graminoid),
+      rows = p.value_graminoid <= 0.05
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_forb, df_forb, statistic_forb, p.value_forb),
+      rows = p.value_forb <= 0.05
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_other, df_other, statistic_other, p.value_other),
+      rows = p.value_other <= 0.05
+    )
+  ) |> 
+  cols_align(
+  align = c("left"),
+  columns = Term
+)
 
 ```
 
@@ -245,7 +299,7 @@ Overall, the three drivers affected diversity and evenness similarly in alpine c
 #| echo: false
 #| eval: false
 #| warning: false
-#| fig-cap: Global change impact on diversity indices. Change in species richness, diversity and evenness between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) at the alpine (upper row) and sub-alpine (lower row) sites. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpretation of the data. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in gray show marginal significant terms.
+#| fig-cap: Global change impact on diversity indices. Change in species richness, diversity and evenness between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) at the alpine (upper row) and sub-alpine (lower row) communities. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpretation of the data. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in gray show marginal significant terms.
 
 tar_load(diversity_figure)
 diversity_figure
@@ -257,53 +311,86 @@ diversity_figure
 #| echo: false
 #| fig-cap: Global change impact on diversity indices. Change in species richness, diversity and evenness between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha^-1^ y^-1^) at the alpine (upper row) and sub-alpine (lower row) sites. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The x axis is log transformed to better visualize lower nitrogen values, but the numbers on the x axis are on the original scale for better interpretation of the data. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms, and letters in gray show marginal significant terms. The lines on top of the panels indicate that the calculation of richness is based on species numbers, evenness on specis abundance and diversity is based on a combination of both. 
 
-knitr::include_graphics("fig-diversity-1.png")
+knitr::include_graphics("diversity_figure_1.png")
 
 ```
 
 ```{r}
 #| label: tbl-div
 #| echo: false
-#| eval: false
-#| tbl-cap: Results from linear regression of the effects of warming, grazing and nitrogen addition on change in diversity at the sub-alpine site. Shown are estimates ± standard error, t statistics and P value. Note that NAs indicate that the results are from the linear or logarithmic model and the term N² does not exist.
+#| eval: true
+#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on richness, diversity and evenness at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold. Other refer to sedges in the alpine and legumes in the sub-alpine community.
 
-tar_load(diversity_stats)
+tar_load(diversity_anova_table)
 
-div <- diversity_stats |>
-  mutate(estimate = round(estimate, 2),
-         std.error = round(std.error, 2),
+div <- diversity_anova_table |>
+  mutate(sumsq = round(sumsq, 2),
          statistic = round(statistic, 2),
-         p.value = round(p.value, 3),
-         estimate = paste(estimate, "±", std.error, sep = " ")) |> 
-  select(-names, -std.error) |> 
-  pivot_wider(names_from = diversity_index, values_from = c(estimate, statistic, p.value)) |> 
-  select(Term = term, estimate_richness, statistic_richness, p.value_richness, estimate_diversity, statistic_diversity, p.value_diversity, `estimate_evenness`, `statistic_evenness`, `p.value_evenness`)
+         p.value = round(p.value, 3)) |> 
+  select(-names) |> 
+  pivot_wider(names_from = diversity_index, values_from = c(sumsq, df, statistic, p.value)) |> 
+  select(Term = term, sumsq_richness, df_richness, statistic_richness, p.value_richness, sumsq_diversity, df_diversity, statistic_diversity, p.value_diversity, sumsq_evenness, df_evenness, statistic_evenness, p.value_evenness)
 
 div |> 
   gt() |> 
-  tab_spanner(label = "Richness", columns = c(2:4)) |> 
-  cols_label(estimate_richness = "Estimate ± SE",
-             statistic_richness = "t",
+  tab_spanner(label = "Richness", columns = c(2:5)) |> 
+  cols_label(sumsq_richness = "Sum of Squares",
+             df_richness = "df",
+             statistic_richness = "F",
              p.value_richness	= "P") |> 
-  tab_spanner(label = "Diversity", columns = c(5:7)) |> 
-  cols_label(`estimate_diversity` = "Estimate ± SE",
-             `statistic_diversity` = "t",
-             `p.value_diversity`	= "P") |> 
-    tab_spanner(label = "Evenness", columns = c(8:10)) |> 
-  cols_label(`estimate_evenness` = "Estimate ± SE",
-             `statistic_evenness` = "t",
-             `p.value_evenness`	= "P") |> 
+  tab_spanner(label = "Diversity", columns = c(6:9)) |> 
+  cols_label(sumsq_diversity = "Sum of Squares",
+             df_diversity = "df",
+             statistic_diversity = "F",
+             p.value_diversity	= "P") |> 
+    tab_spanner(label = "Evenness", columns = c(10:13)) |> 
+  cols_label(sumsq_evenness = "Sum of Squares",
+             df_evenness = "df",
+             statistic_evenness = "F",
+             p.value_evenness	= "P") |> 
   tab_row_group(
     label = "Sub-alpine",
-    rows = 13:20
+    rows = 9:16
   ) |> 
   tab_row_group(
     label = "Alpine",
-    rows = 1:12
+    rows = 1:8
   ) |> 
   tab_options(
   table.font.size = 11,
-  data_row.padding = gt::px(1))
+  data_row.padding = gt::px(1)) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_richness, df_richness, statistic_richness, p.value_richness),
+      rows = p.value_richness <= 0.05
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_diversity, df_diversity, statistic_diversity, p.value_diversity),
+      rows = p.value_diversity <= 0.05
+    )
+  ) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_body(
+      columns = c(sumsq_evenness, df_evenness, statistic_evenness, p.value_evenness),
+      rows = p.value_evenness <= 0.05
+    )
+  ) |> 
+  cols_align(
+  align = c("left"),
+  columns = Term
+)
+
 ```
 
 ## Discussion

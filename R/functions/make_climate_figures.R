@@ -106,9 +106,9 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     filter(month %in% c(5, 6, 7, 8, 9),
            grazing == "Control",
            Namount_kg_ha_y == 0) |>
-    # group_by(variable, warming, origSiteID) |>
-    # summarise(se = sd(value)/sqrt(n()),
-    #           value = mean(value)) |>
+    group_by(variable, warming, origSiteID) |>
+    summarise(se = sd(value)/sqrt(n()),
+              value = mean(value)) |>
     ggplot(aes(x = warming, y = value, fill = warming)) +
     geom_violin(draw_quantiles = c(0.5)) +
     # geom_point(size = 2, shape = 16) +

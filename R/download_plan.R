@@ -31,6 +31,16 @@ download_plan <- list(
   #   format = "file"
   # ),
 
+  # productivity
+  tar_target(
+    name = productivity_download,
+    command =  get_file(node = "pk4bg",
+                        file = "Three-D_clean_productivity_2022.csv",
+                        path = "data",
+                        remote_path = "Vegetation"),
+    format = "file"
+  ),
+
   # vegetation
   # tar_target(
   #   name = cover_download,
@@ -89,7 +99,7 @@ download_plan <- list(
   # productivity
   tar_target(
     name = productivity_raw,
-    command = read_csv(file = "data/Three-D_clean_productivity_2022.csv")
+    command = read_csv(file = productivity_download)
   ),
 
   # height

@@ -22,28 +22,16 @@ figure_plan <- list(
     name = prod_cover_figure,
     command = {
 
-      productivity_text <- productivity_stats |>
-        mutate(significance = case_when(p.value >= 0.05 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
+      productivity_text <- productivity_anova_table |>
+        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
+                                        p.value >= 0.07 ~ "non-sign",
+                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
                                         TRUE ~ "sign")) |>
         # BY HAND CODE!!!
-        filter(significance == "sign",
-               !term %in% c("W", "G")) |>
-        mutate(term = recode(term,
-                             "WxN²" = "W",
-                             "N²" = "G")) |>
-        distinct(origSiteID, term)
-
-      productivity_text2 <- productivity_text |>
-        mutate(term = recode(term,
-                             "W" = "WxN²",
-                             "G" = "N²"))
-
-      productivity_marginal <- productivity_text |>
-        mutate(term = recode(term,
-                             "W" = "WxG",
-                             "G" = "WxN²"))
+        filter(significance %in% c("sign", "marginal")) |>
+        distinct(origSiteID, term, significance) |>
+        mutate(term = factor(term, levels = c("W", "N", "G", "WxN", "WxG"))) |>
+        group_by(origSiteID, significance)
 
       productivity_figure <- make_vegetation_figure(dat1 = productivity_output |>
                                                       unnest(data) |>
@@ -59,30 +47,55 @@ figure_plan <- list(
         # add stats
         geom_text(data = productivity_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text, by = "origSiteID"),
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(1), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
         geom_text(data = productivity_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text2, by = "origSiteID"),
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(2), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 3, label = term),
                   size = 3, colour = text_colour) +
         geom_text(data = productivity_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_marginal, by = "origSiteID"),
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(3), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 4.6, label = term),
-                    size = 3, colour = "grey50")
+                  size = 3, colour = text_colour) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(4), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 6.2, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "marginal") |>
+                                slice(1), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 7.8, label = term),
+                  size = 3, colour = "grey50")
 
 
-      cover_text <- cover_stats |>
+      cover_text <- cover_anova_table |>
         filter(functional_group %in% c("graminoid", "forb")) |>
-        mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
-                                        TRUE ~ "sign")) |>
-        filter(significance == "sign") |>
+        filter(p.value <= 0.05) |>
         distinct(origSiteID, functional_group, term) |>
-        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb")))
+        mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb"))) |>
+        mutate(x_var = -Inf,
+               y_var = if_else(functional_group == "graminoid", -Inf, Inf),
+               hjust_var = 0,
+               vjust_var = case_when(functional_group == "forb" & term == "W" ~ 1.4,
+                                     functional_group == "forb" & term == "WxN" ~ 3,
+                                     functional_group == "graminoid" & term == "W" ~ -5.6,
+                                     functional_group == "graminoid" & term == "N" ~ -4,
+                                     functional_group == "graminoid" & term == "G" ~ -2.4,
+                                     functional_group == "graminoid" & term == "WxN" ~ -0.8))
 
       cover <- cover_output |>
         unnest(data) |>
@@ -99,17 +112,23 @@ figure_plan <- list(
                                              dat2 = cover_prediction |>
                                                filter(functional_group %in% c("graminoid", "forb"))) +
         labs(tag = "b)") +
+        theme(strip.background.y = element_blank(),
+              strip.text.y = element_blank(),
+              plot.margin = margin(r = 1, unit = "pt")) +
         # add stats
         geom_text(data = cover |>
                     filter(functional_group %in% c("graminoid", "forb")) |>
                     distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
                     left_join(cover_text, by = c("origSiteID", "functional_group")),
-                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -1.2, label = term),
-                  size = 3, colour = text_colour) +
-        theme(strip.background.y = element_blank(),
-              strip.text.y = element_blank(),
-              plot.margin = margin(r = 1, unit = "pt"))
+                  aes(x = x_var, y = y_var, hjust = hjust_var, vjust = vjust_var, label = term),
+                  size = 3, colour = text_colour)
 
+
+      # sedges
+      sedge_text <- cover_anova_table |>
+        filter(functional_group == "sedge") |>
+        filter(p.value <= 0.05) |>
+        distinct(origSiteID, functional_group, term)
 
       sedge_figure <- make_vegetation_figure(dat1 = cover |>
                                                filter(functional_group == "sedge"),
@@ -123,13 +142,20 @@ figure_plan <- list(
                                                filter(functional_group == "sedge")) +
         labs(x = "", y = "") +
         theme(axis.text.x = element_blank(),
-              plot.margin = margin(b = 1, l = 1, unit = "pt"))
+              plot.margin = margin(b = 1, l = 1, unit = "pt")) +
+        geom_text(data = cover |>
+                    filter(functional_group == "sedge") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(sedge_text, by = c("origSiteID", "functional_group")),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.6, label = term),
+                  size = 3, colour = text_colour)
 
 
-      # forb <- grid::rasterGrob(png::readPNG("forb.png"), interpolate = TRUE)
-      # sedge_figure +
-      #   annotation_custom(forb, xmin = -2, xmax = 10, ymin = -25, ymax = -30) +
-      #   coord_cartesian(clip = "off")
+      # legumes
+      legume_text <- cover_anova_table |>
+        filter(functional_group == "legume") |>
+        filter(p.value <= 0.05) |>
+        distinct(origSiteID, functional_group, term)
 
       legumes_figure <- make_vegetation_figure(dat1 = cover |>
                                                filter(functional_group == "legume"),
@@ -142,7 +168,13 @@ figure_plan <- list(
                                              dat2 = cover_prediction |>
                                                filter(functional_group == "legume")) +
         labs(x = "", y = "") +
-        theme(plot.margin = margin(l = 1, unit = "pt"))
+        theme(plot.margin = margin(l = 1, unit = "pt")) +
+        geom_text(data = cover |>
+                    filter(functional_group == "legume") |>
+                    distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(legume_text, by = c("origSiteID", "functional_group")),
+                  aes(x = Inf, y = Inf, hjust = 1, vjust = 1.6, label = term),
+                  size = 3, colour = text_colour)
 
       productivity_figure + cover_figure + sedge_figure/legumes_figure +
         plot_layout(guides = "collect", widths = c(1, 2, 1)) &
@@ -161,29 +193,28 @@ figure_plan <- list(
     command = {
 
       # text
-      diversity_text <- diversity_stats |>
-        mutate(significance = case_when(p.value >= 0.0502 ~ "non-sign",
-                                        term == "Intercept" ~ "non-sign",
-                                        names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
-                                        TRUE ~ "sign")) |>
-        filter(significance == "sign") |>
-        distinct(origSiteID, diversity_index, term) |>
-        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
+      diversity_text <- diversity_anova_table |>
+        filter(p.value <= 0.07) |>
+        mutate(sign = if_else(p.value <= 0.05, "sign", "marginal")) |>
+        distinct(origSiteID, diversity_index, term, sign) |>
+        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness"))) |>
+        mutate(x_var = if_else(diversity_index == "richness", Inf, -Inf),
+               y_var = -Inf,
+               hjust_var = if_else(diversity_index == "richness", 1, 0))
 
-      marginal_text <- diversity_text |>
-        mutate(term = if_else(origSiteID == "Alpine", "WxG", term),
-               term = if_else(origSiteID == "Sub-alpine", "", term)) |>
-        bind_rows(tibble(origSiteID = "Sub-alpine",
-                         diversity_index = "evenness",
-                         term = "N")) |>
-        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
+      sign_text <- diversity_text |>
+        filter(sign == "sign") |>
+        mutate(vjust_var = case_when(origSiteID == "Alpine" & diversity_index == "richness" & term == "N" ~ -2.4,
+                                     origSiteID == "Alpine" & term == "N" ~ -4,
+                                     origSiteID == "Alpine" & term == "WxN" ~ -2.4,
+                                     origSiteID == "Alpine" & term == "WxGxN" ~ -0.8,
+                                     origSiteID == "Sub-alpine" & term == "W" ~ -2.4,
+                                     origSiteID == "Sub-alpine" & term == "N" ~ -0.8))
 
-      marginal_text2 <- marginal_text |>
-        mutate(term = if_else(origSiteID == "Alpine" & diversity_index == "diversity", "WxN²", "")) |>
-        mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
-
-
-
+      marg_text <- diversity_text |>
+        filter(sign == "marginal") |>
+        mutate(vjust_var = case_when(term == "W" ~ -4,
+                                     term == "WxN" ~ -0.8))
 
 
       # figure
@@ -201,18 +232,13 @@ figure_plan <- list(
         # add stats
         geom_text(data = diversity_prediction |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(diversity_text, by = c("origSiteID", "diversity_index")),
-                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -3, label = term),
+                    left_join(sign_text, by = c("origSiteID", "diversity_index")),
+                  aes(x = x_var, y = y_var, hjust = hjust_var, vjust = vjust_var, label = term),
                   size = 3, colour = text_colour) +
         geom_text(data = diversity_prediction |>
                     distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(marginal_text, by = c("origSiteID", "diversity_index")),
-                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -1.6, label = term),
-                  size = 3, colour = "grey50") +
-        geom_text(data = diversity_prediction |>
-                    distinct(origSiteID, diversity_index, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(marginal_text2, by = c("origSiteID", "diversity_index")),
-                  aes(x = -Inf, y = -Inf, hjust = 0, vjust = -0.2, label = term),
+                    left_join(marg_text, by = c("origSiteID", "diversity_index")),
+                  aes(x = x_var, y = y_var, hjust = hjust_var, vjust = vjust_var, label = term),
                   size = 3, colour = "grey50")
 
     }
@@ -220,6 +246,7 @@ figure_plan <- list(
   ),
 
 
+  ### SUMMARY FIGURE
   tar_target(
     name = summary_figure,
     command = {
@@ -230,7 +257,7 @@ figure_plan <- list(
         rename(diversity = `2022`) |>
         filter(diversity_index == "diversity",
                grazing != "Natural") |>
-        tidylog::left_join(productivity |>
+        left_join(productivity |>
                              filter(year == "2022",
                                     fun_group != "litter") |>
                              ungroup() |>
@@ -273,13 +300,13 @@ figure_plan <- list(
         pivot_longer(cols = c("Medium", "Intensive"), names_to = "grazing", values_to = "value") |>
         mutate(grazing = factor(grazing, levels = c("Medium", "Intensive")))
 
-      plot2 <- ggplot(dat2, aes(x = Nitrogen_log, y = value, colour = warming, fill = warming, shape = grazing, linetype = grazing)) +
+      plot2 <- ggplot(dat2, aes(x = Nitrogen_log, y = value, colour = warming, fill = warming, linetype = grazing)) +
         geom_hline(yintercept = 0, colour = "grey") +
         geom_smooth(method = "lm", formula = "y ~ x", alpha = 0.1, linewidth = 0.5) +
         scale_colour_manual(name = "Warming", values = col_palette) +
         scale_fill_manual(name = "Warming", values = col_palette) +
-        scale_linetype_manual(name = "Grazing", values = c("dashed", "dotted")) +
-        scale_shape_manual(name = "Grazing", values = c(0, 2)) +
+        scale_linetype_manual(name = "Grazing", values = c("dashed", "dotted"),
+                              guide = guide_legend(override.aes = list(color = "black") )) +
         # change labels to real values
         scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
         labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
@@ -287,7 +314,9 @@ figure_plan <- list(
              tag = "b)") +
         lims(y = c(-1.2, 1.2)) +
         facet_wrap(~ origSiteID, nrow = 2) +
-        theme_bw()
+        theme_bw() +
+        theme(legend.position = "top",
+              legend.box="vertical")
 
       # interactions
       plot3 <- single_vs_interaction |>
@@ -299,25 +328,26 @@ figure_plan <- list(
         labs(x = "", y = "Adjusted R squared",
              tag = "c)") +
         facet_wrap(~origSiteID, nrow = 2) +
-        theme_bw()
+        theme_bw() +
+        theme(legend.position = "top",
+              axis.text.x = element_text(size = 8))
 
 
-      plot_layout <- "
-      1
-      2
-      2
-      3
-      3
-      "
-
-      plot1 / plot2 / plot3 + plot_layout(design = plot_layout)
+      plot1 / (plot2 + plot3) + plot_layout(heights = c(1, 2))
+      # plot_layout <- "
+      # 1
+      # 2
+      # 2
+      # 3
+      # 3
+      # "
+      #
+      # plot1 / plot2 / plot3 + plot_layout(design = plot_layout)
 
     }
   )
 
 )
-
-
 
 # text
 # tar_target(

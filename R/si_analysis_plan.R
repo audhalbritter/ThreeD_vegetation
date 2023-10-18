@@ -62,7 +62,16 @@ si_analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   climate_stats,
+    name =   climate_anova_table,
+    command = climate_output |>
+      select(origSiteID, variable, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  tar_target(
+    name = climate_summary_table,
     command = climate_output |>
       select(origSiteID, variable, names, result) |>
       unnest(result) |>
@@ -91,8 +100,13 @@ si_analysis_plan <- list(
       # select only interaction models
       filter(effects == "interaction") |>
       # select best model
-      filter(AIC == min(AIC))
-  ),
+      filter(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "log" |
+               origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "linear" |
+               AIC == min(AIC)) |>
+      filter(!(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "linear")) |>
+      filter(!(origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "quadratic")) |>
+      mutate(x = "x")
+    ),
 
   # prediction and model output
   tar_target(
@@ -119,7 +133,16 @@ si_analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   cover_CN_stats,
+    name =   cover_CN_anova_table,
+    command = cover_CN_output |>
+      select(origSiteID, functional_group, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  tar_target(
+    name = cover_CN_stats,
     command = cover_CN_output |>
       select(origSiteID, functional_group, names, result) |>
       unnest(result) |>
@@ -149,7 +172,9 @@ si_analysis_plan <- list(
       # select only interaction models
       filter(effects == "interaction") |>
       # select best model
-      filter(AIC == min(AIC))
+      # choose log for Alpine evenness and richness because dAIC < 2
+      filter(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names == "log" | AIC == min(AIC)) |>
+      filter(!(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names != "log"))
   ),
 
   # prediction and model output
@@ -173,6 +198,15 @@ si_analysis_plan <- list(
   ),
 
   # stats
+  tar_target(
+    name =   diversity_CN_anova_table,
+    command = diversity_CN_output |>
+      select(origSiteID, diversity_index, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
   tar_target(
     name =   diversity_CN_stats,
     command = diversity_CN_output |>
