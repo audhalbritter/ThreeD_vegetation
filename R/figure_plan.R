@@ -345,7 +345,23 @@ figure_plan <- list(
       # plot1 / plot2 / plot3 + plot_layout(design = plot_layout)
 
     }
-  )
+  )#,
+
+  # biomass - diversity figure
+  # tar_target(
+  #   name = bio_div_figure,
+  #   command = biomass_diversity |>
+  #     ggplot(aes(x = biomass, y = diversity, colour = warming, shape = grazing, size = Namount_kg_ha_y)) +
+  #     geom_point() +
+  #     #geom_smooth(method = "lm", formula = "y ~ x", colour = warming, shape = grazing) +
+  #     # scales
+  #     scale_colour_manual(name = "Warming", values = c("grey30", "#FD6467")) +
+  #     scale_shape_manual(name = "Grazing", values = c(16, 0, 2)) +
+  #     labs(x = bquote(Standing~biomass~g~m^-2),
+  #          y = "Diversity") +
+  #     facet_grid(~origSiteID) +
+  #     theme_bw() +
+  #     theme(legend.position = "top")
 
 )
 

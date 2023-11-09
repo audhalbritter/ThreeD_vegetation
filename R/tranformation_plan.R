@@ -68,14 +68,10 @@ tranformation_plan <- list(
                biomass_scaled = biomass / area_m2
         ) %>%
         # only useful data for last 2 years
-        filter(year %in% c(2021, 2022)) %>%
+        filter(year %in% c(2022)) %>%
 
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
-
-        # sum the corners (79 corners)
-        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, grazing, cut, year, date, fun_group, Nitrogen_log) |>
-        tidylog::summarise(biomass_scaled = sum(biomass_scaled)) |>
 
         # prettify
         mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
@@ -93,9 +89,25 @@ tranformation_plan <- list(
 
   # annual productivity
   tar_target(
+    name = standing_biomass,
+    command = {
+      biomass |>
+        # get peak biomass
+        filter(grazing == "Control" & cut == 3| grazing %in% c("Medium", "Intensive") & cut == 4) |>
+
+        # Calculate mean of 0 kg N per m2 y
+        ungroup() |>
+        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, fun_group, year) |>
+        summarise(standing_biomass = mean(biomass_scaled))
+
+    }),
+
+
+  # annual productivity
+  tar_target(
     name = productivity,
     command = {
-      biomass %>%
+      biomass |>
   # summarise the cuts to get annual biomass/productivity
   group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, fun_group, year) %>%
     summarise(productivity = sum(biomass_scaled)) %>%
@@ -280,6 +292,19 @@ tranformation_plan <- list(
       mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
              grazing_num = as.numeric(grazing_num)) |>
       ungroup()
+  ),
+
+  # productivity and diversity
+  tar_target(
+    name = biomass_diversity,
+    command = diversity |>
+    filter(grazing != "Natural") |>
+    left_join(standing_biomass |>
+                filter(fun_group != "litter") |>
+                ungroup() |>
+                group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num) |>
+                summarise(biomass = sum(standing_biomass)),
+              by = c('origSiteID', "grazing", "grazing_num", 'warming', 'Namount_kg_ha_y', 'Nitrogen_log'))
   )
 
 )
