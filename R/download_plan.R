@@ -61,14 +61,14 @@ download_plan <- list(
     format = "file"
   ),
 
-  tar_target(
-  name = meta_soil_download,
-  command =  get_file(node = "pk4bg",
-                      file = "THREE-D_PlotLevel_Depth_2019.csv",
-                      path = "data",
-                      remote_path = "Soil"),
-  format = "file"
-  ),
+  # tar_target(
+  # name = meta_soil_download,
+  # command =  get_file(node = "pk4bg",
+  #                     file = "THREE-D_PlotLevel_Depth_2019.csv",
+  #                     path = "data",
+  #                     remote_path = "Soil"),
+  # format = "file"
+  # ),
 
 
   # import and transform in data
@@ -134,12 +134,12 @@ download_plan <- list(
   tar_target(
     name = soil_raw,
     command = read_delim(file = soil_download, delim = ",")
-  ),
+  )#,
 
-  tar_target(
-    name = meta_soil_raw,
-    command = read_csv(file = meta_soil_download)
-  )
+  # tar_target(
+  #   name = meta_soil_raw,
+  #   command = read_csv(file = meta_soil_download)
+  # )
 
 )
 
