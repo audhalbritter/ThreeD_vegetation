@@ -184,6 +184,34 @@ analysis_plan <- list(
   ),
 
   ### DIVERSITY
+
+  # Does diversity in the control plots differ between alpine and sub-alpine communities?
+  tar_target(
+    name =   diversity_controls,
+    command = {
+      diversity_control <- cover_total %>%
+        group_by(origSiteID, year, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log) %>%
+        summarise(richness = n(),
+                  diversity = diversity(cover),
+                  evenness = diversity/log(richness)) %>%
+        pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
+        filter(warming == "Ambient",
+               grazing == "Control",
+               Namount_kg_ha_y == 0,
+               year == 2022)
+
+      diversity_control |>
+        group_by(diversity_index)|>
+        nest() |>
+        # run model to check difference between sites
+        mutate(model = map(data, ~lm(value ~ origSiteID, data = .)),
+               result = map(model, tidy),
+               anova = map(model, car::Anova),
+               anova_tidy = map(anova, tidy)) |>
+        unnest(anova_tidy)
+
+    }),
+
   # grazing intensity
   # run 3-way interaction model for cover
   tar_target(
