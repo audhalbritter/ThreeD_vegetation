@@ -203,7 +203,73 @@ si_figure_plan <- list(
   ),
 
 
+  ### PRODUCTIVTY
+  # productivity and cover figure in one
+  tar_target(
+    name = productivity_figure,
+    command = {
 
+      productivity_text <- productivity_anova_table |>
+        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
+                                        p.value >= 0.07 ~ "non-sign",
+                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
+                                        TRUE ~ "sign")) |>
+        # BY HAND CODE!!!
+        filter(significance %in% c("sign", "marginal")) |>
+        distinct(origSiteID, term, significance) |>
+        mutate(term = factor(term, levels = c("W", "N", "G", "WxN"))) |>
+        group_by(origSiteID, significance)
+
+      productivity_figure <- make_vegetation_figure(dat1 = productivity_output |>
+                                                      unnest(data) |>
+                                                      mutate(productivity = "productivity"),
+                                                    x_axis = Nitrogen_log,
+                                                    yaxislabel = bquote(Annual~productivity~g~m^-2~y^-1),
+                                                    colourpalette = col_palette,
+                                                    linetypepalette = c("solid", "dashed", "dotted"),
+                                                    shapepalette = c(16, 0, 2),
+                                                    facet_2 = "productivity",
+                                                    dat2 = productivity_prediction) +
+        labs(x = "", tag = "a)") +
+        # add stats
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(1), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
+                  size = 3, colour = text_colour, nudge_x = 50) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(2), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 3, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(3), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 4.6, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "sign") |>
+                                slice(4), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 6.2, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = productivity_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(productivity_text |>
+                                filter(significance == "marginal") |>
+                                slice(1), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 7.8, label = term),
+                  size = 3, colour = text_colour)
+
+      }
+    ),
 
 
   ### FUNCTIONAL GROUP COVER - NATURAL GRAZING
