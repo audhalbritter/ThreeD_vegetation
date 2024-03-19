@@ -94,7 +94,7 @@ tranformation_plan <- list(
       biomass |>
         # get peak biomass and remove litter
         filter(grazing == "Control" & cut == 3| grazing %in% c("Medium", "Intensive") & cut == 4) |>
-        filter(!fun_group %in% c("litter"))
+        filter(!fun_group %in% c("litter")) |>
 
         # Calculate mean of 0 kg N per m2 y
         ungroup() |>
