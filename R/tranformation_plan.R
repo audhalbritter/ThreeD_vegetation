@@ -192,12 +192,24 @@ tranformation_plan <- list(
   # Change in functional group cover
   tar_target(
     name = functional_group_cover,
-    command = cover %>%
+    command = {
+      all <- cover %>%
       # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
       filter(functional_group != "shrub",
              !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
-             !(functional_group == "legume" & origSiteID == "Alpine")) |>
-      group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, functional_group, year) %>%
+             !(functional_group == "legume" & origSiteID == "Alpine"))
+
+      # graminoids including sedge, forbs, including legumes and sedges, legumes separate
+      bind_rows(all = all |>
+                  mutate(functional_group = case_when(functional_group == "sedge" ~ "graminoid",
+                                                      functional_group == "legume" ~ "forb",
+                                                      TRUE ~ functional_group)),
+                sedge = all |>
+                  filter(functional_group == "sedge"),
+                legume = all |>
+                  filter(functional_group == "legume"),
+                .id = "group") |>
+        group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, group, functional_group, year) %>%
       summarise(cover = sum(cover)) %>%
       pivot_wider(names_from = year, values_from = cover) %>%
       # Fun groups that do not exist in one year => 0
@@ -205,9 +217,24 @@ tranformation_plan <- list(
       mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
              `2022` = if_else(is.na(`2022`), 0, `2022`),
              delta = `2022` - `2019`) %>%
-      # remove highest N level
-      #filter(Namount_kg_ha_y != 150) |>
       ungroup()
+
+    }
+
+      # cover %>%
+      # # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
+      # filter(functional_group != "shrub",
+      #        !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
+      #        !(functional_group == "legume" & origSiteID == "Alpine")) |>
+      # group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, functional_group, year) %>%
+      # summarise(cover = sum(cover)) %>%
+      # pivot_wider(names_from = year, values_from = cover) %>%
+      # # Fun groups that do not exist in one year => 0
+      # # calculate difference between years
+      # mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
+      #        `2022` = if_else(is.na(`2022`), 0, `2022`),
+      #        delta = `2022` - `2019`) %>%
+      # ungroup()
   ),
 
 
