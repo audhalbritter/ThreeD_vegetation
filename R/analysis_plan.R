@@ -30,26 +30,22 @@ analysis_plan <- list(
              se_diff = round((sqrt(se_Warming^2+se_Ambient^2)), 3))
   ),
 
-  ### PRODUCTIVITY
-
+  ### STANDING BIOMASS
   tar_target(
-    name = productivity_model_all,
+    name = biomass_model_all,
     command = {
 
       # sum fun groups
-      total_productivity <- productivity |>
-        # remove litter, because it is not really productivity
-        filter(!fun_group %in% c("litter"),
-               year == 2022) |>
+      total_biomass <- standing_biomass |>
         ungroup() |>
         group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
-        summarise(sum_productivity = sum(productivity))
+        summarise(sum_biomass = sum(biomass))
 
-      # test productiviy in 2022
-      productivity_model_all <- run_full_model(dat = total_productivity |>
+      # test biomass in 2022
+      biomass_model_all <- run_full_model(dat = total_biomass |>
                                               filter(grazing != "Natural"),
                                             group = c("origSiteID"),
-                                            response = sum_productivity,
+                                            response = sum_biomass,
                                             grazing_var = grazing_num) |>
         # make long table
         pivot_longer(cols = -c(origSiteID, data),
@@ -62,29 +58,29 @@ analysis_plan <- list(
 
   # only interaction model
   tar_target(
-    name = productivity_model,
-    command = productivity_model_all |>
+    name = biomass_model,
+    command = biomass_model_all |>
       # remove model with single effects
       filter(effects == "interaction") |>
       # select parsimonious model
       filter(AIC == min(AIC))
   ),
 
-  # check models
-  tar_quarto(name = model_check,
-             path = "R/model_output.qmd"),
+  # # check models
+  # tar_quarto(name = model_check,
+  #            path = "R/model_output.qmd"),
 
 
   tar_target(
-    name = productivity_output,
-    command = make_prediction(productivity_model)
+    name = biomass_output,
+    command = make_prediction(biomass_model)
 
   ),
 
   # prepare model output
   tar_target(
-    name =   productivity_prediction,
-    command = productivity_output |>
+    name =   biomass_prediction,
+    command = biomass_output |>
       # merge data and prediction
       mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
       select(origSiteID, output) |>
@@ -94,8 +90,8 @@ analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   productivity_anova_table,
-    command = productivity_output |>
+    name =   biomass_anova_table,
+    command = biomass_output |>
       select(origSiteID, names, anova_tidy) |>
       unnest(anova_tidy) |>
       ungroup() |>
@@ -104,13 +100,14 @@ analysis_plan <- list(
 
   # stats
   tar_target(
-    name =   productivity_summary_table,
-    command = productivity_output |>
+    name =   biomass_summary_table,
+    command = biomass_output |>
       select(origSiteID, names, result) |>
       unnest(result) |>
       ungroup() |>
       fancy_stats()
   ),
+
 
   ### FUNCTIONAL GROUP COVER
   # grazing intensity
@@ -120,11 +117,11 @@ analysis_plan <- list(
     command = run_full_model(dat = functional_group_cover |>
                                filter(#!functional_group %in% c("legume", "shrub"),
                                       grazing != "Natural"),
-                             group = c("origSiteID", "functional_group"),
+                             group = c("origSiteID", "functional_group", "group"),
                              response = delta,
                              grazing_var = grazing_num) |>
       # make long table
-      pivot_longer(cols = -c(origSiteID, functional_group, data),
+      pivot_longer(cols = -c(origSiteID, functional_group, group, data),
                    names_sep = "_",
                    names_to = c(".value", "effects", "names")) |>
       unnest(glance) |>
@@ -137,7 +134,7 @@ analysis_plan <- list(
       name = cover_model,
       command = cover_model_all |>
         filter(effects == "interaction") |>
-        # select parsimonious model (checked by hand!!!)
+        # select parsimonious model (or log if dAIC < 2)
         filter((origSiteID == "Sub-alpine" & names == "log") |
                  (origSiteID == "Alpine" & functional_group == "forb" & names == "log") |
                  (origSiteID == "Alpine" & functional_group != "forb" & AIC == min(AIC)))
@@ -294,13 +291,13 @@ analysis_plan <- list(
       bind_rows(
 
         # productivity
-        productivity = productivity_model_all |>
+        productivity = biomass_model_all |>
           select(origSiteID, effects, names, adj.r.squared) |>
           # inner join with correct models (previously selected based on AIC)
-          inner_join(productivity_model |>
+          inner_join(biomass_model |>
                        select(origSiteID, names),
                      join_by(origSiteID, names)) |>
-          mutate(group = "productivity"),
+          mutate(group = "biomass"),
 
         # productivity
         cover = cover_model_all |>
@@ -329,50 +326,3 @@ analysis_plan <- list(
   )
 
 )
-
-
-
-# # bryophytes, lichen and litter
-# tar_target(
-#   name = cover_bryo_model,
-#   command = run_full_model(dat = comm_structure |>
-#                              filter(functional_group %in% c("Litter", "Bryophytes", "Lichen"),
-#                                     grazing != "Natural"),
-#                            group = c("origSiteID", "functional_group"),
-#                            response = delta,
-#                            grazing_var = grazing_num) |>
-#     # make long table
-#     pivot_longer(cols = -c(origSiteID, functional_group, data),
-#                  names_sep = "_",
-#                  names_to = c(".value", "names")) |>
-#     # select best model
-#     filter(aic == min(aic))
-# ),
-#
-# tar_target(
-#   name = cover_bryo_output,
-#   command = make_prediction(cover_bryo_model)
-# ),
-#
-# # prepare model output
-# tar_target(
-#   name = cover_bryo_prediction,
-#   command = cover_bryo_output |>
-#     # merge data and prediction
-#     mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
-#     select(origSiteID, functional_group, output) |>
-#     unnest(output) |>
-#     rename(prediction = fit) |>
-#     mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
-# ),
-#
-#
-# # stats
-# tar_target(
-#   name =   cover_bryo_stats,
-#   command = cover_bryo_output |>
-#     unnest(result) |>
-#     ungroup() |>
-#     select(-data, -model, -aic, -prediction) |>
-#     fancy_stats()
-# ),

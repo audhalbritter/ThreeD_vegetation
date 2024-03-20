@@ -16,13 +16,13 @@ figure_plan <- list(
 
 
 
-  ### PRODUCTIVTY
-  # productivity and cover figure in one
+  ### BIOMASS
+  # biomass and cover figure in one
   tar_target(
-    name = prod_cover_figure,
+    name = bio_cover_figure,
     command = {
 
-      productivity_text <- productivity_anova_table |>
+      biomass_text <- biomass_anova_table |>
         mutate(significance = case_when(term == "Residuals" ~ "non-sign",
                                         p.value >= 0.07 ~ "non-sign",
                                         p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
@@ -30,56 +30,77 @@ figure_plan <- list(
         # BY HAND CODE!!!
         filter(significance %in% c("sign", "marginal")) |>
         distinct(origSiteID, term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "G", "WxN", "WxG"))) |>
+        mutate(term = factor(term, levels = c("W", "N", "G", "WxN", "WxG", "GxN", "WxGxN"))) |>
         group_by(origSiteID, significance)
 
-      productivity_figure <- make_vegetation_figure(dat1 = productivity_output |>
+      biomass_figure <- make_vegetation_figure(dat1 = biomass_output |>
                                                       unnest(data) |>
-                                                      mutate(productivity = "productivity"),
+                                                      mutate(biomass = "biomass"),
                                                     x_axis = Nitrogen_log,
-                                                    yaxislabel = bquote(Annual~productivity~g~m^-2~y^-1),
+                                                    yaxislabel = bquote(Standing~biomass~g~m^-2),
                                                     colourpalette = col_palette,
                                                     linetypepalette = c("solid", "dashed", "dotted"),
                                                     shapepalette = c(16, 0, 2),
-                                                    facet_2 = "productivity",
-                                                    dat2 = productivity_prediction) +
+                                                    facet_2 = "biomass",
+                                                    dat2 = biomass_prediction) +
         labs(x = "", tag = "a)") +
         # add stats
-        geom_text(data = productivity_prediction |>
+        geom_text(data = biomass_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text |>
+                    left_join(biomass_text |>
                                 filter(significance == "sign") |>
                                 slice(1), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = productivity_prediction |>
+        geom_text(data = biomass_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text |>
+                    left_join(biomass_text |>
                                 filter(significance == "sign") |>
                                 slice(2), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 3, label = term),
                   size = 3, colour = text_colour) +
-        geom_text(data = productivity_prediction |>
+        geom_text(data = biomass_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text |>
+                    left_join(biomass_text |>
                                 filter(significance == "sign") |>
                                 slice(3), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 4.6, label = term),
                   size = 3, colour = text_colour) +
-        geom_text(data = productivity_prediction |>
+        geom_text(data = biomass_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text |>
+                    left_join(biomass_text |>
                                 filter(significance == "sign") |>
                                 slice(4), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 6.2, label = term),
                   size = 3, colour = text_colour) +
-        geom_text(data = productivity_prediction |>
+        geom_text(data = biomass_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-                    left_join(productivity_text |>
-                                filter(significance == "marginal") |>
-                                slice(1), by = "origSiteID"),
+                    left_join(biomass_text |>
+                                filter(significance == "sign") |>
+                                slice(5), by = "origSiteID"),
                   aes(x = -Inf, y = Inf, hjust = 0, vjust = 7.8, label = term),
-                  size = 3, colour = "grey50")
+                  size = 3, colour = text_colour) +
+        geom_text(data = biomass_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(biomass_text |>
+                                filter(significance == "sign") |>
+                                slice(6), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 9.4, label = term),
+                  size = 3, colour = text_colour) +
+        geom_text(data = biomass_prediction |>
+                    distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+                    left_join(biomass_text |>
+                                filter(significance == "sign") |>
+                                slice(7), by = "origSiteID"),
+                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 11, label = term),
+                  size = 3, colour = text_colour)
+        # geom_text(data = productivity_prediction |>
+        #             distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
+        #             left_join(productivity_text |>
+        #                         filter(significance == "marginal") |>
+        #                         slice(1), by = "origSiteID"),
+        #           aes(x = -Inf, y = Inf, hjust = 0, vjust = 7.8, label = term),
+        #           size = 3, colour = "grey50")
 
 
       cover_text <- cover_anova_table |>
@@ -92,10 +113,9 @@ figure_plan <- list(
                hjust_var = 0,
                vjust_var = case_when(functional_group == "forb" & term == "W" ~ 1.4,
                                      functional_group == "forb" & term == "WxN" ~ 3,
-                                     functional_group == "graminoid" & term == "W" ~ -5.6,
-                                     functional_group == "graminoid" & term == "N" ~ -4,
-                                     functional_group == "graminoid" & term == "G" ~ -2.4,
-                                     functional_group == "graminoid" & term == "WxN" ~ -0.8))
+                                     functional_group == "graminoid" & term == "W" ~ -4,
+                                     functional_group == "graminoid" & term == "N" ~ -2.4,
+                                     functional_group == "graminoid" & term == "G" ~ -0.8))
 
       cover <- cover_output |>
         unnest(data) |>
@@ -176,7 +196,7 @@ figure_plan <- list(
                   aes(x = Inf, y = Inf, hjust = 1, vjust = 1.6, label = term),
                   size = 3, colour = text_colour)
 
-      productivity_figure + cover_figure + sedge_figure/legumes_figure +
+      biomass_figure + cover_figure + sedge_figure/legumes_figure +
         plot_layout(guides = "collect", widths = c(1, 2, 1)) &
         theme(legend.position = "top")
 
@@ -345,7 +365,7 @@ figure_plan <- list(
       # plot1 / plot2 / plot3 + plot_layout(design = plot_layout)
 
     }
-  )#,
+  )
 
   # biomass - diversity figure
   # tar_target(
@@ -364,116 +384,3 @@ figure_plan <- list(
   #     theme(legend.position = "top")
 
 )
-
-# text
-# tar_target(
-#   name = productivity_text,
-#   command = productivity_stats |>
-#     mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-#                                     term == "Intercept" ~ "non-sign",
-#                                     names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
-#                                     TRUE ~ "sign")) |>
-#     # BY HAND CODE!!!
-#     filter(significance == "sign",
-#            !term %in% c("W", "G")) |>
-#     mutate(term = recode(term,
-#                          "WxN^2" = "WxN",
-#                          "N^2" = "G+N")) |>
-#     distinct(origSiteID, term)
-# ),
-#
-# # figure
-# tar_target(
-#   name = productivity_figure,
-#   command = make_vegetation_figure(dat = productivity_prediction,
-#                                    x_axis = Namount_kg_ha_y,
-#                                    yaxislabel = bquote(Annual~productivity~g~m^-2~y^-1),
-#                                    colourpalette = col_palette,
-#                                    linetypepalette = c("solid", "dashed", "dotted"),
-#                                    shapepalette = c(16, 0, 2),
-#                                    facet_2 = NA) +
-#     # add stats
-#     geom_text(data = productivity_prediction |>
-#                 distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
-#                 left_join(productivity_text, by = "origSiteID"),
-#               aes(x = Inf, y = Inf, label = term),
-#               size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
-# ),
-#
-# ### COVER
-# # Functional group cover - grazing intensity
-# # text
-# tar_target(
-#   name = cover_text,
-#   command = cover_stats |>
-#     mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-#                                     term == "Intercept" ~ "non-sign",
-#                                     names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
-#                                     TRUE ~ "sign")) |>
-#     filter(significance == "sign") |>
-#     distinct(origSiteID, functional_group, term) |>
-#     mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb")))
-# ),
-#
-# # figure
-# tar_target(
-#   name = cover_figure,
-#   command = make_vegetation_figure(dat = cover_prediction,
-#                                    x_axis = Namount_kg_ha_y,
-#                                    yaxislabel = "Change in cover",
-#                                    colourpalette = col_palette,
-#                                    linetypepalette = c("solid", "dashed", "dotted"),
-#                                    shapepalette = c(16, 0, 2),
-#                                    facet_2 = "functional_group") +
-#     # add stats
-#     geom_text(data = cover_prediction |>
-#                 distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-#                 left_join(cover_text, by = c("origSiteID", "functional_group")) |>
-#                 mutate(term = if_else(is.na(term), "", term)),
-#               aes(x = Inf, y = Inf, label = term),
-#               size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
-# ),
-
-# Bryo, Liche and litter - grazing intensity
-# text
-# tar_target(
-#   name = cover_bryo_text,
-#   command = cover_bryo_stats |>
-#     mutate(significance = case_when(p.value > 0.05 ~ "non-sign",
-#                                     term == "Intercept" ~ "non-sign",
-#                                     names == "quadratic" & str_sub(term, -1, -1) == "N" ~ "non-sign",
-#                                     TRUE ~ "sign")) |>
-#     filter(significance == "sign") |>
-#     mutate(term = recode(term,
-#                          "WxN^2" = "WxN",
-#                          "N^2" = "N",
-#                          "GxN^2" = "W+GxN")) |>
-#     distinct(origSiteID, functional_group, term) |>
-#     # removed by hand!!!
-#     filter(!(origSiteID == "Alpine" & term == "W")) |>
-#     filter(!(origSiteID == "Sub-alpine" & term == "W")) |>
-#     filter(!(origSiteID == "Sub-alpine" & functional_group == "Litter" & term == "G")) |>
-#     filter(!(origSiteID == "Sub-alpine" & term == "N")) |>
-#     mutate(functional_group = factor(functional_group, levels = c("Bryophytes", "Lichen", "Litter")))
-# ),
-#
-# # figure
-# tar_target(
-#   name = cover_bryo_figure,
-#   command = make_vegetation_figure(dat = cover_bryo_prediction,
-#                                    x_axis = Namount_kg_ha_y,
-#                                    yaxislabel = "Change in cover",
-#                                    colourpalette = col_palette,
-#                                    linetypepalette = c("solid", "dashed", "dotted"),
-#                                    shapepalette = c(16, 0, 2),
-#                                    facet_2 = "functional_group") +
-#     # independent axis
-#     facet_grid2(origSiteID ~ functional_group, scales = "free_y", independent = "y") +
-#   # add stats
-#   geom_text(data = cover_bryo_prediction |>
-#               distinct(origSiteID, functional_group, warming, Namount_kg_ha_y, grazing) |>
-#               left_join(cover_bryo_text, by = c("origSiteID", "functional_group")) |>
-#               mutate(term = if_else(is.na(term), "", term)),
-#             aes(x = Inf, y = Inf, label = term),
-#             size = 4, colour = text_colour, hjust = 1.4, vjust = 1.4)
-# ),
