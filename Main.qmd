@@ -145,54 +145,9 @@ prod_cover_figure
 #| label: tbl-prod
 #| echo: false
 #| eval: true
-#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on annual plant productivity at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold.
+#| tbl-cap: Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on standing biomass at the alpine and sub-alpine communities. Shown are sum of squares, degrees of freedom (df), F statistics and P value and significant terms (P < 0.05) are in bold.
 
-tar_load(productivity_anova_table)
-
-productivity_anova_table |>
-  mutate(sumsq = round(sumsq, 2),
-         statistic = round(statistic, 2),
-         p.value = round(p.value, 3)) |> 
-  select(-names) |> 
-  pivot_wider(names_from = origSiteID, values_from = c(sumsq, df, statistic, p.value)) |> 
-  select(Term = term, sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine, `sumsq_Sub-alpine`, `df_Sub-alpine`,  `statistic_Sub-alpine`, `p.value_Sub-alpine`) |> 
-  gt() |> 
-  tab_spanner(label = "Alpine", columns = c(2:5)) |> 
-  cols_label(sumsq_Alpine = "Sum of Squares",
-             df_Alpine = "df",
-             statistic_Alpine = "F",
-             p.value_Alpine	= "P") |> 
-  tab_spanner(label = "Sub-alpine", columns = c(6:9)) |> 
-  cols_label(`sumsq_Sub-alpine` = "Sum of Squares",
-             `df_Sub-alpine` = "df",
-             `statistic_Sub-alpine` = "F",
-             `p.value_Sub-alpine`	= "P") |> 
-  tab_options(
-  table.font.size = 12,
-  data_row.padding = gt::px(1)
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine),
-      rows = p.value_Alpine <= 0.05
-    )
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(`sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`),
-      rows = `p.value_Sub-alpine` <= 0.05
-    )
-  ) |> 
-  cols_align(
-  align = c("left"),
-  columns = Term
-)
+tar_read(biomass_stats)
 
 ```
 
@@ -200,81 +155,10 @@ productivity_anova_table |>
 #| label: tbl-cover
 #| echo: false
 #| eval: true
-#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on functional group cover at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold. Other refer to sedges in the alpine and legumes in the sub-alpine community.
+#| tbl-cap: Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on functional group cover at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms (P < 0.05) are in bold. Other refer to sedges in the alpine and legumes in the sub-alpine community.
 
-tar_load(cover_anova_table)
+tar_read(cover_stats)
 
-dat <- cover_anova_table |> 
-  mutate(sumsq = round(sumsq, 2),
-         statistic = round(statistic, 2),
-         p.value = round(p.value, 3),
-         functional_group = if_else(functional_group %in% c("sedge", "legume"), "other", functional_group)) |> 
-  select(-names) |> 
-  pivot_wider(names_from = functional_group, values_from = c(sumsq, df, statistic, p.value)) |>
-  mutate(term = factor(term, levels = c("W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²", "Residuals"))) |>
-  arrange(origSiteID, term) |> 
-  select(Term = term, sumsq_graminoid, df_graminoid, statistic_graminoid, p.value_graminoid, sumsq_forb, df_forb,  statistic_forb, p.value_forb, sumsq_other, df_other, statistic_other, p.value_other)
-
-dat |> 
-  gt() |> 
-  tab_spanner(label = "Graminoid", columns = c(2:5)) |> 
-  cols_label(sumsq_graminoid = "Sum of Squares",
-             df_graminoid = "df",
-             statistic_graminoid = "F",
-             p.value_graminoid	= "P") |> 
-  tab_spanner(label = "Forb", columns = c(6:9)) |> 
-  cols_label(sumsq_forb = "Sum of Squares",
-             df_forb = "df",
-             statistic_forb = "F",
-             p.value_forb	= "P") |> 
-  tab_spanner(label = "Other", columns = c(10:13)) |> 
-  cols_label(sumsq_other = "Sum of Squares",
-             df_other = "df",
-             statistic_other = "F",
-             p.value_other	= "P") |> 
-  tab_row_group(
-    label = "Sub-alpine",
-    rows = 9:16
-  ) |> 
-  tab_row_group(
-    label = "Alpine",
-    rows = 1:8
-  ) |> 
-  tab_options(
-  table.font.size = 11,
-  data_row.padding = gt::px(1)
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_graminoid, df_graminoid, statistic_graminoid, p.value_graminoid),
-      rows = p.value_graminoid <= 0.05
-    )
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_forb, df_forb, statistic_forb, p.value_forb),
-      rows = p.value_forb <= 0.05
-    )
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_other, df_other, statistic_other, p.value_other),
-      rows = p.value_other <= 0.05
-    )
-  ) |> 
-  cols_align(
-  align = c("left"),
-  columns = Term
-)
 
 ```
 
@@ -319,77 +203,10 @@ knitr::include_graphics("diversity_figure_1.png")
 #| label: tbl-div
 #| echo: false
 #| eval: true
-#| tbl-cap: Anova table of the effects of warming, grazing, nitrogen addition and their interactions on richness, diversity and evenness at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms are in bold. Other refer to sedges in the alpine and legumes in the sub-alpine community.
+#| tbl-cap: Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on richness, diversity and evenness at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value and significant terms (P < 0.05) are in bold.
 
-tar_load(diversity_anova_table)
+tar_read(diversity_stats)
 
-div <- diversity_anova_table |>
-  mutate(sumsq = round(sumsq, 2),
-         statistic = round(statistic, 2),
-         p.value = round(p.value, 3)) |> 
-  select(-names) |> 
-  pivot_wider(names_from = diversity_index, values_from = c(sumsq, df, statistic, p.value)) |> 
-  select(Term = term, sumsq_richness, df_richness, statistic_richness, p.value_richness, sumsq_diversity, df_diversity, statistic_diversity, p.value_diversity, sumsq_evenness, df_evenness, statistic_evenness, p.value_evenness)
-
-div |> 
-  gt() |> 
-  tab_spanner(label = "Richness", columns = c(2:5)) |> 
-  cols_label(sumsq_richness = "Sum of Squares",
-             df_richness = "df",
-             statistic_richness = "F",
-             p.value_richness	= "P") |> 
-  tab_spanner(label = "Diversity", columns = c(6:9)) |> 
-  cols_label(sumsq_diversity = "Sum of Squares",
-             df_diversity = "df",
-             statistic_diversity = "F",
-             p.value_diversity	= "P") |> 
-    tab_spanner(label = "Evenness", columns = c(10:13)) |> 
-  cols_label(sumsq_evenness = "Sum of Squares",
-             df_evenness = "df",
-             statistic_evenness = "F",
-             p.value_evenness	= "P") |> 
-  tab_row_group(
-    label = "Sub-alpine",
-    rows = 9:16
-  ) |> 
-  tab_row_group(
-    label = "Alpine",
-    rows = 1:8
-  ) |> 
-  tab_options(
-  table.font.size = 11,
-  data_row.padding = gt::px(1)) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_richness, df_richness, statistic_richness, p.value_richness),
-      rows = p.value_richness <= 0.05
-    )
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_diversity, df_diversity, statistic_diversity, p.value_diversity),
-      rows = p.value_diversity <= 0.05
-    )
-  ) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_body(
-      columns = c(sumsq_evenness, df_evenness, statistic_evenness, p.value_evenness),
-      rows = p.value_evenness <= 0.05
-    )
-  ) |> 
-  cols_align(
-  align = c("left"),
-  columns = Term
-)
 
 ```
 
