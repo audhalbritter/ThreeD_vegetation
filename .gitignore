@@ -57,6 +57,7 @@ Manuscript/google.R
 *.jpeg
 *.jpg
 *.png
+*.ai
 
 # markdown
 *.html

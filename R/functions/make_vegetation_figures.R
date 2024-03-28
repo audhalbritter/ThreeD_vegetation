@@ -63,8 +63,8 @@ make_functional_group_biomass_figure <- function(biomass){
   biomass |>
     # filter only 2022. Filter for only one cut at peak growing season.
     filter(year == 2022,
-           (grazing == "Medium" & cut == 2) |
-           (grazing %in% c("Intensive", "Control") & cut == 3)) |>
+           grazing == "Control" & cut == 3|
+             grazing %in% c("Medium", "Intensive") & cut == 4) |>
     mutate(warm_site = paste(origSiteID, warming, sep = " "),
            fun_group = factor(fun_group, levels = c("shrub", "graminoids", "cyperaceae", "forbs", "legumes", "bryophytes", "litter"))) |>
     ggplot(aes(x = factor(Namount_kg_ha_y), y = biomass_scaled, fill = fun_group)) +

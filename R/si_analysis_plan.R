@@ -79,6 +79,78 @@ si_analysis_plan <- list(
       fancy_stats()
   ),
 
+  ### PRODUCTIVITY
+  tar_target(
+    name = productivity_model_all,
+    command = {
+
+      # sum fun groups
+      total_productivity <- productivity |>
+        ungroup() |>
+        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
+        summarise(sum_productivity = sum(productivity))
+
+      # test biomass in 2022
+      productivity_model_all <- run_full_model(dat = total_productivity |>
+                                                 filter(grazing != "Natural"),
+                                               group = c("origSiteID"),
+                                               response = sum_productivity,
+                                               grazing_var = grazing_num) |>
+        # make long table
+        pivot_longer(cols = -c(origSiteID, data),
+                     names_sep = "_",
+                     names_to = c(".value", "effects", "names")) |>
+        unnest(glance) |>
+        select(origSiteID:adj.r.squared, AIC, deviance)
+    }
+  ),
+
+  # only interaction model
+  tar_target(
+    name = productivity_model,
+    command = productivity_model_all |>
+      # remove model with single effects
+      filter(effects == "interaction") |>
+      # select parsimonious model
+      filter(AIC == min(AIC))
+  ),
+
+  tar_target(
+    name = productivity_output,
+    command = make_prediction(productivity_model)
+
+  ),
+
+  # prepare model output
+  tar_target(
+    name =   productivity_prediction,
+    command = productivity_output |>
+      # merge data and prediction
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
+      select(origSiteID, output) |>
+      unnest(output) |>
+      rename(prediction = fit)
+  ),
+
+  # stats
+  tar_target(
+    name =   productivity_anova_table,
+    command = productivity_output |>
+      select(origSiteID, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  # stats
+  tar_target(
+    name =   productivity_summary_table,
+    command = productivity_output |>
+      select(origSiteID, names, result) |>
+      unnest(result) |>
+      ungroup() |>
+      fancy_stats()
+  ),
 
   ## FUNCTIONAL GROUP COVER
   # natural grazing
@@ -88,11 +160,11 @@ si_analysis_plan <- list(
     command = run_full_model(dat = functional_group_cover |>
                                filter(grazing %in% c("Control", "Natural")) |>
                                select(-grazing_num),
-                             group = c("origSiteID", "functional_group"),
+                             group = c("origSiteID", "functional_group", "group"),
                              response = delta,
                              grazing_var = grazing) |>
       # make long table
-      pivot_longer(cols = -c(origSiteID, functional_group, data),
+      pivot_longer(cols = -c(origSiteID, functional_group, group, data),
                    names_sep = "_",
                    names_to = c(".value", "effects", "names")) |>
       unnest(glance) |>
@@ -104,8 +176,7 @@ si_analysis_plan <- list(
                origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "linear" |
                AIC == min(AIC)) |>
       filter(!(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "linear")) |>
-      filter(!(origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "quadratic")) |>
-      mutate(x = "x")
+      filter(!(origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "quadratic"))
     ),
 
   # prediction and model output
@@ -217,40 +288,3 @@ si_analysis_plan <- list(
   )
 
 )
-
-
-
-# HEIGHT
-# tar_target(
-#   name = result_height,
-#   command = {
-#
-#     run_full_model(dat = height |>
-#                      filter(grazing != "Natural"),
-#                    group = c("origSiteID", "vegetation_layer"),
-#                    response = delta,
-#                    grazing_var = grazing_num)
-#   }
-# ),
-#
-# # prepare model output
-# tar_target(
-#   name =   height_model_output,
-#   command = result_height |>
-#     # merge data and prediction
-#     mutate(output = map2(.x = data, .y = prediction, ~ bind_cols(.x, .y))) |>
-#     select(origSiteID, output) |>
-#     unnest(output) |>
-#     rename(prediction = fit)
-# ),
-#
-#
-# # stats
-# tar_target(
-#   name =   height_stats,
-#   command = result_height |>
-#     unnest(result) |>
-#     ungroup() |>
-#     select(-data, -model, -prediction) |>
-#     fancy_stats()
-# ),

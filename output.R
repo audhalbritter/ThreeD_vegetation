@@ -10,6 +10,7 @@ library(dataDocumentation)
 library(patchwork)
 library(wesanderson)
 library(ggh4x)
+library(gt)
 
 
 # Climate
@@ -24,32 +25,28 @@ ggsave(filename = "output/climate.png", climate_figure, dpi = 300, width = 10, h
 
 # Vegetation
 # productivity
-tar_load(prod_cover_figure)
-ggsave(filename = "output/productivity_cover.png", prod_cover_figure, dpi = 300, width = 8, height = 6)
-
-# tar_load(cover_bryo_figure)
-# ggsave(cover_bryo_figure, filename = "output/cover_bryo_figure.png", dpi = 300, width = 8, height = 6, bg = "white")
+tar_load(bio_cover_figure)
+ggsave(filename = "output/biomass_cover.png", bio_cover_figure, dpi = 300, width = 8, height = 6)
 
 # Diversity
 tar_load(diversity_figure)
-ggsave(diversity_figure, filename = "output/diversity_figure.png", dpi = 300, width = 8, height = 6, bg = "white")
-
-# summary
-tar_load(summary_figure)
-ggsave(summary_figure, filename = "output/summary_figure.png", dpi = 300, width = 6, height = 8, bg = "white")
+ggsave(diversity_figure, filename = "output/diversity_figure2.png", dpi = 300, width = 8, height = 10, bg = "white")
 
 
 
 ### SI
-
 tar_load(biomass_fun_group)
 ggsave(filename = "output/biomass_fun_group.png", biomass_fun_group, dpi = 300, width = 10, height = 8, bg = "white")
 
-tar_load(productivity_natural_figure)
-ggsave(filename = "output/productivity_natural_figure.png", productivity_natural_figure, dpi = 300, width = 6, height = 4)
-
 tar_load(productivity_consumption_figure)
 ggsave(filename = "output/productivity_consumption_figure.png", productivity_consumption_figure, dpi = 300, width = 10, height = 4)
+
+tar_load(productivity_figure)
+ggsave(filename = "output/productivity_figure.png", productivity_figure, dpi = 300, width = 4, height = 4.5)
+
+# biomass vs diversity
+tar_load(bio_div_figure)
+ggsave(bio_div_figure, filename = "output/bio_div_figure.png", dpi = 300, width = 6, height = 4, bg = "white")
 
 tar_load(cover_CN_figure)
 ggsave(cover_CN_figure, filename = "output/cover_CN.png", dpi = 300, width = 6, height = 5, bg = "white")

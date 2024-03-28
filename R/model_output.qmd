@@ -4,7 +4,7 @@ format: html
 editor: visual
 ---
 
-## Checking model assuptions
+## Checking model assumptions
 
 ```{r}
 #| label: set-up
@@ -15,6 +15,26 @@ library(tidyverse)
 library(performance)
 library(targets)
 library(tarchetypes)
+```
+
+## Standing biomass
+
+```{r}
+#| label: biomass-check
+#| echo: false
+#| results: asis
+
+tar_load(biomass_model)
+
+biomass_model |> 
+  mutate(check = map(model, check_model)) |> 
+  select(origSiteID, names, check) |> 
+  pwalk(.f = function(origSiteID, names, check, ...){
+  cat(paste("##", origSiteID, "biomass - ", names, "\n"))
+  print(check)
+  cat("\n")
+})
+  
 ```
 
 ## Annual plant productivity
@@ -77,8 +97,6 @@ diversity_model |>
   
 ```
 
-
-
 ## Climate
 
 ```{r}
@@ -98,7 +116,6 @@ climate_model |>
 })
   
 ```
-
 
 ## Nutrients
 
@@ -120,7 +137,6 @@ nutrient_model |>
   
 ```
 
-
 ## Cover - natural grazing
 
 ```{r}
@@ -140,7 +156,6 @@ cover_CN_model |>
 })
   
 ```
-
 
 ## Diversity - natural grazing
 
