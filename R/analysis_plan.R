@@ -291,22 +291,22 @@ analysis_plan <- list(
       bind_rows(
 
         # productivity
-        productivity = biomass_model_all |>
+        biomass = biomass_model_all |>
           select(origSiteID, effects, names, adj.r.squared) |>
           # inner join with correct models (previously selected based on AIC)
           inner_join(biomass_model |>
                        select(origSiteID, names),
                      join_by(origSiteID, names)) |>
-          mutate(group = "biomass"),
+          mutate(var = "biomass"),
 
         # productivity
         cover = cover_model_all |>
-          select(origSiteID, functional_group, effects, names, adj.r.squared) |>
+          select(group, origSiteID, functional_group, effects, names, adj.r.squared) |>
           # inner join with correct models (previously selected based on AIC)
           inner_join(cover_model |>
-                       select(origSiteID, functional_group, names),
-                     join_by(origSiteID, functional_group, names)) |>
-          rename(group = functional_group),
+                       select(group, origSiteID, functional_group, names),
+                     join_by(group, origSiteID, functional_group, names)) |>
+          rename(var = functional_group),
 
         # diversity
         diversity = diversity_model_all |>
@@ -315,7 +315,7 @@ analysis_plan <- list(
           inner_join(diversity_model |>
                        select(origSiteID, diversity_index, names),
                      join_by(origSiteID, diversity_index, names)) |>
-          rename(group = diversity_index),
+          rename(var = diversity_index),
 
         .id = "variable"
       )
