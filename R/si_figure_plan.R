@@ -195,7 +195,8 @@ si_figure_plan <- list(
              tag = "b)") +
         theme_bw()
 
-      (plot2 + plot4) + plot_layout(guides = "collect")
+      (plot2 + plot4) + plot_layout(guides = "collect") &
+        theme(text = element_text(size = 12))
 
     }
 
@@ -230,7 +231,7 @@ si_figure_plan <- list(
                                                     shapepalette = c(16, 0, 2),
                                                     facet_2 = "productivity",
                                                     dat2 = productivity_prediction) +
-        labs(x = "", tag = "a)") +
+        labs(x = "") +
         # add stats
         geom_text(data = productivity_prediction |>
                     distinct(origSiteID, warming, Namount_kg_ha_y, grazing) |>
