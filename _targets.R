@@ -1,7 +1,7 @@
 library("targets")
 library("tarchetypes")
 
-tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "wesanderson", "ggh4x"))
+tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "wesanderson", "ggh4x", "gt", "ggpubr"))
 # sf, DBI, RSQLite, MuMin?
 
 # source other scripts
@@ -14,8 +14,9 @@ combined_plan <- c(
   tranformation_plan,
   analysis_plan,
   figure_plan,
-  #manuscript_plan,
+  # #manuscript_plan,
   si_analysis_plan,
   si_figure_plan,
-  nutrient_plan
+  nutrient_plan,
+  output_plan
 )
