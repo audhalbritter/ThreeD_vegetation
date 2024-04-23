@@ -105,11 +105,17 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
            year = year(date)) |>
     filter(month %in% c(5, 6, 7, 8, 9),
            grazing == "Control",
-           Namount_kg_ha_y == 0) |>
-    group_by(variable, warming, origSiteID) |>
-    summarise(se = sd(value)/sqrt(n()),
-              value = mean(value)) |>
-    ggplot(aes(x = warming, y = value, fill = warming)) +
+           Namount_kg_ha_y == 0)
+
+  # stats
+  summer_mean |>
+    group_by(variable, origSiteID) |>
+    nest() |>
+    mutate(fit = map(data, ~lm(value ~ warming, data = .)),
+           res = map(fit, tidy)) |>
+    unnest(res)
+
+  summer_mean_plot <- ggplot(summer_mean, aes(x = warming, y = value, fill = warming)) +
     geom_violin(draw_quantiles = c(0.5)) +
     # geom_point(size = 2, shape = 16) +
     # geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2) +
@@ -121,7 +127,7 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     theme_bw() +
     theme(axis.text.x = element_blank())
 
-  daily_climate_figure <- daily_climate + summer_mean +
+  daily_climate_figure <- daily_climate + summer_mean_plot +
     plot_layout(widths = c(3, 1.5), guides = "collect") &
     theme(legend.position = "bottom")
 

@@ -196,14 +196,12 @@ make_diversity_stats <- function(diversity_anova_table){
 
 
 
-make_nutrient_stats <- function(nutrients_anova_table){
+make_nutrient_stats2 <- function(nutrients_anova_table){
 
   nutrients <- round_numbers(nutrients_anova_table) |>
     pivot_wider(names_from = origSiteID, values_from = c(sumsq, df, statistic, p.value)) |>
     select(Elements = elements, Term = term, sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine, `sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`) |>
     group_by(Elements)
-
-
 
   nutrients |>
     mutate(Elements = factor(Elements, levels = c("NH4-N", "NO3-N", "P", "K", "Ca", "Mg"))) |>
@@ -239,46 +237,135 @@ make_nutrient_stats <- function(nutrients_anova_table){
 }
 
 
+make_microclimate_stats <- function(daily_temp){
 
-make_climate_stats <- function(climate_anova_table){
+  warming <- daily_temp |>
+    mutate(month = month(date),
+           year = year(date)) |>
+    filter(month %in% c(5, 6, 7, 8, 9),
+           grazing == "Control",
+           Namount_kg_ha_y == 0)
 
-  climate <- round_numbers(climate_anova_table) |>
-    pivot_wider(names_from = origSiteID, values_from = c(sumsq, df, statistic, p.value)) |>
-    select(Variable = variable, Term = term, sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine, `sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`) |>
-    group_by(Variable)
-
-
-
-  climate |>
-    mutate(Variable = factor(Variable, levels = c("air", "ground", "soil", "soilmoisture"))) |>
-    arrange(Variable) |>
+  warming |>
+    group_by(origSiteID, variable) |>
+    nest() |>
+    mutate(linMod = map(data, ~lm(value ~ warming, data = .)),
+           result = map(linMod, tidy)) |>
+    unnest(result) |>
+    select(-data, -linMod) |>
+    mutate(term = case_when(term == "(Intercept)" ~ "Intercept",
+                            term == "warmingWarming" ~ "Warming")) |>
+    mutate(estimate = round(estimate, 2),
+           std.error = round(std.error, 2),
+           statistic = round(statistic, 2),
+           p.value = if_else(p.value <= 0.001, "< 0.001", as.character(round(p.value, 3)))) |>
+    pivot_wider(names_from = origSiteID, values_from = c(estimate, std.error, statistic, p.value)) |> select(Variable = variable, Term = term, "estimate_Sub-alpine" , "std.error_Sub-alpine", "statistic_Sub-alpine", "p.value_Sub-alpine", "estimate_Alpine", "std.error_Alpine", "statistic_Alpine", "p.value_Alpine") |>
+    ungroup() |>
     gt() |>
-    tab_spanner(label = "Alpine", columns = c(2:5)) |>
-    cols_label(sumsq_Alpine = "Sum of Squares",
-               df_Alpine = "df",
-               statistic_Alpine = "F",
-               p.value_Alpine	= "P") |>
-    tab_spanner(label = "Sub-alpine", columns = c(6:9)) |>
-    cols_label(`sumsq_Sub-alpine` = "Sum of Squares",
-               `df_Sub-alpine` = "df",
-               `statistic_Sub-alpine` = "F",
+    tab_spanner(label = "Sub-alpine", columns = c(3:6)) |>
+    cols_label(`estimate_Sub-alpine` = "Estimate",
+               `std.error_Sub-alpine` = "Standard error",
+               `statistic_Sub-alpine` = "t",
                `p.value_Sub-alpine`	= "P") |>
-    tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine),
-        rows = p.value_Alpine <= 0.05
-      )) |>
-    tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(`sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`),
-        rows = `p.value_Sub-alpine` <= 0.05
-      ))  %>%
+    tab_spanner(label = "Alpine", columns = c(7:10)) |>
+    cols_label(estimate_Alpine = "Estimate",
+               std.error_Alpine = "Standard error",
+               statistic_Alpine = "t",
+               p.value_Alpine	= "P")%>%
     table_style(., font_size = 11)
 }
 
+
+
+
+
+
+make_climate_stats <- function(climate_anova_table){
+
+  dat <- climate_anova_table |>
+    mutate(sumsq = round(sumsq, 2),
+           statistic = round(statistic, 2),
+           p.value = round(p.value, 3),
+           variable = factor(variable, levels = c("air", "ground", "soil", "soilmoisture"))) |>
+    select(-names) |>
+    pivot_wider(names_from = variable, values_from = c(sumsq, df, statistic, p.value)) |>
+    mutate(term = factor(term, levels = c("W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²", "Residuals"))) |>
+    arrange(origSiteID, term) |>
+    select(Term = term, sumsq_air, df_air, statistic_air, p.value_air, sumsq_ground, df_ground,  statistic_ground, p.value_ground, sumsq_soil, df_soil, statistic_soil, p.value_soil, sumsq_soilmoisture, df_soilmoisture, statistic_soilmoisture, p.value_soilmoisture)
+
+  dat |>
+    gt() |>
+    tab_spanner(label = "Air", columns = c(2:5)) |>
+    cols_label(sumsq_air = "Sum of Squares",
+               df_air = "df",
+               statistic_air = "F",
+               p.value_air	= "P") |>
+    tab_spanner(label = "Ground", columns = c(6:9)) |>
+    cols_label(sumsq_ground = "Estimate ± SE",
+               df_ground = "df",
+               statistic_ground = "t",
+               p.value_ground	= "P") |>
+    tab_spanner(label = "Soil", columns = c(10:13)) |>
+    cols_label(sumsq_soil = "Estimate ± SE",
+               df_soil = "df",
+               statistic_soil = "t",
+               p.value_soil	= "P") |>
+    tab_spanner(label = "Soilmoisture", columns = c(14:17)) |>
+    cols_label(sumsq_soilmoisture = "Estimate ± SE",
+               df_soilmoisture = "df",
+               statistic_soilmoisture = "t",
+               p.value_soilmoisture	= "P") |>
+    tab_row_group(
+      label = "Sub-alpine",
+      rows = 9:16
+    ) |>
+    tab_row_group(
+      label = "Alpine",
+      rows = 1:8
+    ) |>
+    tab_options(
+      table.font.size = 11,
+      data_row.padding = gt::px(1)
+    ) |>
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(sumsq_air, df_air, statistic_air, p.value_air),
+        rows = p.value_air <= 0.05
+      )
+    ) |>
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(sumsq_ground, df_ground, statistic_ground, p.value_ground),
+        rows = p.value_ground <= 0.05
+      )
+    ) |>
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(sumsq_soil, df_soil, statistic_soil, p.value_soil),
+        rows = p.value_soil <= 0.05
+      )
+    )  |>
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(sumsq_soilmoisture, df_soilmoisture, statistic_soilmoisture, p.value_soilmoisture),
+        rows = p.value_soilmoisture <= 0.05
+      )
+    ) |>
+    cols_align(
+      align = c("left"),
+      columns = Term
+    )
+
+}

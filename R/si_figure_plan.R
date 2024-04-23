@@ -2,10 +2,10 @@ si_figure_plan <- list(
 
   ### CLIMATE
   # annual climate figure
-  tar_target(
-    name = annual_climate_figure,
-    command = make_annual_climate_figure(annual_climate)
-  ),
+  # tar_target(
+  #   name = annual_climate_figure,
+  #   command = make_annual_climate_figure(annual_climate)
+  # ),
 
   tar_target(
     name = daily_climate_figure,
@@ -13,10 +13,10 @@ si_figure_plan <- list(
   ),
 
   # treatments
-  tar_target(
-    name = climate_treatment_figure,
-    command = make_climate_treatment_figure(daily_temp)
-  ),
+  # tar_target(
+  #   name = climate_treatment_figure,
+  #   command = make_climate_treatment_figure(daily_temp)
+  # ),
 
   # climate figure
   tar_target(
@@ -86,10 +86,10 @@ si_figure_plan <- list(
   ),
 
   # not sure if this one is needed
-  tar_target(
-    name = productivity_figure_boxplot,
-    command = make_productivity_figure(biomass)
-  ),
+  # tar_target(
+  #   name = productivity_figure_boxplot,
+  #   command = make_productivity_figure(biomass)
+  # ),
 
   # control vs cage biomass
   tar_target(
@@ -196,11 +196,10 @@ si_figure_plan <- list(
         theme_bw()
 
       (plot2 + plot4) + plot_layout(guides = "collect") &
-        theme(text = element_text(size = 12))
+        theme(text = element_text(size = 12),
+              legend.position = "top")
 
     }
-
-
   ),
 
 

@@ -79,6 +79,19 @@ si_analysis_plan <- list(
       fancy_stats()
   ),
 
+  tar_target(
+    name = microclimate_stats,
+    command = make_microclimate_stats(daily_temp)
+  ),
+
+  tar_target(
+    name = microclimate_save,
+    command = microclimate_stats |>
+      gtsave("output/microclimate_stats.png", expand = 10)
+  ),
+
+
+
   ### PRODUCTIVITY
   tar_target(
     name = productivity_model_all,
@@ -140,6 +153,17 @@ si_analysis_plan <- list(
       unnest(anova_tidy) |>
       ungroup() |>
       fancy_stats()
+  ),
+
+  tar_target(
+    name = productivity_stats,
+    command = make_biomass_stats(productivity_anova_table)
+  ),
+
+  tar_target(
+    name = productivity_save,
+    command = productivity_stats |>
+      gtsave("output/productivity_stats.png", expand = 10)
   ),
 
   # stats
