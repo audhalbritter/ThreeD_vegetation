@@ -156,7 +156,7 @@ tar_load(nutrients_stats)
 nutrients_stats
 
 
- ```
+```
 
 
 ### Supplementary Figure 6: Functional group cover and natural grazing
