@@ -31,15 +31,18 @@ analysis_plan <- list(
   ),
 
   ### STANDING BIOMASS
+  # sum biomass by functional group
+  tar_target(
+    name = total_biomass,
+    command = standing_biomass |>
+      ungroup() |>
+      group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
+      summarise(sum_biomass = sum(biomass), .groups = "drop")
+  ),
+
   tar_target(
     name = biomass_model_all,
     command = {
-
-      # sum fun groups
-      total_biomass <- standing_biomass |>
-        ungroup() |>
-        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
-        summarise(sum_biomass = sum(biomass))
 
       # test biomass in 2022
       biomass_model_all <- run_full_model(dat = total_biomass |>

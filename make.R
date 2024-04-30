@@ -1,5 +1,5 @@
 library("targets")
-
+source("other_scripts/load_libraries.R")
 
 # make the targets that are out of date
 # looks for a file called "_targets.R" in the working directory

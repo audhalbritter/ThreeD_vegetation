@@ -56,7 +56,7 @@ output_plan <- list(
   # nutrients
   tar_target(
     name = nutrients_stats,
-    command = make_nutrient_stats(nutrients_anova_table)
+    command = make_nutrient_stats2(nutrients_anova_table)
   ),
 
   tar_target(
