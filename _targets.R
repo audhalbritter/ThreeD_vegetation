@@ -14,7 +14,7 @@ combined_plan <- c(
   tranformation_plan,
   analysis_plan,
   figure_plan,
-  # #manuscript_plan,
+  #manuscript_plan,
   si_analysis_plan,
   si_figure_plan,
   nutrient_plan,
