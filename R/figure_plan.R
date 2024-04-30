@@ -226,7 +226,8 @@ figure_plan <- list(
              tag = "a)") +
         facet_wrap(~origSiteID, nrow = 2) +
         theme_bw() +
-        theme(legend.position = c(0.8, 0.95),
+        theme(#legend.position = c(0.8, 0.95),
+              legend.position = "bottom",
               legend.background = element_rect(fill = NA, colour = NA),
               axis.text.x = element_text(size = 8))
 
@@ -291,9 +292,10 @@ figure_plan <- list(
         labs(x = bquote(Biomass~g~m^-2),
              y = "Effect of grazing on diversity",
              tag = "b)") +
+        guides(colour = "none", fill = "none", shape = "none", linetype = "none") +
         facet_wrap(~ origSiteID, nrow = 2) +
         theme_bw() +
-        theme(legend.position = "none")
+        theme(legend.position = "bottom")
 
       # text
       diversity_text <- diversity_anova_table |>

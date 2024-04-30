@@ -93,28 +93,55 @@ si_figure_plan <- list(
 
   # control vs cage biomass
   tar_target(
+    name = annual_productivity,
+    command = productivity_raw |>
+      # calculate productivity in mg per m^2
+      mutate(productivity_mg_m2 = productivity / area_cm / 10000 * 1000) |>
+      # productivity per day
+      mutate(productivity_mg_m2_d = productivity_mg_m2 / duration) |>
+      mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
+             siteID = factor(siteID, levels = c("Lowland", "Sub-alpine", "Alpine")),
+             treatment = case_match(treatment,
+                                    "Control" ~ "Grazed",
+                                    "Cage" ~ "Ungrazed"),
+             treatment = factor(treatment, levels = c("Grazed", "Ungrazed")))
+      ),
+
+  # Seasonal biomass consumption
+  tar_target(
+    name = seasonal_consumption,
+    command = annual_productivity |>
+      # remove first round without control
+      filter(!is.na(date_in)) |>
+      select(-productivity, -productivity_mg_m2) |>
+      pivot_wider(names_from = treatment, values_from = productivity_mg_m2_d) |>
+      mutate(Consumption = Ungrazed - Grazed)
+  ),
+
+  # Biomass consumption
+  tar_target(
+    name = consumption,
+    command = annual_productivity |>
+      select(-productivity, -productivity_mg_m2_d) |>
+      group_by(siteID, treatment, plot_nr) |>
+      summarise(sum = sum(productivity_mg_m2)) |>
+      pivot_wider(names_from = treatment, values_from = sum) |>
+      mutate(Consumption = Ungrazed - Grazed)
+    ),
+
+
+  # control vs cage biomass
+  tar_target(
     name = productivity_consumption_figure,
     command = {
 
-      dat <- productivity_raw |>
-        # calculate productivity in mg per m^2
-        mutate(productivity_mg_m2 = productivity / area_cm / 10000 * 1000) |>
-        # productivity per day
-        mutate(productivity_mg_m2_d = productivity_mg_m2 / duration) |>
-        mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
-               siteID = factor(siteID, levels = c("Lowland", "Sub-alpine", "Alpine")),
-               treatment = case_match(treatment,
-                                      "Control" ~ "Grazed",
-                                      "Cage" ~ "Ungrazed"),
-               treatment = factor(treatment, levels = c("Grazed", "Ungrazed")))
-
-      # avaerage duration
-      dat |>
+      # average duration
+      annual_productivity |>
         summarise(se = sd(duration, na.rm = TRUE)/sqrt(n()),
                   mean = mean(duration, na.rm = TRUE))
 
       # # Daily productivity over the growing season
-        # plot1 <- dat |>
+        # plot1 <- annual_productivity |>
         #   group_by(date_out, siteID, treatment) |>
         #   summarise(se = sd(productivity_mg_m2_d)/sqrt(n()),
         #             mean = mean(productivity_mg_m2_d)) |>
@@ -128,17 +155,8 @@ si_figure_plan <- list(
         #   facet_wrap(~ siteID) +
         #   theme_bw()
 
-        # annual productivity
-        dat |>
-          summarise(sum = sum(productivity_mg_m2),
-                    .by = c(siteID, treatment, plot_nr)) |>
-          summarise(se = sd(sum)/sqrt(n()),
-                    mean = mean(sum),
-                    .by = c(siteID, treatment)) |>
-          select(siteID, treatment, mean, se)
-
         # Annual productivity in grazed and ungrazed plots
-        plot2 <- dat |>
+        plot2 <- annual_productivity |>
           # remove first round without control
           filter(!is.na(date_in)) |>
           group_by(siteID, treatment, plot_nr) |>
@@ -151,42 +169,29 @@ si_figure_plan <- list(
                tag = "a)") +
           theme_bw()
 
-
-        # Seasonal biomass consumption
-        dat2 <- dat |>
-          # remove first round without control
-          filter(!is.na(date_in)) |>
-          select(-productivity, -productivity_mg_m2) |>
-          pivot_wider(names_from = treatment, values_from = productivity_mg_m2_d) |>
-          mutate(Consumption = Ungrazed - Grazed)
-
-        dat2 |>
-          summarise(sum = sum(Consumption),
-                    .by = c(siteID, plot_nr)) |>
-          summarise(se = sd(sum)/sqrt(n()),
-                    mean = mean(sum),
-                    .by = c(siteID)) |>
-          select(siteID, mean, se)
+        # consumption
+        # seasonal_consumption |>
+        #   summarise(sum = sum(Consumption),
+        #             .by = c(siteID, plot_nr)) |>
+        #   summarise(se = sd(sum)/sqrt(n()),
+        #             mean = mean(sum),
+        #             .by = c(siteID)) |>
+        #   select(siteID, mean, se)
 
 
-      # plot3 <- dat2 |>
-      #   ggplot(aes(x = date, y = Consumption)) +
-      #   geom_hline(yintercept = 0, colour = "grey70") +
-      #   geom_point(colour = "#E9BD7F") +
-      #   labs(y = bquote(Biomass~consumption~g~m^-2),
-      #        x = "",
-      #        tag = "c)",
-      #        title = "Seasonal biomass consumption") +
-      #   facet_wrap(~ siteID) +
-      #   theme_bw()
+      # plot3 <- seasonal_consumption |>
+        # ggplot(aes(x = date, y = Consumption)) +
+        # geom_hline(yintercept = 0, colour = "grey70") +
+        # geom_point(colour = "#E9BD7F") +
+        # labs(y = bquote(Biomass~consumption~g~m^-2),
+        #      x = "",
+        #      tag = "c)",
+        #      title = "Seasonal biomass consumption") +
+        # facet_wrap(~ siteID) +
+        # theme_bw()
 
       # Annual biomass consumption
-      plot4 <- dat |>
-        select(-productivity, -productivity_mg_m2_d) |>
-        group_by(siteID, treatment, plot_nr) |>
-        summarise(sum = sum(productivity_mg_m2)) |>
-        pivot_wider(names_from = treatment, values_from = sum) |>
-        mutate(Consumption = Ungrazed - Grazed) |>
+      plot4 <- consumption |>
         ggplot(aes(x = siteID, y = Consumption)) +
         geom_hline(yintercept = 0, colour = "grey70") +
         geom_boxplot(fill = "#E9BD7F") +
