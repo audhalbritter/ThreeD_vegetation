@@ -43,18 +43,19 @@ This suggests options for adaptive grazing management to conserve biodiversity u
 
 ## Main
 
-(3114/3500 words, without abstract, methods, ref and fig legends)
-
-Anthropogenic global changes linked to land-use change, resource exploitation, climate change, invasive alien species, and pollution pose major and accelerating threats to biodiversity [@Ipbes2019-sd].
-These global change drivers do not act in isolation, however, but occur simultaneously and often interact in complex ways so that their cumulative impacts may exceed the sum of single driver impacts [@Speiser2022-st; @Komatsu2019-yr].
+Anthropogenic global changes linked to land-use change, resource exploitation, climate change, invasive alien species, and pollution pose major and accelerating threats to biodiversity and ecosystem functioning [@Ipbes2019-sd].
+These global change drivers do not act in isolation, however, but occur simultaneously and often interact in complex ways so that their cumulative impacts may exceed the sum of single drivers [@Speiser2022-st; @Komatsu2019-yr].
 The vast majority of empirical global change studies focus on only one, or perhaps two drivers, and rarely assess interactions [@rillig2019role; @Zandalinas2021-gp].
-This is problematic because such studies may underestimate the overall pressures on biodiversity, thereby limiting our ability to predict the consequences of projected climate and environmental changes in the future [@Speiser2022-st; @Komatsu2019-yr; @rillig2019role; @Oliver2014-wy].
-To improve our understanding of global change impacts on biodiversity, now and in the future, we therefore urgently need studies that explicitly consider multiple global change drivers and their interactions.
+This is problematic because such studies may underestimate the overall pressures on biodiversity, thereby limiting our ability to predict the consequences of projected global changes [@Speiser2022-st; @Komatsu2019-yr; @rillig2019role; @Oliver2014-wy].
+To improve our understanding of global change impacts on biodiversity and ecosystem functioning, now and in the future, we therefore urgently need studies that explicitly consider multiple global change drivers and their interactions.
 
-Mountains harbor unique biodiversity and provide important ecosystem functions and services such as carbon sequestration, water cycling, and grazing pastures, underpinning the lives and livelihoods of hundreds of millions of people [@egan2017mountain].
-Alpine grasslands are temperature limited, have low nutrient availability, and have been managed for grazing and fodder production within socio-ecological systems of transhumance or mixed agriculture for centuries [@Austrheim2001-nu; @Bunce2004-kn].
-During the last decades, many mountains have warmed faster at higher elevations [@Ipcc2022-jw; @pepin2015elevation; @Pepin2022-fy] and climate change impacts have changed species distributions [@steinbauer2018accelerated], community structure and dynamics [@Vandvik2020-hu ; @Alexander2015-gu], and ecosystem functioning [@Ipbes2019-sd; @Schroter2005-dy; @Schirpke2013-kh].
-At the same time mountains are affected by other global change drivers such as atmospheric nitrogen deposition and change in grazing regimes [@Austrheim2001-nu; @Shukla2019-es; @Humbert2016-wg; @macdonald2000agricultural].
+Mountains harbor unique biodiversity and provide important ecosystem functions and services such as carbon sequestration, water cycling, and grazing pastures; underpinning the lives and livelihoods of hundreds of millions of people [@egan2017mountain].
+In many regions of the world, alpine vegetation has been managed for grazing and fodder production within socio-ecological systems of transhumance or mixed agriculture for centuries [@Austrheim2001-nu; @Bunce2004-kn].
+During the last decades, faster warming at higher elevations have been observed at many mountain ranges[@Ipcc2022-jw; @pepin2015elevation; @Pepin2022-fy] and climate change impacts have changed species distributions [@steinbauer2018accelerated], community structure and dynamics [@Vandvik2020-hu ; @Alexander2015-gu], and ecosystem functioning [@Ipbes2019-sd; @Schroter2005-dy; @Schirpke2013-kh] along elevational gradients.
+At the same time alpine ecosystems are affected by other global change drivers such as atmospheric nitrogen deposition [@Humbert2016-wg] and land-use change, including both intensification and abandonment of grazing regimes [@Austrheim2001-nu; @Shukla2019-es; @macdonald2000agricultural].
+
+In alpine vegetation, including grassland, heath, and tundra, plant productivity is generally temperature limited and warmer climate will thus often result in increased plant growth, leading to more standing biomass [@elmendorf2012plot; @fazlioglu2021warming], with a positive feedback to productivity (@fig-concept a). These vegetation changes have implications for biodiversity, operating via changes in the nature and intensity of species interactions within alpine plant communities. In particular, as climate warms and biomass increases, we expect a shift from the facilitative plant-plant interactions that tend to dominate under high environmental stress towards competitive interactions characteristic of more environmentally benign conditions (\'Stress-Gradient Hypothesis\'; see e.g. [@bertness1994positive; @he2013global]. These shifts in the direction and intensity of the dominant plant-plant interactions in response to warming may again lead to changes in species composition and diversity, with lower-stature and less competitive alpine specialist species decreasing in abundance and diversity as they are exposed to increased competition for light from a taller and denser vegetation sward, an effect that may be exacerbated if they are exposed to more competitive range-shifting lowland generalists [@Vandvik2020-hu ; @Alexander2015-gu; @lynn2023traits; @winkler2019responses]. Another global change driver with major impacts on the structure and diversity of terrestrial ecosystems, including alpine vegetation, is atmospheric nitrogen deposition [@Ipbes2019-sd]. As plant growth and biomass in alpine vegetation is often co-limited by temperature and nutrients [@Korner2003-kg], the specific effects of added nitrogen tend to be similar to those of increased temperature; increased growth, taller and denser vegetation, and intensified competition for light [@Humbert2016-wg] (@fig-concept a).
+Accordingly, an experiment that combined warming and nitrogen addition treatments in alpine vegetation found that both drivers have qualitatively similar effects on biomass and diversity [@Klanderud2005-yx].
 
 ```{r}
 #| label: fig-concept
@@ -66,32 +67,35 @@ knitr::include_graphics("figures/concept.png")
 
 ```
 
-Mountain ecosystems and their functions and services are threatened by multiple global change drivers.
-Warmer climate and nitrogen addition generally increase plant productivity, leading to more standing biomass [@Humbert2016-wg; @Gruner2008-gn; @elmendorf2012plot], with a positive feedback to productivity (@fig-concept a).
-Grazing impacts plant communities in a more complex way; grazers remove biomass and can stimulate plant productivity via nutrient addition through urine and dung (@fig-concept a).
-In grasslands, where competition for light is the dominant plant-plant interaction, the removal of biomass by grazers can induce competitive release in plant communities due to a shift from dominant to less competitive and rare species and thus promote diversity [@Austrheim2001-nu; @Kaufmann2021-qj; @niedrist2009plant; @Bernes2015-yg] (gray area in @fig-concept b).
-In contrast, in a system where facilitative interactions dominate, grazing can lead to potential loss of biodiversity maintained by facilitation.
-While warmer climate and/or nitrogen addition will push the system towards increased standing biomass (i.e. arrows in @fig-concept b), the net effect of grazing on plant diversity is thus context dependent (i.e. grazing intensity, history and environmental context)[@cingolani2005grazing; @milchunas1988generalized; @milchunas1993quantitative] and can be positive or negative.
-Our hypothesis is that grazing interacts with warming and/or nitrogen addition ultimately affecting alpine plant diversity through the same underlying mechanisms, namely plant productivity and standing biomass.
-If this is true, grazing, which is often managed locally and at short time scales, provides an opportunity to empirically and experimentally test conditions where grazing positively influences plant diversity, providing management solutions for alpine grasslands.
+In contrast to warming and nutrient addition, grazing animals affect plant communities primarily through  removing biomass and acting as disturbance agents through grazing and trampling, although we note that their effects on productivity are complex as they also add nutrients via urine and dung (@fig-concept a).
+Importantly, the effect of changes in biomass removal and disturbance on biodiversity should vary across environmental contexts, depending on the dominant biotic interactions within communities.
+Specifically, when environmental conditions are harsh, productivity low, and facilitative interactions dominate, increased grazing is expected to lead to loss of facilitative interactions and may thus negatively impact diversity (white area in @fig-concept b).
+In contrast, in more productive systems, increased removal of biomass by grazers can lead to release from competitive interactions and hence increased diversity [@Austrheim2001-nu; @niedrist2009plant; @Bernes2015-yg] (grey area in @fig-concept b).
+The magnitude of these effects of grazing on biodiversity thus depend both on the direction and intensity of plant-plant interactions within the vegetation (i.e., on productivity and/or environmental harshness, the x-axis in @fig-concept b) and on the intensity of grazing (lines and yellow arrows in @fig-concept b) [@cingolani2005grazing; @milchunas1988generalized; @milchunas1993quantitative].
+
+Based on these observations, our working hypothesis is that the effects of warming and nitrogen addition and grazing on alpine plant diversity operate through the same underlying mechanisms (@fig-concept a), namely the role of plant productivity and standing biomass in controlling the direction and intensity of plant-plant interactions.
+Specifically, a warmer climate and/or nitrogen addition should generally push plant communities towards increased standing biomass and hence increasingly competitive interactions (i.e. red and brown arrows in @fig-concept b).
+In contrast, the effect of grazing on biodiversity should depend on the system\'s position along the productivity gradient, and be negative under low productivity when facilitative interactions prevail and positive under high productivity when competitive interactions prevail.
+If these expectations are confirmed, grazing, which can be managed locally and at short time scales, provides an opportunity to empirically and experimentally test conditions under which grazing positively influences plant diversity, which could guide management solutions for alpine grasslands exposed to these global change drivers.
 
 ```{r}
 #| label: climate
 tar_load(summer_T)
 ```
 
-The aim of this study is to disentangle the single and interactive effects of warmer climate, nitrogen addition, and grazing on standing biomass and diversity in alpine and sub-alpine grasslands.
+The aim of this study is to assess the single and interactive effects of warmer climate, nitrogen addition, and grazing on standing biomass and diversity in alpine and sub-alpine grasslands.
 Specifically, we test if adaptive grazing practices can mediate negative impacts of warming and nitrogen addition on diversity.
 We used a fully factorial field experiment replicated across two sites, an alpine and a sub-alpine grassland in Western Norway, representing different annual and growing season temperatures and consequently plant productivity (Supplementary Figure 1 and 2a).
-These grasslands are grazed by domestic and natural grazers, and grazing pressure decreases with elevation (Supplementary Figure 2b).
-Alpine and subalpine plant communities were exposed to a combination of warmer climate (transplant to lower elevation), increased nitrogen deposition (eight levels ranging between 0 and 150 kg N ha^-1^ y^-1^), and simulated grazing by clipping and removing biomass at two different intensities (@fig-concept c).
-Plant communities moved to lower elevation experienced an approximately 3°C increase in average growing season temperature (air: `r summer_T$diff[1]` ± `r summer_T$se_diff[1]` °C, ground: `r summer_T$diff[2]` ± `r summer_T$se_diff[2]` °C, and soil: `r summer_T$diff[3]` ± `r summer_T$se_diff[3]` °C; Supplementary Figure 1 and Table 1).
+The two sites reflect two different environmental contexts, i.e., different positions along the productivity gradient (x axis., @fig-concept b).
+These grasslands are grazed by domestic and natural grazers, with the extant grazing pressure decreasing with elevation (Supplementary Figure 2b).
+Alpine and sub-alpine plant communities were exposed to a combination of warmer climate (transplant to lower elevation), increased nitrogen deposition (eight levels ranging between 0 and 150 kg N ha^-1^ y^-1^), and simulated grazing by clipping and removing biomass at two different intensities (@fig-concept c).
+Plant communities moved to lower elevation experienced an approximately 3°C increase in average growing season temperature (Supplementary Figure 1, Table 1).
 We applied a large range of nitrogen levels to simulate nitrogen addition close to and well beyond the current atmospheric nitrogen deposition in the mountains in southern Norway [@aas2023monitoring] (2-3 kg N ha^-1^ y^-1^) and the critical load for change in species composition in alpine grasslands [@bobbink2011review] (c. 5-10 kg N ha^-1^ y^-1^).
 Our understanding of environmentally extreme conditions is limited, and such simulations can provide a mechanistic understanding of thresholds for community change [@Kayler2015-pr].
 We simulated grazing by clipping because our main interest was in the effect of biomass removal, however, we also had naturally grazed plots outside the fenced area to account for the difference between grazing by animals and clipping (@fig-concept c).
 After three years of global change treatments, we harvested standing biomass at peak growing season and assessed the change in vascular plant species composition and diversity.
-We hypothesized that (i) warming and nitrogen addition increase standing biomass, especially of competitive graminoids, resulting in decreased vascular plant diversity due to enhanced competition for light [@Klanderud2005-yx].
-(ii) We expect stronger responses to warming and nitrogen addition in the cooler alpine community compared to the warmer sub-alpine community, because alpine communities are more temperature and nutrient limited.
+We test the hypotheses that (i) warming and nitrogen addition increase standing biomass, especially of competitive species such as graminoids, resulting in decreased vascular plant diversity due to enhanced competition for light [@Klanderud2005-yx].
+(ii) We expect stronger responses to warming and nitrogen addition in the cooler alpine community compared to the warmer sub-alpine community, because higher-elevation communities are more temperature and nutrient limited.
 Finally, (iii) we expected grazing to reduce standing biomass and thereby mitigate species loss under nitrogen addition and warming, especially in the sub-alpine site, where competitive interactions might be relatively more intense and important (@fig-concept b).
 
 ## Results
@@ -173,21 +177,21 @@ sa_wg50 <- total_biomass |>
 Under ambient climate, standing biomass was almost six times higher in the sub-alpine community than in the alpine community (`r bio_amb$mean[2]` vs. `r bio_amb$mean[1]` g m^-2^; @fig-prod-cover a; Supplementary Table 2).
 When alpine communities were warmed, biomass increased five-fold, to levels almost matching those of the sub-alpine community (`r bio_warm$mean[1]` g m^-2^).
 Alpine community biomass showed a skewed unimodal response to nitrogen addition, peaking at 50 kg N ha^-1^ ^y-1^ where biomass reached levels about four times higher than control plots without nitrogen (`r bio_50$mean[1]` g m^-2^).
-Warming in combination with nitrogen addition increased biomass even further, it increased exponentially up to 100 kg N ha^-1^ ^y-1^, where it peaked at levels 11 times higher than under ambient climate and nitrogen (`r bio_warm100$mean[1]` g m^-2^) before dropping sharply at the highest nitrogen level (*WxN interaction*).
-Simulated intensive grazing under ambient conditions reduced biomass five times (`r graz_warm$Ambient[3]` g m^-2^), but not intermediate grazing (`r graz_warm$Ambient[2]` g m^-2^).
+Warming in combination with nitrogen addition increased biomass even further, it increased exponentially up to 100 kg N ha^-1^ ^y-1^, where it peaked at levels 11 times higher than under ambient climate without nitrogen (`r bio_warm100$mean[1]` g m^-2^) before dropping sharply at the highest nitrogen level (*WxN interaction*).
+Simulated intensive grazing under ambient conditions reduced biomass five-fold (`r graz_warm$Ambient[3]` g m^-2^), but not intermediate grazing (`r graz_warm$Ambient[2]` g m^-2^).
 When alpine communities were warmed, nitrogen was added (50 kg N ha^-1^ ^y-1^) or both, biomass was reduced by 1.2 -2.6 times with intermediate grazing (*WxG*: `r graz_warm$Warming[2]` g m-2; *GxN*: `r graz50$"50"[2]` g m^-2^; *WxNxG*: `r graz_warm50$mean[2]` g m^-2^).
 Intensive grazing had a much stronger effect and reduced biomass by 9.7 - 15.8 times (*WxG*: `r graz_warm$Warming[3]` g m-2; *GxN*: `r graz50$"50"[3]` g m-2; *WxNxG*: `r graz_warm50$mean[3]` g m^-2^).
 
 The standing biomass of the sub-alpine community increased 1.5 times with warming, but this was not statistically significant (@fig-prod-cover a; Supplementary Table 2).
-The sub-alpine community biomass response to nitrogen addition was very similar to the warmed alpine community, a negatively skewed unimodal relationship that reached a peak biomass of `r bio_amb100$mean[2]` g m^-2^ at 100 kg N ha^-1^ y^-1^.
-The combination of warming and nitrogen addition had a less pronounced effect than in the alpine community, especially at high nitrogen addition, and the maximum value was below that in the nitrogen treatment alone (`r bio_warm100$mean[2]` g m^-2^).
-Intermediate simulated grazing reduced biomass in the sub-alpine community by 2.5 - 4.5 times, under ambient conditions (`r sa_graz50$"0"[2]` g m^-2^), in combination with nitrogen (G*xN*: `r sa_graz50$"50"[2]` g m^-2^ at 50 kg N ha^-1^ y^-1^) and with warming and nitrogen (*WxNxG*: `r sa_wg50$mean[2]` g m^-2^).
+The sub-alpine community biomass response  to nitrogen addition was very similar to the warmed alpine community, a negatively skewed unimodal relationship reaching peak biomass of `r bio_amb100$mean[2]` g m^-2^ at 100 kg N ha^-1^ y^-1^.
+Warming and nitrogen addition combined had a less pronounced effect than in the alpine community, especially at high nitrogen addition, and the maximum value was below that in the nitrogen treatment alone (`r bio_warm100$mean[2]` g m^-2^).
+Intermediate simulated grazing reduced biomass in the sub-alpine community by 2.5-4.5 times, under ambient conditions (`r sa_graz50$"0"[2]` g m^-2^), in combination with nitrogen (G*xN*: `r sa_graz50$"50"[2]` g m^-2^ at 50 kg N ha^-1^ y^-1^) and with warming and nitrogen (*WxNxG*: `r sa_wg50$mean[2]` g m^-2^).
 Intensive grazing had a stronger effect and reduced biomass by 12.6 - 40.5 times (Ambient: `r sa_graz50$"0"[3]` g m^-2^; *GxN*: `r sa_graz50$"50"[3]` g m^-2^; *WxNxG*: `r sa_wg50$mean[3]` g m^-2^).
 
 For both the alpine and the sub-alpine site, the global change responses of annual productivity (i.e. summing the biomass in the simulated grazing plots over the whole growing season) were similar to the ones for biomass, but the effect of grazing on productivity was less strong (Supplementary Figure 3 and Table 3).
 
 Plant functional groups responded differently to the three global change drivers.
-The overall increase in biomass in response to warming or nitrogen addition was largely driven by an increase in graminoid cover in both the alpine and sub-alpine communities (@fig-prod-cover b, Supplementary Table 4 and Supplementary Figure 4).
+The overall increase in biomass in response to warming or nitrogen addition was largely driven by an increase in graminoid cover in both the alpine and sub-alpine communities (@fig-prod-cover b, Supplementary Table 4, Figure 4).
 Conversely, forb, sedge and legume cover decreased with warming and/or nitrogen.
 Grazing affected graminoids only, reducing their cover under ambient conditions in both alpine and sub-alpine communities.
 
@@ -237,34 +241,22 @@ rich <- single_vs_interaction |>
 
 Interactive effects of warming, nitrogen addition, and grazing were key controls of biomass, diversity and evenness in the alpine community, increasing the variation explained by `r min(diff_positive$difference)*100` - `r max(diff_positive$difference)*100` % above the single-factor models for these responses (@fig-diversity a).
 These interactive effects were related to variable effects of grazing depending on the warming and nitrogen levels, with standing biomass as an important intermediary (@fig-diversity b).
-In particular, grazing did not affect diversity under ambient climate or nitrogen, however, under the combination of warming and nitrogen addition the effect of grazing on diversity became increasingly positive, paralleling the trend of strongly increasing biomass under these combined treatments (@fig-diversity b, @fig-prod-cover a).
-Simulated grazing in combination with warming and nitrogen addition thus prevented the decrease in diversity and evenness that was observed in the absence of grazing above 10 kg N ha^-1^ y^-1^ in the alpine community (*WxNxG* interaction; @fig-diversity b and c).
-Intensive grazing even increased diversity and evenness when more than 50 kg N ha^-1^ y^-1^ was added (@fig-diversity c).
+In particular, grazing did not affect diversity under ambient climate or nitrogen, however, under their combined effect, the grazing impact on diversity became increasingly positive, paralleling the trend of strongly increasing biomass under these combined treatments (@fig-diversity b, @fig-prod-cover a).
+Simulated grazing in combination with warming and nitrogen addition thus prevented the decrease in diversity and evenness that was observed in the absence of grazing above 10 kg N ha^-1^ y^-1^ in the alpine community (*WxNxG*; @fig-diversity b and c).
+Intensive grazing even increased diversity and evenness above 50 kg N ha^-1^ y^-1^ (@fig-diversity c).
 
 In the sub-alpine community, models containing only single effects of global change drivers explained variation in biomass, diversity, and evenness well (`r min(single$adj.r.squared)*100` - `r max(single$adj.r.squared)*100` %; @fig-diversity a), and interactions only marginally increased the variation explained.
 Accordingly, there was no consistent variation in the effects of grazing in diversity depending on warming, nitrogen addition, or biomass (@fig-diversity b).
 Grazing also had no effect on any of the diversity indices in the sub-alpine community (@fig-diversity c, @tbl-diversity).
-Nitrogen addition was the most important factor affecting diversity indices at this site, decreased diversity and evenness in combination with warming, in particular above 10 kg N ha^-1^ y^-1^ (*WxN* interaction).
+Nitrogen addition was the most important factor affecting diversity indices at this site, and decreasing diversity and evenness in combination with warming above 10 kg N ha^-1^ y^-1^ (*WxN* ).
 
 Overall, warming in combination with nitrogen addition decreased diversity indices related to abundance (i.e. diversity and evenness) more in the alpine community, while in the sub-alpine community, indices related to species turnover (i.e. richness and diversity) were more affected by these two drivers.
-Species richness was not well explained by neither single effect nor interactive models in both alpine and sub-alpine communities (Adj. R^2^ ≤`r max(rich$adj.r.squared)`) .
-
-Models containing only single effects of global change drivers, explained variation in biomass in the alpine and biomass, diversity and evenness in the sub-alpine community well (Adj. R^2^ ≥ `r min(single$adj.r.squared)`; @fig-diversity a).
-Adding interactive effects of these drivers improved in particular the model for biomass, diversity and evenness in the alpine community, by explaining `r min(diff_positive$difference)*100` - `r max(diff_positive$difference)*100`% more variation.
-These interactions improved the models much less for the sub-alpine communities and overall, the models explained little variation in species richness independent of the origin of the community (Adj. R^2^ \< `r max(diff_neg$difference)`).
-The importance of the interactive effects of these global change drivers in the alpine community became evident when we tested the effect of grazing on diversity in relation to standing biomass (@fig-diversity b).
-Grazing did not affect diversity with increasing nitrogen and under ambient conditions, however in combination with warming the effect of grazing on diversity switched from a negative to a positive effect with increasing biomass.
-
-Nitrogen addition increased richness, diversity and evenness in the alpine community, but decreased diversity and evenness in combination with warming, in particular above 10 kg N ha^-1^ y^-1^ (WxN interaction; @fig-diversity c, Table 1).
-Simulated grazing in combination with warming and nitrogen addition however prevented a decrease in diversity and evenness above 10 kg N ha-1 y-1 in the alpine community (WxNxG interaction; @fig-diversity b and c).
-Intensive grazing even increased diversity and evenness when more than 50 kg N ha^-1^ y^-1^ was added (@fig-diversity c).
-In the sub-alpine community, nitrogen addition decreased all diversity indices and decreased richness and diversity in combination with warming (@fig-diversity c, @tbl-diversity).
-Grazing had no effect on any of the diversity indices in the sub-alpine community.
-Overall, warming in combination with nitrogen addition decreased diversity indices related to abundance (i.e. diversity and evenness) more in the alpine community, while in the sub-alpine community, indices related to species turnover (i.e. richness and diversity) were more affected by these two drivers.
+Species richness was not well explained by neither single effect nor interactive models (Adj. R^2^ ≤`r max(rich$adj.r.squared)`in both communities ) .
 
 ```{r}
 #| label: fig-diversity
 #| echo: false
+#| fig-height: 10
 #| fig-cap: Interactive  effects of warming, nitrogen addition, and grazing on alpine and sub-alpine plant communities. a) Explanatory power of main effect and interactive models. Adjusted R squared from the model with only main effects of the three global change drivers (brown) and models with all interactions of these drivers (purple) on biomass, richness, diversity, and evenness in the alpine (top) and sub-alpine (bottom) communities. b) Effect of grazing on diversity (value in plots with grazing - control plots) with standing biomass (g m-2) at the alpine (upper row) and sub-alpine (lower row) communities. Positive numbers indicate an increase and negative numbers a decrease in the diversity in response to grazing (cf. Figure 1c). The colors indicate ambient (gray) and warmed conditions (pink), the shapes and linetypes show the different grazing treatments (square and dashed = medium, triangle and dotted = intensive grazing) and the size of the points show the log-transformed level of nitrogen addition. The points are the raw data and the lines indicate the regression line from a linear model with confidence intervals and the text shows correlation coefficient and P value from the linear regression. c) Change in species richness, diversity and evenness between 2019 (before treatment) and 2022 (after three years of treatment) with increasing nitrogen addition (kg N ha-1 y-1) at the alpine (upper row) and sub-alpine (lower row) communities. Positive numbers indicate an increase and negative numbers a decrease in the diversity index. The x axis is log transformed, the numbers on the x axis are on the original scale to ease interpretation of the data. The colors indicate ambient (gray) and warmed conditions (pink) and the shapes show the different grazing treatments (round = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The letters in black indicate significant model terms and in gray marginal significant model terms. The lines on top of the panels indicate that the change in richness reflects change in species numbers, evenness reflects change in species abundances, while the change in diversity reflects a combination of both.
 
 tar_read(diversity_figure)
@@ -283,8 +275,8 @@ tar_read(diversity_stats)
 
 ## Discussion
 
-Our results show that three years of warming, nitrogen addition, and grazing affect standing biomass, functional group cover and plant diversity in alpine and sub-alpine grassland communities in Western Norway.
-In the alpine community, these drivers had strongly interactive effects, and grazing could mitigate the negative effects of warming and nitrogen addition on diversity and evenness.
+Our results show that three years of warming, nitrogen addition, and grazing affect standing biomass, cover and diversity of plants in alpine and sub-alpine grassland communities in Western Norway.
+In the alpine community, these drivers had strongly interactive effects, and grazing could mitigate negative effects of warming and nitrogen addition on diversity and evenness.
 This has important implications for adaptive management of alpine habitats.
 
 ### Effects of warming and nitrogen addition on standing biomass and diversity
@@ -292,51 +284,48 @@ This has important implications for adaptive management of alpine habitats.
 We expected warming and/or nitrogen addition to increase standing biomass, favoring more competitive species, especially graminoids, resulting in a decrease in vascular plant diversity (hypothesis i).
 In line with this hypothesis, we found a strong increase in standing biomass with warming and/or nitrogen addition in both alpine and sub-alpine communities (@fig-prod-cover a), parallelling the findings of several previous studies manipulating one or both of these drivers [@Humbert2016-wg; @elmendorf2012plot; @Zhang2023-xg; @Bai2019-iu].
 Warming can increase biomass because of higher rates of photosynthesis, a longer growing season, or because higher microbial activity can increase nutrient availability.
-Nitrogen addition directly increases nutrient availability.
-Standing biomass showed a strikingly similar negatively skewed relationship with nitrogen addition under simulated warming in the alpine community (range: 100 and 250 g m^-2^) and under ambient conditions in the sub-alpine community (range: 100 - 300 g m^-2^), reaching similar levels of peak biomass at 100 kg N ha^-1^ y^-1^.
-Such relationships have been previously observed with similar thresholds for saturation in biomass [@Zhang2023-xg; @Ling2012-rv] and the drop in biomass at high levels of nitrogen addition could result from soil acidification [@Kimmel2020-fo].
-In our study, this is supported by an increase in available calcium at high levels of nitrogen addition, which can be released from the bedrock under acid conditions (Supplementary Figure 5, Supplementary Table 5).
-This similar relationship between the warmed alpine and ambient sub-alpine communities suggests that colder alpine plant communities are not intrinsically less productive than those at lower elevation, but are limited by temperature-related environmental factors [@Korner2003-kg].
-In contrast, the biomass of the warmed sub-alpine community did not increase above the maximum levels found at ambient climate, but reached the same biomass (200 g m-2) across the whole nitrogen gradient, indicating growth limited by other factors, possibly lower water availability at lower elevations [@winkler2016soil], which might have been especially prominent due to a dry growing season in 2022 (Supplementary Figure 1).
+Nitrogen addition directly increases nutrient availability, a limiting factor in alpine habitats [@Humbert2016-wg]. Standing biomass showed a strikingly similar negatively skewed relationship with nitrogen addition under simulated warming in the alpine community and under ambient conditions in the sub-alpine community, reaching similar levels of peak biomass at 100 kg N ha^-1^ y^-1^. Such relationships have been previously observed with similar thresholds for saturation in biomass [@Zhang2023-xg; @Ling2012-rv] and this drop in biomass at high levels of nitrogen addition could result from soil acidification [@Kimmel2020-fo].
+In our study, this is supported by an increase in available calcium at high levels of nitrogen addition, which can be released from the bedrock under acid conditions (Supplementary Figure 5, Table 5).
+This similar relationship between the warmed alpine and ambient sub-alpine communities suggests that colder alpine plant communities are not intrinsically less productive than those at lower elevation, but are limited by temperature-related environmental factors (see above) [@Korner2003-kg].
+In contrast, the biomass of the warmed sub-alpine community did not increase above the maximum levels found at ambient climate, but reached the same biomass across the whole nitrogen gradient, indicating growth limited by other factors, possibly lower water availability at the warmer site [@winkler2016soil], and a particular dry growing season (Supplementary Figure 1).
 
 We found changes in functional group composition that supported our hypothesis related to the increase in biomass in response to warming and nitrogen addition, primarily an increase in graminoid biomass, independently of the origin of the community (hypothesis i).
 In line with previous studies, this suggests that warming and nitrogen addition favors taller and fast growing (resource-acquisitive) species such as graminoids at the expense of resource conservative species such as many forbs [@Klanderud2005-yx; @Fu2016-dw; @Wang2012-cj].
-The increase in competitive graminoids in response to warming and nitrogen addition can also explain the loss of diversity in the alpine and sub-alpine communities (hypothesis i; @fig-diversity c), because higher standing biomass increases the competition for light and nutrients, which only high competitive species tolerate [@Humbert2016-wg; @elmendorf2012global].
+This increase in biomass and especially graminoids in response to warming and nitrogen addition can also explain the loss of diversity under these experimental treatments in both communities (hypothesis i; @fig-diversity c), because increased competition for light and nutrients leads to decreased abundance and exclusion of species that lack competitive ability, including many alpine specialist species [@Humbert2016-wg; @elmendorf2012global].
 The major change in standing biomass, diversity and evenness occurred at levels of nitrogen addition beyond 10 kg N ha^-1^ ^y-1^, which is the critical load for significant changes in the structure and function of alpine and sub-alpine grasslands [@bobbink2011review].
-Interestingly, diversity indices based on change in abundance (i.e. evenness and diversity) showed more change in the cold alpine community in response to global change drivers, while indices based on change in species turnover (i.e. species richness and diversity), changed more in the warmer sub-alpine community.
-This might be because community changes in cold environments (i.e. the alpine) are often slow [@Jonsdottir2022-gz] and changes in biomass (i.e. abundance) generally happen faster than species turnover (i.e. colonization or extinction) and there is often an extinction lag in alpine communities [@Vandvik2020-hu; @Alexander2015-gu; @dullinger2012extinction].
+Interestingly, diversity indices based on change in abundance (i.e. evenness, diversity) showed more change in the cold alpine community in response to global change drivers, while indices based on change in species turnover (i.e. species richness, diversity), changed more in the warmer sub-alpine community, possibly because community changes in cold environments are often slow [@Jonsdottir2022-gz] and changes in biomass generally happen faster than species turnover (i.e. colonization or extinction) and there is often an extinction lag in alpine communities [@Vandvik2020-hu; @Alexander2015-gu; @dullinger2012extinction].
 
 We predicted vegetation responses to be context-dependent, with stronger responses in the colder alpine community because they are more temperature and nutrient limited (hypothesis ii).
-Standing biomass in the colder alpine community did respond more to warming, alone and in combination with nitrogen addition, than the warmer sub-alpine community (`r round(bio_warm$mean[1]/bio_amb$mean[1], 1)` vs. `r round(bio_warm$mean[2]/bio_amb$mean[2], 1)` times higher for warming and `r round(bio_warm100$mean[1]/bio_amb100$mean[1], 1)` vs. `r round(bio_warm100$mean[2]/bio_amb100$mean[2], 1)` times higher for nitrogen; @fig-prod-cover a).
-Larger biomass responses to warming in cold environments have been shown previously [@rustad2001meta], although some studies have shown stronger responses in warmer climates [@Komatsu2019-yr; @Arft1999-ca].
+Standing biomass in the colder alpine community did respond more to warming, alone and in combination with nitrogen addition, than the warmer sub-alpine community (5 vs. 0.5-1.5 times higher; Figure 2a).
+Larger biomass responses to warming in cold environments have been shown previously [@rustad2001meta], but see [@Komatsu2019-yr; @Arft1999-ca].
 Biomass responses to nitrogen addition were weaker, and only when 100 kg N ha^-1^ y^-1^ was added, which is more than 30 times the annual atmospheric nitrogen deposition in this area [@aas2023monitoring].
 At these high levels of nitrogen addition the effect was substantial, however, the amount of biomass doubled in both communities and even exceeded the warming response in the sub-alpine community.
 The smaller response to nitrogen addition under ambient conditions at the alpine site indicates that this community was co-limited by temperature, either directly or via temperature-dependent nutrient limitation, as has been shown for phosphorus or potassium [@Klanderud2005-yx; @Seastedt2001-rx].
-In support of the latter, nitrogen availability increased with nitrogen addition after two years in the alpine community, whereas phosphorus availability was low under ambient conditions, but eight times higher with warming (Supplementary Figure 5, Supplementary Table 5), suggesting that excess growth under the combined treatment could be linked to a release of phosphorus as warming increased microbial activity and weathering to release phosphorus [@Hu2022-br].
+In support of the latter, nitrogen availability increased with nitrogen addition after two years in the alpine community, whereas phosphorus availability was low under ambient conditions, but eight times higher with warming Supplementary Figure 5, Table 5), suggesting that excess growth under the combined treatment could be linked to a release of phosphorus as warming increased microbial activity and weathering to release phosphorus [@Hu2022-br].
 Phosphorus availability even decreased with increasing nitrogen, further supporting that growth is stimulated by the availability of the combination of nitrogen and phosphorus.
 
 ### Grazing can mitigate negative impacts of multiple global change drivers
 
-We expected that moderate grazing has the potential to prevent species loss under warming or nitrogen addition by removing biomass and thus mitigating the competitive exclusion enhanced by the other global change drivers, in particular at the sub-alpine community where competition might be more important than facilitation (hypothesis iii).
+We expected that moderate grazing has the potential to prevent species loss under warming or nitrogen addition by removing biomass and thus mitigating the competitive exclusion enhanced by the other global change drivers, in particular at the warmer sub-alpine community where competition interactions might be more important (hypothesis iii).
 In support of this hypothesis, at the colder alpine site, we found that simulated grazing was able to prevent the loss of diversity and evenness under warming and nitrogen levels above 10 kg N ha^-1^ y^-1^, and relations with biomass suggested this was related to competitive release (@fig-diversity b and c).
-Species loss was reduced at both grazing intensities, but only the intensive grazing treatment significantly increased diversity, suggesting that the medium grazing treatment was too low to effectively reduce competition for light in these communities (i.e. less biomass reduction, @fig-prod-cover a).
-Surprisingly, grazing had no beneficial effect for biodiversity in the warmer and more productive sub-alpine community, despite reducing standing biomass significantly, suggesting competitive effects should be reduced.
+Species loss was reduced at both grazing intensities, but only the intensive grazing treatment significantly increased diversity, suggesting that the medium grazing treatment was too low to effectively reduce competition for light in this community (@fig-prod-cover a).
+Surprisingly, grazing had no beneficial effect for biodiversity in the warmer and more productive sub-alpine community, despite reducing standing biomass significantly, suggesting reduced competitive effects.
 
 We used clipping treatments to mimic grazing, which might bias the results, however, the difference between cutting and grazing are often minimal [@talle2016grazing].
-We found consistent results in the natural grazing treatment (i.e. sheep, deer and reindeer; Supplementary Material 6 - 7) compared to clipping, suggesting that our simulated grazing treatment is comparable to natural grazing and that additional effects of grazing, such as different timing of biomass removal, trampling, and fertilization from the animals did not override the effect of biomass removal per se.
-While previous studies have shown that grazing can prevent species loss under warming [@klein2004experimental; @Dorji2018-mf], the evidence for nitrogen addition is less clear[@Li2022-ob; @li2017global], and to our knowledge, this study provides the first empirical evidence to date that grazing can mitigate negative impacts of multiple global change drivers on biodiversity in alpine plant communities.
+We found consistent results in the natural grazing treatment (i.e. sheep, deer and reindeer; Supplementary Material 6 - 7) compared to clipping, suggesting that our simulated grazing is comparable to natural grazing and additional effects, such as different timing of biomass removal, trampling, and fertilization did not override the effect of biomass removal per se.
+While previous studies have shown that grazing can prevent species loss under warming [@klein2004experimental; @Dorji2018-mf], the evidence for nitrogen addition is less clear [@Li2022-ob; @li2017global], and to our knowledge, this study provides the first empirical evidence to date that grazing can mitigate negative impacts of multiple global change drivers on biodiversity in alpine plant communities.
 This provides opportunities for adaptive management solutions to prevent biodiversity loss.
 
 ### Implications
 
 Our findings of how multiple global change drivers interactively shape the biomass and diversity of alpine and sub-alpine plant communities in Western Norway have three important implications.
 First, we find that interactive effects of these drivers dominate, in particular in the alpine community, suggesting that results of single-factor studies may be misleading and strongly advocating for multi-factorial experiments to improve process understanding and guide management of these systems under global change [@Komatsu2019-yr].
-Despite the different origin, diversity, and historic grazing pressure of the two communities in this study, with alpine community being less productive and grazed but with higher diversity, these grasslands responded to some extent similarly to global change drivers, suggesting that we can make general predictions about how these grassland communities will respond to future global change.
-Second, some vegetation responses to these drivers varied with elevation and grazing intensity.
+Despite the different origin and diversity of the two communities in this study, with alpine communities being less productive and grazed but more diverse, these grasslands responded to some extent similarly to warming and nitrogen, suggesting that we can make general predictions about how these grassland communities will respond to future global change.
+Second, some vegetation responses to these drivers varied with  elevation and grazing intensity.
 This context-dependency advocates for replicating experiments across gradients and landscapes to allow more general understanding of ecological processes.
 Finally, under the most extreme combination of warming and nitrogen addition, grazing could mitigate negative impacts on diversity.
 Our study was conducted over three years and thus looks at short-term responses, which can differ from long-term responses [@Speed2013-to; @Leuzinger2011-hi].
-Long-term experiments across different climatic contexts are needed to understand where and how local adaptation of grazing regimes can be used as a tool to mitigate impacts of warming and pollution and inform adaptive management strategies that benefit biodiversity.
+Long-term experiments across different climatic contexts are needed to understand where and how local adaptation of grazing regimes can be used as a tool to mitigate impacts of global change and inform adaptive management strategies benefiting biodiversity.
 
 ## Methods
 
@@ -380,7 +369,6 @@ cons <- consumption |>
   
 
 ```
-
 
 Three semi-natural, species rich, perennial grassland sites (469, 920, and 1290 m a.s.l.) were established along an elevational gradient in Western Norway (@fig-concept c; 7.17°E, 60.88°N).
 Effectively, the experimental design has only two sites (alpine and sub-alpine), because the lowland site received only transplanted communities (warming treatment crossed with grazing and nitrogen, see below).
@@ -473,9 +461,9 @@ The final version of the GitHub repository will be versioned on Zenodo.
 ## Acknowledgements
 
 We thank Sigurd Vikesland for sparking the idea for this experiment, and all the landowners for permission to use their land for this study.
-We thank Silje Östmann, Susanne Berthelsen, Linn Voldstad, Ingrid Dahle, Ragnhild Gya for helping with recording species composition, Dagmar Egelkraut and Linn Cecilie Krüger for general site maintenance, and numerous students and friends including Elia Betschen, Leire Campos, Mary Chatzitriantafillou, Manon Denis, Mari Dybwad, Julie Eriksen, Joseph Gaudard, Regine Romain Goury, Gulbrandsen, Ragnhild Gya, Marie Hoensbroech, Jana Kovacic, Michaela Lebedova, Elisa Lehmann, Emma Little, Josh S. Lynn, Frida Merkesvik, Silvia Montagnani, Kevin Rechsteiner, Jana Rüthers, Christina Perez Sanchez, Christian Stømme, Eliska Suchoparova, Agnieszka Tokarczyk, Joachim Töpper, Alexander Vågenes, Camilla Zernichow, and Vincent Zimmermann for helping transplanting turfs and pretending to be grazers and clip and sort plants.
-This study was supported by the Norwegian Research Council (Grant 287801).
+We thank Silje Östmann, Susanne Berthelsen, Linn Voldstad, Ingrid Dahle, Ragnhild Gya for helping with recording species composition, Dagmar Egelkraut and Linn Cecilie Krüger for experimental and site maintenance, and numerous students and friends including Elia Betschen, Leire Campos, Mary Chatzitriantafillou, Manon Denis, Mari Dybwad, Julie Eriksen, Joseph Gaudard, Regine Romain Goury, Gulbrandsen, Ragnhild Gya, Marie Hoensbroech, Jana Kovacic, Michaela Lebedova, Elisa Lehmann, Emma Little, Josh S. Lynn, Frida Merkesvik, Silvia Montagnani, Kevin Rechsteiner, Jana Rüthers, Christina Perez Sanchez, Christian Stømme, Eliska Suchoparova, Agnieszka Tokarczyk, Joachim Töpper, Alexander Vågenes, Camilla Zernichow, and Vincent Zimmermann for helping transplanting turfs and pretending to be grazers by clipping and then sorting plants.
+This study was supported by the Norwegian Research Council (Grant  287801).
 
-## Acknowledgements
+## Author contributions
 
 We follow the CreDiT taxonomy [@noauthor_2019-bh] and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wr).
