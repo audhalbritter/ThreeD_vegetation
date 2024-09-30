@@ -21,6 +21,8 @@ library(patchwork)
 library(MuMIn)
 library(glue)
 library(wesanderson)
+library(lavaan)
+library(tidySEM)
 
 
 # Stuff
