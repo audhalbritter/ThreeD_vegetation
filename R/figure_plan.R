@@ -427,7 +427,52 @@ figure_plan <- list(
         theme(legend.position = "top")
 
     }
+  ),
+
+  tar_target(
+    name = standingB_div_figure,
+    command = {
+      biomass_div |>
+        ungroup() |>
+        select(diversity, warming, grazing, Namount_kg_ha_y, biomass_remaining_calc, biomass_remaining_coll) |>
+        pivot_longer(cols = c("biomass_remaining_calc", "biomass_remaining_coll"), names_to = "variable", values_to = "biomass") |>
+        mutate(variable = if_else(variable == "biomass_remaining_calc", "estimated", "collected")) |>
+        ggplot(aes(x = log(biomass), y = diversity,
+                   colour = warming, shape = grazing, size = Namount_kg_ha_y)) +
+        geom_point() +
+        scale_colour_manual(values = col_palette) +
+        scale_shape_manual(values = c(16, 0, 2, 5)) +
+        scale_size_continuous(name = "Nitrogen") +
+        labs(x = "Log(Standing biomass)",
+            y = "Diversity") +
+        facet_wrap(~ variable, scales = "free") +
+        theme_bw()
+    }
+  ),
+
+  tar_target(
+    name = bio_div_analysis,
+    command = {
+      fit = lm(diversity ~ log(biomass_remaining_calc), biomass_div)
+      tidy(fit)
+      anova(fit) |>
+        rename(P = "Pr(>F)",
+               SS = "Sum Sq",
+               MS = "Mean Sq",
+               F_value = "F value") |>
+        mutate(SS = round(SS, 2),
+               MS = round(MS, 2),
+               F_value = round(F_value, 2),
+               P = if_else(P < 0.05, "< 0.001", NA_character_),
+               Term = c("log(Standing biomass)", "Residuals")) |>
+        select(Term, Df:P) |>
+        gt()
+
+    }
   )
+
+
+
 
   # biomass - diversity figure
   # tar_target(
@@ -446,3 +491,4 @@ figure_plan <- list(
   #     theme(legend.position = "top")
 
 )
+
