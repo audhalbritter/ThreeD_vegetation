@@ -95,8 +95,8 @@ si_figure_plan <- list(
   tar_target(
     name = annual_productivity,
     command = productivity_raw |>
-      # calculate productivity in mg per m^2
-      mutate(productivity_mg_m2 = productivity / area_cm / 10000 * 1000) |>
+      # calculate productivity in g per m^2
+      mutate(productivity_mg_m2 = productivity / (area_cm * 10000) * 1000) |>
       # productivity per day
       mutate(productivity_mg_m2_d = productivity_mg_m2 / duration) |>
       mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
@@ -533,18 +533,42 @@ si_figure_plan <- list(
 
 
     }
+  ),
+
+  tar_target(
+    name = biomass_consumption_figure,
+    command = ggplot(biomass_div, aes(x = grazing, y = biomass_remaining_calc)) +
+      geom_boxplot() +
+      labs(x = "",
+           y = "Estimated standing biomass (cover x height)") +
+      facet_wrap(~ origSiteID) +
+      theme_bw()
+
+    ),
+
+  tar_target(
+    name = biomass_calc_coll_figure,
+    command = {
+
+      dat <- biomass_div |>
+        filter(grazing != "Natural")
+
+        dat$pred <- predict(biomass_calc_coll_model, newdata = dat)
+
+      ggplot(dat, aes(x = log(biomass_remaining_coll + 10), y = log(biomass_remaining_calc),
+                              linetype = grazing)) +
+        geom_line(aes(x = log(biomass_remaining_coll + 10), y = pred), colour = "grey40") +
+        geom_point(aes(colour = warming, shape = grazing, size = Namount_kg_ha_y)) +
+        scale_colour_manual(values = col_palette) +
+        scale_shape_manual(values = c(16, 0, 2, 5)) +
+        scale_size_continuous(name = "Nitrogen") +
+        labs(x = "Log(Standing biomass collected) (g/m2)",
+             y = "Log(Estimated standing biomass) (cover x height)") +
+        theme_bw()
+
+    }
+
   )
 
 )
 
-# Height
-# tar_target(
-#   name = height_figure,
-#   command = make_vegetation_figure(dat = height_model_output,
-#                                    yaxislabel = "Change in height",
-#                                    colourpalette = NxW_col_palette,
-#                                    linetypepalette = c("solid", "dashed", "dotted"),
-#                                    shapepalette = c(16, 0, 2),
-#                                    facet_2 = "vegetation_layer") +
-#     facet_wrap(origSiteID ~ vegetation_layer, scales = "free_y")
-# ),

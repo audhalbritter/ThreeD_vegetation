@@ -309,6 +309,22 @@ si_analysis_plan <- list(
       unnest(result) |>
       ungroup() |>
       fancy_stats()
+  ),
+
+  ### SEM
+  # check estimated and calculated biomass relationship
+  tar_target(
+    name = biomass_calc_coll_model,
+    command = {
+
+      dat <- biomass_div |>
+        filter(grazing != "Natural")
+      # dat |>
+      #   filter(biomass_remaining_coll < 0) |> as.data.frame()
+      lm(log(biomass_remaining_calc) ~ log(biomass_remaining_coll + 10)*grazing, data = dat)
+
+    }
   )
 
 )
+
