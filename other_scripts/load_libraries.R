@@ -23,6 +23,8 @@ library(glue)
 library(wesanderson)
 library(lavaan)
 library(tidySEM)
+library(piecewiseSEM)
+library(gt)
 
 
 # Stuff
