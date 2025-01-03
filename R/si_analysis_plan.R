@@ -19,11 +19,11 @@ si_analysis_plan <- list(
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1))
 
-        run_full_model(dat = average_summer_climate |>
-                         filter(grazing != "Natural"),
-                       group = c("origSiteID", "variable"),
-                       response = value,
-                       grazing_var = grazing_num) |>
+      run_full_model(dat = average_summer_climate |>
+                       filter(grazing != "Natural"),
+                     group = c("origSiteID", "variable"),
+                     response = value,
+                     grazing_var = grazing_num) |>
         # make long table
         pivot_longer(cols = -c(origSiteID, variable, data),
                      names_sep = "_",
@@ -34,7 +34,7 @@ si_analysis_plan <- list(
         filter(effects == "interaction") |>
         # select best model (BY HAND!!!)
         filter(names == "log")
-        #filter(AIC == min(AIC)) # normally one would do this
+      #filter(AIC == min(AIC)) # normally one would do this
 
     }
 
@@ -56,7 +56,7 @@ si_analysis_plan <- list(
       select(origSiteID, variable, output) |>
       unnest(output) |>
       rename(prediction = fit) #|>
-      # mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
+    # mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
   ),
 
 
@@ -91,240 +91,131 @@ si_analysis_plan <- list(
   ),
 
 
-
-  ### PRODUCTIVITY
   tar_target(
-    name = productivity_model_all,
+    name = SEM_origin_fig,
     command = {
 
-      # sum fun groups
-      total_productivity <- productivity |>
-        ungroup() |>
-        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
-        summarise(sum_productivity = sum(productivity))
+      # origin cutting
+      dat_alp <- prep_SEM_data(data = biomass_div |>
+                      filter(origSiteID == "Alpine"),
+                    landuse = "cutting",
+                    diversity = log_ratio_diversity)
 
-      # test biomass in 2022
-      productivity_model_all <- run_full_model(dat = total_productivity |>
-                                                 filter(grazing != "Natural"),
-                                               group = c("origSiteID"),
-                                               response = sum_productivity,
-                                               grazing_var = grazing_num) |>
-        # make long table
-        pivot_longer(cols = -c(origSiteID, data),
-                     names_sep = "_",
-                     names_to = c(".value", "effects", "names")) |>
-        unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC, deviance)
+      sem_alp <- run_SEM(data = dat_alp,
+              landuse = "cutting")
+
+      sem_alp_res <- summary(sem_alp)
+
+      p1 <- make_SEM_figure(sem_results = sem_alp_res,
+                      landuse = "cutting")
+
+      dat_sub <- prep_SEM_data(data = biomass_div |>
+                             filter(origSiteID == "Sub-alpine"),
+                           landuse = "cutting",
+                           diversity = log_ratio_diversity)
+
+      sem_sub <- run_SEM(data = dat_sub,
+                         landuse = "cutting")
+
+      sem_sub_res <- summary(sem_sub)
+
+      p2 <- make_SEM_figure(sem_results = sem_sub_res,
+                      landuse = "cutting")
+
+      # origin grazing
+      dat_alp2 <- prep_SEM_data(data = biomass_div |>
+                                 filter(origSiteID == "Alpine"),
+                               landuse = "grazing",
+                               diversity = log_ratio_diversity)
+
+      sem_alp2 <- run_SEM(data = dat_alp2,
+                         landuse = "grazing")
+
+      sem_alp_res2 <- summary(sem_alp2)
+
+      p3 <- make_SEM_figure(sem_results = sem_alp_res2,
+                            landuse = "grazing")
+
+      dat_sub <- prep_SEM_data(data = biomass_div |>
+                                 filter(origSiteID == "Sub-alpine"),
+                               landuse = "grazing",
+                               diversity = log_ratio_diversity)
+
+      sem_sub <- run_SEM(data = dat_sub,
+                         landuse = "grazing")
+
+      sem_sub_res <- summary(sem_sub)
+
+      p4 <- make_SEM_figure(sem_results = sem_sub_res,
+                            landuse = "grazing")
+
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine', 'c)', 'd)')))
+
     }
   ),
 
-  # only interaction model
-  tar_target(
-    name = productivity_model,
-    command = productivity_model_all |>
-      # remove model with single effects
-      filter(effects == "interaction") |>
-      # select parsimonious model
-      filter(AIC == min(AIC))
-  ),
 
   tar_target(
-    name = productivity_output,
-    command = make_prediction(productivity_model)
-
-  ),
-
-  # prepare model output
-  tar_target(
-    name =   productivity_prediction,
-    command = productivity_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, output) |>
-      unnest(output) |>
-      rename(prediction = fit)
-  ),
-
-  # stats
-  tar_target(
-    name =   productivity_anova_table,
-    command = productivity_output |>
-      select(origSiteID, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-  tar_target(
-    name = productivity_stats,
-    command = make_biomass_stats(productivity_anova_table)
-  ),
-
-  tar_target(
-    name = productivity_save,
-    command = productivity_stats |>
-      gtsave("output/productivity_stats.png", expand = 10)
-  ),
-
-  # stats
-  tar_target(
-    name =   productivity_summary_table,
-    command = productivity_output |>
-      select(origSiteID, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-  ## FUNCTIONAL GROUP COVER
-  # natural grazing
-  # run 3-way interaction model for cover
-  tar_target(
-    name = cover_CN_model,
-    command = run_full_model(dat = functional_group_cover |>
-                               filter(grazing %in% c("Control", "Natural")) |>
-                               select(-grazing_num),
-                             group = c("origSiteID", "functional_group", "group"),
-                             response = delta,
-                             grazing_var = grazing) |>
-      # make long table
-      pivot_longer(cols = -c(origSiteID, functional_group, group, data),
-                   names_sep = "_",
-                   names_to = c(".value", "effects", "names")) |>
-      unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC) |>
-      # select only interaction models
-      filter(effects == "interaction") |>
-      # select best model
-      filter(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "log" |
-               origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "linear" |
-               AIC == min(AIC)) |>
-      filter(!(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "linear")) |>
-      filter(!(origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "quadratic"))
-    ),
-
-  # prediction and model output
-  tar_target(
-    name = cover_CN_output,
-    command = make_CN_prediction(cover_CN_model)
-
-  ),
-
-
-
-  # prepare model output
-  tar_target(
-    name = cover_CN_prediction,
-    command = cover_CN_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, functional_group, output) |>
-      unnest(output) |>
-      rename(prediction = fit,
-             grazing = .grazing) |>
-      mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
-  ),
-
-
-  # stats
-  tar_target(
-    name =   cover_CN_anova_table,
-    command = cover_CN_output |>
-      select(origSiteID, functional_group, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-  tar_target(
-    name = cover_CN_stats,
-    command = cover_CN_output |>
-      select(origSiteID, functional_group, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-
-  # DIVERSITY
-
-  # natural grazing
-  # run 3-way interaction model for cover
-  tar_target(
-    name = diversity_CN_model,
-    command = run_full_model(dat = diversity |>
-                               filter(grazing %in% c("Control", "Natural")) |>
-                               select(-grazing_num),
-                             group = c("origSiteID", "diversity_index"),
-                             response = delta,
-                             grazing_var = grazing)|>
-      # make long table
-      pivot_longer(cols = -c(origSiteID, diversity_index, data),
-                   names_sep = "_",
-                   names_to = c(".value", "effects", "names")) |>
-      unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC) |>
-      # select only interaction models
-      filter(effects == "interaction") |>
-      # select best model
-      # choose log for Alpine evenness and richness because dAIC < 2
-      filter(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names == "log" | AIC == min(AIC)) |>
-      filter(!(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names != "log"))
-  ),
-
-  # prediction and model output
-  tar_target(
-    name = diversity_CN_output,
-    command = make_CN_prediction(diversity_CN_model)
-
-  ),
-
-  # prepare model output
-  tar_target(
-    name = diversity_CN_prediction,
-    command = diversity_CN_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, diversity_index, output) |>
-      unnest(output) |>
-      rename(prediction = fit,
-             grazing = .grazing) |>
-      mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
-  ),
-
-  # stats
-  tar_target(
-    name =   diversity_CN_anova_table,
-    command = diversity_CN_output |>
-      select(origSiteID, diversity_index, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-  tar_target(
-    name =   diversity_CN_stats,
-    command = diversity_CN_output |>
-      select(origSiteID, diversity_index, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
-  ),
-
-  ### SEM
-  # check estimated and calculated biomass relationship
-  tar_target(
-    name = biomass_calc_coll_model,
+    name = SEM_diversity_fig,
     command = {
 
-      dat <- biomass_div |>
-        filter(grazing != "Natural")
-      # dat |>
-      #   filter(biomass_remaining_coll < 0) |> as.data.frame()
-      lm(log(biomass_remaining_calc) ~ log(biomass_remaining_coll + 10)*grazing, data = dat)
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                               landuse = "cutting",
+                               diversity = log_ratio_richness)
+
+      sem_rich <- run_SEM(data = dat_rich,
+                         landuse = "cutting")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p1 <- make_SEM_figure(sem_results = sem_rich_res,
+                            landuse = "cutting")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                               landuse = "cutting",
+                               diversity = log_ratio_evenness)
+
+      sem_even <- run_SEM(data = dat_even,
+                         landuse = "cutting")
+
+      sem_even_res <- summary(sem_even)
+
+      p2 <- make_SEM_figure(sem_results = sem_even_res,
+                            landuse = "cutting")
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = log_ratio_richness)
+
+      sem_rich <- run_SEM(data = dat_rich,
+                          landuse = "grazing")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p3 <- make_SEM_figure(sem_results = sem_rich_res,
+                            landuse = "grazing")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = log_ratio_evenness)
+
+      sem_even <- run_SEM(data = dat_even,
+                          landuse = "grazing")
+
+      sem_even_res <- summary(sem_even)
+
+      p4 <- make_SEM_figure(sem_results = sem_even_res,
+                            landuse = "grazing")
+
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Richness', 'b) Evenness')))
 
     }
   )
+
 
 )
 

@@ -18,3 +18,11 @@ trackdown_auth_configure(path = "")
 trackdown::upload_file(file = "test_file.qmd",
                        hide_code = TRUE,
                        path_output = "test_file.html")
+
+ggsave("output/Fig2_sem_fig.png", sem_fig, dpi = 300, height = 4, width = 10)
+ggsave("output/Fig3_biomass_div.png", standingB_div_figure, dpi = 300, height = 6, width = 6)
+ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6, width = 6)
+
+
+ggsave("output/FigSx_origin.png", SEM_origin_fig, dpi = 300, height = 8, width = 10)
+ggsave("output/FigSx_div.png", SEM_diversity_fig, dpi = 300, height = 8, width = 10)
