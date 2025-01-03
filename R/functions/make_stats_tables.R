@@ -258,7 +258,7 @@ make_microclimate_stats <- function(daily_temp){
     mutate(estimate = round(estimate, 2),
            std.error = round(std.error, 2),
            statistic = round(statistic, 2),
-           p.value = if_else(p.value <= 0.001, "< 0.001", as.character(round(p.value, 3)))) |>
+           p.value = if_else(p.value <= 0.001, "≤ 0.001", as.character(round(p.value, 3)))) |>
     pivot_wider(names_from = origSiteID, values_from = c(estimate, std.error, statistic, p.value)) |> select(Variable = variable, Term = term, "estimate_Sub-alpine" , "std.error_Sub-alpine", "statistic_Sub-alpine", "p.value_Sub-alpine", "estimate_Alpine", "std.error_Alpine", "statistic_Alpine", "p.value_Alpine") |>
     ungroup() |>
     gt() |>
@@ -271,8 +271,8 @@ make_microclimate_stats <- function(daily_temp){
     cols_label(estimate_Alpine = "Estimate",
                std.error_Alpine = "Standard error",
                statistic_Alpine = "t",
-               p.value_Alpine	= "P")%>%
-    table_style(., font_size = 11)
+               p.value_Alpine	= "P") %>%
+    tab_options(table.font.size = 11)
 }
 
 
