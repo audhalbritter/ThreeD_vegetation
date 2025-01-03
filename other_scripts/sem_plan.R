@@ -55,10 +55,13 @@ sem_plan <- list(
       biomass ~ warming + nitrogen + grazing
   '
 
-        sem(model, data = biomass_div |>
-              mutate(nitrogen = Nitrogen_log,
-                     grazing = grazing_num,
-                     biomass = log(biomass_remaining_calc)))
+        dat <- biomass_div |>
+          mutate(warming = if_else(warming == "Ambient", 0, 1),
+                 nitrogen = Nitrogen_log,
+                 grazing = grazing_num,
+                 biomass = log(biomass_remaining_calc))
+
+        sem(model, data = dat)
 
       }
     ),
@@ -161,16 +164,19 @@ sem_plan <- list(
       model <- '
     # regressions
       diversity ~ biomass + warming + nitrogen + grazing
+      productivity ~ biomass + warming + nitrogen + grazing
       biomass ~ productivity + grazing
-      productivity ~ warming + nitrogen + grazing
-    # correlations
   '
 
-      sem(mod = model, data = biomass_div |>
-                   mutate(nitrogen = Nitrogen_log,
-                          grazing = grazing_num,
-                          biomass = log(biomass_remaining_calc),
-                          productivity = prod_scl))
+      dat <- biomass_div |>
+        filter(grazing != "Natural") |>
+        mutate(warming = if_else(warming == "Ambient", 0, 1),
+               nitrogen = Nitrogen_log,
+               grazing = grazing_num,
+               biomass = log(biomass_remaining_calc),
+               productivity = prod_scl)
+
+      sem_fit_prod <- sem(mod = model, data = dat)
 
     }
   ),
@@ -203,8 +209,34 @@ sem_plan <- list(
 
 )
 
-
-
+# model1 <- '
+#     # regressions
+#       diversity ~ biomass + warming + nitrogen + grazing
+#       productivity ~ biomass + warming + nitrogen + grazing
+#       biomass ~ productivity + grazing
+#   '
+#
+# fit1 <- sem(mod = model1, data = biomass_div |>
+#       mutate(nitrogen = Nitrogen_log,
+#              grazing = grazing_num,
+#              biomass = log(biomass_remaining_calc),
+#              productivity = prod_scl))
+#
+#
+# model2 <- '
+#     # regressions
+#       diversity ~ biomass + warming + nitrogen + grazing
+#       productivity ~ warming + nitrogen
+#       biomass ~ productivity + grazing
+#   '
+#
+# fit2 <- sem(mod = model2, data = biomass_div |>
+#               mutate(nitrogen = Nitrogen_log,
+#                      grazing = grazing_num,
+#                      biomass = log(biomass_remaining_calc),
+#                      productivity = prod_scl))
+#
+# AIC(fit1, fit2)
 
 # bio <- biomass_raw %>%
 #   # calculate area in m2 and scale biomass to m2
