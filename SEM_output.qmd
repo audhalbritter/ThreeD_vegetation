@@ -21,6 +21,9 @@ library(tidyverse)
 library(lubridate)
 library(broom)
 library(gt)
+library(piecewiseSEM)
+library(patchwork)
+library(ggpubr)
 ```
 
 
@@ -30,7 +33,7 @@ library(gt)
 #| label: fig-concept
 #| echo: false
 #| warning: false
-#| fig-cap: Impacts of the global change drivers climate warming, atmospheric nitrogen deposition, and grazing on alpine plant communities, and the experimental design to assess interactions among multiple drivers. a) Schematic of the hypothesized impacts of these  three major drivers on alpine plant diversity, illustrating how their impacts occur through the same ecological mechanisms (productivity, which again affects standing biomass). The plus and minus signs indicate the specific relationship between the drivers and mechanisms, and the rack-wheel indicates a positive feedback between productivity and biomass. b) Illustration of how the effect of grazing on diversity is related to standing biomass, and hence can be affected by warming or nitrogen addition. Positive values on the y axis indicate an increase and negative values a decrease in diversity in response to grazing (relative to ungrazed controls), and the grey solid line indicates no effect. The non solid dark grey lines shows the expected shifting effect of intermediate (dashed) and intensive (dotted) grazing intensity on diversity as standing biomass increases (see text). The yellow arrows exemplify conditions under which intermediate or intensive grazing is expected to decrease or increase diversity. The gray square indicates conditions under which grazing can be beneficial for diversity due to release from competitive plant-plant interactions as biomass is reduced, the white background indicates conditions under which grazing can reduce diversity due to loss of facilitative interactions as biomass is reduced. Nitrogen deposition and warming will shift the community towards higher biomass, with implications for the effect of grazing. c) A fully factorial experiment to assess warming, nitrogen addition and grazing replicated in two sites, an alpine and a sub-alpine plant community. Warmed communities were transplanted from the alpine to the sub-alpine or from the sub-alpine to the lowland site, in fully factorial combinations with grazing and nitrogen addition treatments. The treatments are ambient (gray), warming (pink), nitrogen deposition (gray to brown (ambient temperature) or pink to brown (warmed plots), crossed with four levels of simulated grazing (yellow); none (C), intermediate (one scissor), intensive (two scissors) and natural grazing (sheep). The arrows indicate the direction of transplant. Inset shows location of the study sites in Western Norway.
+#| fig-cap: Impacts of the global change drivers climate warming, atmospheric nitrogen deposition, and grazing on alpine plant communities, and the experimental design to assess interactions among multiple drivers.
 
 knitr::include_graphics("figures/concept.png")
 
@@ -39,190 +42,96 @@ knitr::include_graphics("figures/concept.png")
 
 ## Methods
 
-### Standing biomass (collected or estimated)
+### Calculating standing biomass
 
-**Standing biomass 1** = remaining biomass after clipping at peak growing season. This is calculated from biomass in control plots - biomass inclipped plot. Not available for natural grazing. Potential problem no replication in plots.
+Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots
 
-**Standing biomass 2** = remaining biomass after grazing or clipping at peak growing season. This is estimated from species community data using sum of cover * vegetation height. Available for all 4 grazing treatments.
 
 ```{r}
 #| label: fig-bio-calc-coll
 #| echo: false
-#| fig-cap: Relationship of standing biomass estimated and collected.
+#| warning: false
+#| fig-cap: Relationship between collected and estimated standing biomass in the control plots.
 
-tar_read(biomass_calc_coll_figure)
-
-```
-
-
-**Productivity** = For control plots it is the biomass at peak growing season. For the clipped plots it is sum of clipped biomass over one growing season (+ standing biomass?). For naturally grazed plots (cages)?
-
-**Diversity** = Shannon diversity (richness, evenness)
-
-
-
-### Grazing treatments
-
-Grazing as numerical variable?
-
-Control = 0, Medium = 2, Intensive = 4 (represents cuts)
-
-What about natural grazing?
-
-```{r}
-#| label: fig-biomass-consumption
-#| echo: false
-#| fig-cap: Standing biomass for different grazing treatments.
-
-tar_read(biomass_consumption_figure)
+tar_read(standing_biomass_back_fig)
 
 ```
 
 
-## Relationship of standing biomass and diversity
+
+
+## Results
+
+### Biomass and diversity
 
 ```{r}
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 3
-#| fig-cap: Relationship of collected and estimated standing biomass and diversity.
+#| fig-height: 5
+#| fig-cap: Relationship of standing biomass and Shannon diversity.
 
 tar_load(standingB_div_figure)
 standingB_div_figure
 
 ```
 
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| tbl-cap: Linear regression for estimated standing biomass versus diversity.
-
-tar_read(bio_div_analysis)
-
-```
 
 
-```{r}
-#| label: fig-bio-facet-div
-#| echo: false
-#| warning: false
-#| fig-cap: Relationship of estimated standing biomass and diversity with separate panels for the different grazing treatments.
+### Structural equation model
 
-tar_load(biomass_div)
-tar_load(col_palette)
-biomass_div |>
-        ggplot(aes(x = log(biomass_remaining_calc), y = diversity,
-                   colour = warming, shape = grazing, size = Namount_kg_ha_y)) +
-        geom_point() +
-        scale_colour_manual(values = col_palette) +
-        scale_shape_manual(values = c(16, 0, 2, 5)) +
-        scale_size_continuous(name = "Nitrogen") +
-        labs(x = "Log(Standing biomass)",
-            y = "Diversity") +
-        facet_wrap(~ grazing) +
-        theme_bw()
-
-```
-
-
-
-## Structural equation model
-
-### Only biomass model
+Diversity: log ratio Shannon diversity
 
 ```{r}
 #| label: biomass-model
 #| echo: true
 #| eval: false
 
-model <- '
-# regressions
-  diversity ~ biomass + warming + nitrogen + grazing
-  biomass ~ warming + nitrogen + grazing
-  '
+model <- psem(
+  lm(diversity ~ biomass + warming + nitrogen + cutting, dat),
+  lm(biomass ~ warming + nitrogen + cutting, dat)
+  )
+
 ```
 
-nitrogen = log(nitrogen)
-grazing = numeric variable
-
-Biomass collected as Control - cut biomass.
-Natural grazing not part of this analysis.
 
 ```{r}
-#| label: fig-sem0-biomass
+#| label: fig-sem-model
 #| echo: false
 #| message: false
-#| fig-cap: Direct of warming, nitrogen addition and grazing and indirectly through biomass on diversity using a structural equation model.
+#| fig-width: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on Shannon diversity.
 
-tar_read(sem0_plot)
+tar_read(sem_fig)
 
 ```
 
-Biomass is estimated from height x cover
+
+Other diversity indices: species richness and evenness.
 
 ```{r}
-#| label: fig-sem-biomass
+#| label: fig-sem-diversity
 #| echo: false
 #| message: false
-#| fig-cap: Direct of warming, nitrogen addition and grazing and indirectly through biomass on diversity using a structural equation model.
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
 
-tar_read(sem_plot)
-
-```
-
-```{r}
-
-#| label: tbl-sem-biomass
-#| echo: false
-#| message: false
-#| tbl-cap: Structural equation model output.
-
-tar_load(sem_fit_out)
-
-sem_fit_out |> 
-  gt()
+tar_read(SEM_diversity_fig)
 
 ```
 
 
-### Seprate by origin
+Separately for alpine and sub-alpine site.
 
 ```{r}
 #| label: fig-sem-origin
 #| echo: false
 #| message: false
-#| fig-height: 8
-#| fig-cap: Direct of warming, nitrogen addition and grazing and indirectly through biomass on diversity using a structural equation model. Upper panel shows alpine site, and lower panel sub-alpine site.
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
 
-tar_read(sem_plot_origin)
-
-```
-
-
-### Biomass and productivity model
-
-```{r}
-#| label: fig-sem-prod
-#| echo: false
-#| message: false
-#| fig-height: 8
-#| fig-cap: Direct of warming, nitrogen addition and grazing and indirectly through productivity and biomass on diversity using a structural equation model.
-
-tar_read(sem_plot_prod)
-
-```
-
-```{r}
-
-#| label: tbl-sem-prod
-#| echo: false
-#| message: false
-#| tbl-cap: Structural equation model output.
-
-tar_load(sem_fit_prod_out)
-
-sem_fit_prod_out |> 
-  gt()
+tar_read(SEM_origin_fig)
 
 ```
