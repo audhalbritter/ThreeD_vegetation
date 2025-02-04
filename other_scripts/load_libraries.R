@@ -25,6 +25,7 @@ library(lavaan)
 library(tidySEM)
 library(piecewiseSEM)
 library(gt)
+library(ggpubr)
 
 
 # Stuff
