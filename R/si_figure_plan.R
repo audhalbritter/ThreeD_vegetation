@@ -163,26 +163,64 @@ si_figure_plan <- list(
 
       dat <- estimated_standing_biomass |>
         select(-sum_cover, -height) |>
+        filter(year == 2022) |>
         # join collected biomass from control plots
         tidylog::left_join(measured_standing_biomass |>
                              filter(grazing == "Control"))
 
       # Linear model
-      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc, data = dat |>
-                  filter(grazing == "Control"))
+      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = dat |>
+                  filter(grazing == "Control",
+                         year == 2022))
+
+
+      new_data <- crossing(dat |>
+        ungroup() |>
+        select(biomass_remaining_calc),
+        tibble(Nitrogen_log = c(0, 4.62)))
+
+      newdat <- augment(fit, newdata = new_data)
 
       ggplot(dat, aes(x = biomass_remaining_calc, y = biomass_remaining_coll)) +
+        geom_line(data = newdat, aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)), colour = "grey60") +
         geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
-        stat_cor(label.x = 1300, label.y = 0.99) +
+        #stat_cor(label.x = 1300, label.y = 0.99) +
+        guides(linetype = FALSE) +
         labs(x = "Estimated staning biomass (cover x height)",
              y = bquote(Standing~biomass~(g~m^-2))) +
         theme_bw()
 
     }
-  )
+  ),
 
+  tar_target(
+    name = trait_fig,
+    command = {
+
+      dat <- trait_mean |>
+        # join biomass data
+        tidylog::left_join(standing_biomass_back,
+                  by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log')) |>
+        filter(trait_trans == "sla_cm2_g")
+
+      fit <- lm(mean ~ standing_biomass, data = dat)
+      summary(fit)
+
+      dat |>
+        ggplot(aes(x = standing_biomass, y = mean,
+                   colour = warming,
+                   shape = grazing,
+                   size = Namount_kg_ha_y)) +
+        geom_jitter() +
+        scale_colour_manual(name = "Warming", values = col_palette) +
+        labs(x = "Standing biomass",
+             y = "Community weighted SLA") +
+        theme_bw()
+
+    }
+  )
 
 
   # tar_target(
