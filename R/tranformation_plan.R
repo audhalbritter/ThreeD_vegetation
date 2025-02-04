@@ -95,8 +95,7 @@ tranformation_plan <- list(
     command =  biomass |>
       # get peak biomass and remove litter
       filter(grazing == "Control" & cut == 3| grazing %in% c("Medium", "Intensive") & cut == 4) |>
-      filter(!fun_group %in% c("litter"),
-             year == 2022) |>
+      filter(!fun_group %in% c("litter")) |>
       group_by(origSiteID, destSiteID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing) |>
       summarise(biomass = sum(biomass), .groups = "drop") |>
       pivot_wider(names_from = grazing, values_from = biomass) |>
@@ -111,14 +110,15 @@ tranformation_plan <- list(
   tar_target(
     name = estimated_standing_biomass,
     command = cover_total |>
-      filter(year == 2022) |>
-      group_by(origSiteID, warming, grazing, Nlevel, Namount_kg_ha_y, Nitrogen_log) |>
+      filter(year %in% c(2019, 2022)) |>
+      group_by(year, origSiteID, warming, grazing, Nlevel, Namount_kg_ha_y, Nitrogen_log) |>
       summarise(sum_cover = sum(cover)) |>
       left_join(height |>
-                           filter(vegetation_layer == "Vascular plant layer") |>
-                           select(-destSiteID, -vegetation_layer, -'2019', -delta) |>
-                           rename(height = `2022`),
-                         by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y")) |>
+                  filter(vegetation_layer == "Vascular plant layer") |>
+                  select(-destSiteID, -vegetation_layer, -delta) |>
+                  pivot_longer(cols = c(`2019`, `2022`), names_to = "year", values_to = "height") |>
+                  mutate(year = as.numeric(year)),
+                         by = c("year", "origSiteID", "warming", "grazing", "Namount_kg_ha_y")) |>
       mutate(biomass_remaining_calc = sum_cover * height) |>
       select(-grazing_num)
       ),
@@ -135,19 +135,36 @@ tranformation_plan <- list(
         tidylog::left_join(measured_standing_biomass |>
                              filter(grazing == "Control"))
 
-      # Linear model
-      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc, data = dat |>
-           filter(grazing == "Control"))
+      # Run linear model including a correction for nitrogen separately for 2019 and 2022
+      fit22 <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = dat |>
+           filter(grazing == "Control",
+                  year == 2022))
+
+      fit19 <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = dat |>
+                    filter(grazing == "Control",
+                           year == 2019))
 
       # back transform calculated biomass using model from control plots
-    dat2 <- augment(x = fit, newdata = dat |>
-                      filter(grazing != "Control")) |>
-      rename(standing_biomass = .fitted) |>
-      select(-biomass_remaining_calc, -biomass_remaining_coll) |>
-      # add standing biomass for control plots
+    dat2 <- bind_rows(
+      # 2022 data
+      augment(x = fit22, newdata = dat |>
+                filter(grazing != "Control",
+                       year == 2022)) |>
+        rename(standing_biomass = .fitted) |>
+        select(-biomass_remaining_calc, -biomass_remaining_coll),
+
+      # 2019 data
+      augment(x = fit19, newdata = dat |>
+                filter(year == 2019)) |>
+        rename(standing_biomass = .fitted) |>
+        select(-biomass_remaining_calc, -biomass_remaining_coll)
+    ) |>
+      # add collected standing biomass for control plots
       bind_rows(measured_standing_biomass |>
                   filter(grazing == "Control") |>
-                  rename(standing_biomass = biomass_remaining_coll))
+                  mutate(year = 2022) |>
+                  rename(standing_biomass = biomass_remaining_coll)) |>
+      select(-destSiteID, -.resid)
 
     }
       ),
@@ -342,19 +359,37 @@ tranformation_plan <- list(
         pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
         pivot_wider(names_from = year, values_from = value) %>%
         mutate(delta = `2022` - `2019`,
-               log_ratio = log(`2022`/`2019`)) |>
+               log_ratio = log(`2022`/`2019`),
+               final = `2022`) |>
         select(-c(`2019`, `2022`)) |>
         ungroup() |>
-        pivot_wider(names_from = diversity_index, values_from = c(delta, log_ratio)) |>
+        pivot_wider(names_from = diversity_index, values_from = c(delta, log_ratio, final)) |>
         # add standing biomass
-        left_join(standing_biomass_back,
+        left_join(standing_biomass_back |>
+                    pivot_wider(names_from = year, values_from = standing_biomass) |>
+                    mutate(delta_bio = `2022` - `2019`,
+                           log_ratio_bio = log(`2022`/`2019`),
+                           final_bio = `2022`) |>
+                    select(-c(`2019`, `2022`)),
                   by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log')) |>
         mutate(grazing_num = as.numeric(recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = "2")))
 
-      #dat$biomass_scl <- scale(dat$biomass_remaining_calc)[,1]
-
     }
 
+  ),
+
+  ### bootstrapping traits
+
+  # trait impute
+  tar_target(
+    name = trait_impute,
+    command = make_trait_impute(cover_total, trait_raw)
+  ),
+
+  # trait impute
+  tar_target(
+    name = trait_mean,
+    command = make_bootstrapping(trait_impute)
   )
 
 )
