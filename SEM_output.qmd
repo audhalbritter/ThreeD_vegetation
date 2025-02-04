@@ -198,6 +198,7 @@ tar_read(SEM_without_site_fig)
 #| echo: false
 #| message: false
 #| fig-width: 10
+#| fig-height: 10
 #| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
 
 tar_read(SEM_diversity_fig)
