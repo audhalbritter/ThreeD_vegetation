@@ -1,17 +1,28 @@
 # Structural equation model functions
 
 # prep data for SEM
-prep_SEM_data <- function(data, landuse, diversity){
+prep_SEM_data <- function(data, landuse, diversity, biomass, change){
 
   data <- data |>
-    select(-.resid, -destSiteID) |>
-    rename(.diversity = {{diversity}}) |>
+    rename(.diversity = {{diversity}},
+           .biomass = {{biomass}}) |>
     filter(# remove highest N level
            Namount_kg_ha_y != 150) |>
     mutate(warming = if_else(warming == "Ambient", 0, 1),
            nitrogen = Nitrogen_log,
-           biomass = log(standing_biomass)) |>
-    rename(diversity = .diversity)
+           # Alpine is 0 and Sub-alpine is 1 (Alpine is first)
+           site = if_else(origSiteID == "Alpine", 0, 1)) |>
+    rename(diversity = .diversity,
+           biomass = .biomass)
+
+  # # change in diversity and biomass
+  # if(change == TRUE){
+  #   data <- data |>
+  #     rename(Δdiversity = .diversity,
+  #            Δbiomass = .biomass)
+  # } else {
+  #   data
+  # }
 
   if(landuse == "cutting"){
     data |>
@@ -33,14 +44,58 @@ prep_SEM_data <- function(data, landuse, diversity){
 
 
 # run SEM
-run_SEM <- function(data, landuse){
+run_direct_SEM <- function(data, landuse, diversity, biomass){
 
   if(landuse == "cutting"){
 
+    model <- psem(
+      lm(diversity ~ biomass + warming + nitrogen + cutting + site, data)
+    )
+
+  } else if (landuse == "grazing"){
+
+    model <- psem(
+      lm(diversity ~ biomass + warming + nitrogen + grazing + site, data)
+    )
+
+  } else if (!landuse %in% c("cutting", "grazing")){
+    print("Warning, unknonw landuse variable")
+  }
+
+}
+
+# run SEM
+run_SEM <- function(data, landuse, change){
+
+    if(landuse == "cutting"){
+
       model <- psem(
-        lm(diversity ~ biomass + warming + nitrogen + cutting, data),
-        lm(biomass ~ warming + nitrogen + cutting, data)
+        lm(diversity ~ biomass + warming + nitrogen + cutting + site, data),
+        lm(biomass ~ warming + nitrogen + cutting + site, data)
       )
+
+  } else if (landuse == "grazing"){
+
+    model <- psem(
+      lm(diversity ~ biomass + warming + nitrogen + grazing + site, data),
+      lm(biomass ~ warming + nitrogen + grazing + site, data)
+    )
+
+  } else if (!landuse %in% c("cutting", "grazing")){
+    print("Warning, unknonw landuse variable")
+  }
+
+}
+
+# run SEM
+run_origin_SEM <- function(data, landuse, change){
+
+  if(landuse == "cutting"){
+
+    model <- psem(
+      lm(diversity ~ biomass + warming + nitrogen + cutting, data),
+      lm(biomass ~ warming + nitrogen + cutting, data)
+    )
 
   } else if (landuse == "grazing"){
 
@@ -69,7 +124,7 @@ make_SEM_figure <- function(sem_results, landuse){
 
     layout = matrix(c('nitrogen', '', '', '',
                       '', 'biomass', '','diversity',
-                      'warming','', '', '',
+                      'warming','', '', 'site',
                       '', 'cutting', '', ''),
                     nrow = 4, byrow = TRUE)
 
@@ -77,7 +132,48 @@ make_SEM_figure <- function(sem_results, landuse){
 
     layout = matrix(c('nitrogen', '', '', '',
                       '', 'biomass', '', 'diversity',
-                      'warming','', '', '',
+                      'warming','', '', 'site',
+                      '', 'grazing', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (!landuse %in% c("cutting", "grazing")){
+    print("Warning, unknonw landuse variable")
+  }
+
+  # Plot SEM with tidySEM
+  plot_model <- prepare_graph(edges = paths, layout = layout)
+  plot(plot_model)
+
+}
+
+
+make_SEM_change_figure <- function(sem_results, landuse){
+
+  # path and estimates
+  paths = tibble(from = sem_results$coefficients$Predictor,
+                 to = sem_results$coefficients$Response,
+                 label = round(sem_results$coefficients$Std.Estimate, 3),
+                 P.Value = sem_results$coefficients$P.Value) |>
+    mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+           from = case_when(from == "biomass" ~ "Δbiomass",
+                            .default = from),
+           to = case_when(to == "biomass" ~ "Δbiomass",
+                          to == "diversity" ~ "Δdiversity",
+                          .default = from))
+
+  if(landuse == "cutting"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'Δbiomass', '','Δdiversity',
+                      'warming','', '', 'site',
+                      '', 'cutting', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (landuse == "grazing"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'Δbiomass', '', 'Δdiversity',
+                      'warming','', '', 'site',
                       '', 'grazing', '', ''),
                     nrow = 4, byrow = TRUE)
 
