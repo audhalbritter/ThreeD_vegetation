@@ -68,7 +68,7 @@ tar_read(standing_biomass_back_fig)
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 5
+#| fig-height: 10
 #| fig-cap: Relationship of standing biomass and Shannon diversity.
 
 tar_load(standingB_div_figure)
@@ -80,7 +80,47 @@ standingB_div_figure
 
 ### Structural equation model
 
-Diversity: log ratio Shannon diversity
+**Only direct effects**
+
+```{r}
+#| label: direct-effects
+#| echo: true
+#| eval: false
+
+model <- psem(
+  lm(diversity ~ biomass + warming + nitrogen + cutting + site, dat)
+  )
+
+```
+
+Log ratio Shannon diversity
+Log ratio biomass
+
+```{r}
+#| label: fig-direct-sem-model
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting on Shannon diversity.
+
+tar_load(direct_sem_cutting)
+plot(direct_sem_cutting)
+
+```
+
+```{r}
+#| label: fig-direct-sem-model2
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and grazing on Shannon diversity.
+
+tar_load(direct_sem_grazing)
+plot(direct_sem_grazing)
+
+```
+
+**Direct and indirect effects**
 
 ```{r}
 #| label: biomass-model
@@ -88,41 +128,40 @@ Diversity: log ratio Shannon diversity
 #| eval: false
 
 model <- psem(
-  lm(diversity ~ biomass + warming + nitrogen + cutting, dat),
-  lm(biomass ~ warming + nitrogen + cutting, dat)
+  lm(diversity ~ biomass + warming + nitrogen + cutting + site, dat),
+  lm(biomass ~ warming + nitrogen + cutting + site, dat)
   )
 
 ```
 
+**Final biomass and diversity**
 
 ```{r}
-#| label: fig-sem-model
+#| label: fig-sem-final-model
 #| echo: false
 #| message: false
 #| fig-width: 10
 #| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on Shannon diversity.
 
-tar_read(sem_fig)
+tar_read(sem_final_fig)
 
 ```
 
-
-Other diversity indices: species richness and evenness.
+**Change in biomass and diversity**
 
 ```{r}
-#| label: fig-sem-diversity
+#| label: fig-sem-change-model
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through Δbiomass on ΔShannon diversity.
 
-tar_read(SEM_diversity_fig)
+tar_read(sem_change_fig)
 
 ```
 
 
-Separately for alpine and sub-alpine site.
+**SEM by origin**
 
 ```{r}
 #| label: fig-sem-origin
@@ -135,3 +174,47 @@ Separately for alpine and sub-alpine site.
 tar_read(SEM_origin_fig)
 
 ```
+
+
+**SEM without site**
+
+```{r}
+#| label: fig-sem-without-site
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
+
+tar_read(SEM_without_site_fig)
+
+```
+
+
+**Other diversity indices: species richness and evenness**
+
+```{r}
+#| label: fig-sem-diversity
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-cap: Direct effects of warming, nitrogen addition and cutting/grazing and indirectly through biomass on species richness and evenness.
+
+tar_read(SEM_diversity_fig)
+
+```
+
+
+### Traits vs biomass
+
+```{r}
+#| label: fig-traits
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-cap: Biomass vs. SLA
+
+tar_read(trait_fig)
+
+```
+
