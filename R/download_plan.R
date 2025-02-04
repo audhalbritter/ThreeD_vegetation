@@ -88,6 +88,17 @@ download_plan <- list(
     format = "file"
   ),
 
+  # traits
+  tar_target(
+    name = trait_download,
+    command =  get_file(node = "fcbw4",
+                        file = "PFTC6_ThreeD_clean_leaf_traits_2022.csv",
+                        path = "data",
+                        remote_path = "i. trait_data"),
+    format = "file"
+  ),
+
+
 
   # import and transform in data
   # climate
@@ -138,7 +149,13 @@ download_plan <- list(
   # soil
   tar_target(
     name = soil_raw,
-    command = read_delim(file = soil_download, delim = ",")
+    command = read_csv(file = trait_download)
+  ),
+
+  # traits
+  tar_target(
+    name = trait_raw,
+    command = read_delim(file = trait_download, delim = ",")
   )
 
 )
