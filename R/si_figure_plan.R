@@ -173,6 +173,12 @@ si_figure_plan <- list(
                   filter(grazing == "Control",
                          year == 2022))
 
+      res <- summary(fit)
+
+      r.squared <- round(res$r.squared, 2)
+      f.stat <- res$fstatistic
+      p.val <- pf(f.stat[1], f.stat[2], f.stat[3], lower.tail=FALSE)
+      p.val.round <- if_else(p.val < 0.001, "<0.001", paste0("= ", as.character(round(p.val, 3))))
 
       new_data <- crossing(dat |>
         ungroup() |>
@@ -184,6 +190,8 @@ si_figure_plan <- list(
       ggplot(dat, aes(x = biomass_remaining_calc, y = biomass_remaining_coll)) +
         geom_line(data = newdat, aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)), colour = "grey60") +
         geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
+        annotate("text", x = 2000, y = 5,
+                 label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
         scale_colour_manual(values = col_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
         #stat_cor(label.x = 1300, label.y = 0.99) +
