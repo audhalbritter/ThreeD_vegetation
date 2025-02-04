@@ -26,3 +26,5 @@ ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6,
 
 ggsave("output/FigSx_origin.png", SEM_origin_fig, dpi = 300, height = 8, width = 10)
 ggsave("output/FigSx_div.png", SEM_diversity_fig, dpi = 300, height = 8, width = 10)
+
+ggsave("output/consumption.png", productivity_consumption_figure, dpi = 300, height = 4, width = 8)
