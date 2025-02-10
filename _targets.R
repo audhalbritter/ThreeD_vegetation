@@ -15,8 +15,8 @@ combined_plan <- c(
   piecewiseSEM_plan,
   figure_plan,
   si_analysis_plan,
-  si_figure_plan
-  # analysis_plan,
+  si_figure_plan,
+  analysis_plan
   # nutrient_plan,
   # #manuscript_plan,
   # output_plan
