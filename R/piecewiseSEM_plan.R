@@ -30,17 +30,17 @@ piecewiseSEM_plan <- list(
   # sem cutting figure
   tar_target(
     name = sem_cutting_fig,
-    command = make_SEM_figure(sem_results = sem_cutting_result,
+    command = make_SEM_site_figure(sem_results = sem_cutting_result,
                               landuse = "cutting")
   ),
 
-  # only direct effects (log ratio)
+  # only direct effects (final)
   tar_target(
     name = direct_sem_cutting,
     command = run_direct_SEM(data = prep_cutting_data,
                              landuse = "cutting",
-                             diversity = log_ratio_diversity,
-                             biomass = log_ratio_bio)
+                             diversity = final_diversity,
+                             biomass = final_ratio_bio)
   ),
 
   # SEM change in biomass and diversity
@@ -71,10 +71,9 @@ piecewiseSEM_plan <- list(
   # sem cutting figure
   tar_target(
     name = sem_cutting_change_fig,
-    command = make_SEM_change_figure(sem_results = sem_cutting_change_result,
+    command = make_SEM_change_site_figure(sem_results = sem_cutting_change_result,
                               landuse = "cutting")
   ),
-
 
   # SEM final biomass and diversity
   # grazing
@@ -104,7 +103,7 @@ piecewiseSEM_plan <- list(
   # sem grazing figure
   tar_target(
     name = sem_grazing_fig,
-    command = make_SEM_figure(sem_results = sem_grazing_result,
+    command = make_SEM_site_figure(sem_results = sem_grazing_result,
                               landuse = "grazing")
   ),
 
@@ -113,8 +112,8 @@ piecewiseSEM_plan <- list(
     name = direct_sem_grazing,
     command = run_direct_SEM(data = prep_grazing_data,
                              landuse = "grazing",
-                             diversity = log_ratio_diversity,
-                             biomass = log_ratio_bio)
+                             diversity = final_diversity,
+                             biomass = final_bio)
   ),
 
   # SEM change in biomass and diversity
@@ -145,7 +144,7 @@ piecewiseSEM_plan <- list(
   # sem cutting figure
   tar_target(
     name = sem_grazing_change_fig,
-    command = make_SEM_change_figure(sem_results = sem_grazing_change_result,
+    command = make_SEM_change_site_figure(sem_results = sem_grazing_change_result,
                               landuse = "grazing")
   ),
 

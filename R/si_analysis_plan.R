@@ -1,6 +1,33 @@
 # make analysis
 si_analysis_plan <- list(
 
+  ## ESTIMATE STANDING BIOMASS
+
+  # tar_target(
+  #   name = standing_biomass_data,
+  #   command = estimated_standing_biomass |>
+  #       select(-sum_cover, -height) |>
+  #       filter(year == 2022) |>
+  #       # join collected biomass from control plots
+  #       tidylog::left_join(measured_standing_biomass |>
+  #                            filter(grazing == "Control"))
+  # ),
+  #
+  # tar_target(
+  #   name = standing_biomass_model,
+  #   command = {
+  #     # Linear model
+  #     fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = standing_biomass_data |>
+  #                 filter(grazing == "Control",
+  #                        year == 2022))
+  #   }
+  # ),
+
+  tar_target(
+    name = standing_biomass_model_output,
+    command = summary(SB_back_model_22)
+  ),
+
   ## MICROCLIMATE
   # run 3-way interaction model for climate
   tar_target(
@@ -92,7 +119,7 @@ si_analysis_plan <- list(
 
 
   tar_target(
-    name = SEM_origin_fig,
+    name = SEM_origin_final_fig,
     command = {
 
       # origin cutting
@@ -163,6 +190,78 @@ si_analysis_plan <- list(
     }
   ),
 
+  tar_target(
+    name = SEM_origin_change_fig,
+    command = {
+
+      # origin cutting
+      dat_alp <- prep_SEM_data(data = biomass_div |>
+                                 filter(origSiteID == "Alpine"),
+                               landuse = "cutting",
+                               diversity = log_ratio_diversity,
+                               biomass = log_ratio_bio,
+                               change = FALSE)
+
+      sem_alp <- run_origin_SEM(data = dat_alp,
+                                landuse = "cutting")
+
+      sem_alp_res <- summary(sem_alp)
+
+      p1 <- make_SEM_change_figure(sem_results = sem_alp_res,
+                            landuse = "cutting")
+
+      dat_sub <- prep_SEM_data(data = biomass_div |>
+                                 filter(origSiteID == "Sub-alpine"),
+                               landuse = "cutting",
+                               diversity = log_ratio_diversity,
+                               biomass = log_ratio_bio,
+                               change = FALSE)
+
+      sem_sub <- run_origin_SEM(data = dat_sub,
+                                landuse = "cutting")
+
+      sem_sub_res <- summary(sem_sub)
+
+      p2 <- make_SEM_change_figure(sem_results = sem_sub_res,
+                            landuse = "cutting")
+
+      # origin grazing
+      dat_alp2 <- prep_SEM_data(data = biomass_div |>
+                                  filter(origSiteID == "Alpine"),
+                                landuse = "grazing",
+                                diversity = log_ratio_diversity,
+                                biomass = log_ratio_bio,
+                                change = FALSE)
+
+      sem_alp2 <- run_origin_SEM(data = dat_alp2,
+                                 landuse = "grazing")
+
+      sem_alp_res2 <- summary(sem_alp2)
+
+      p3 <- make_SEM_change_figure(sem_results = sem_alp_res2,
+                            landuse = "grazing")
+
+      dat_sub <- prep_SEM_data(data = biomass_div |>
+                                 filter(origSiteID == "Sub-alpine"),
+                               landuse = "grazing",
+                               diversity = log_ratio_diversity,
+                               biomass = log_ratio_bio,
+                               change = FALSE)
+
+      sem_sub <- run_origin_SEM(data = dat_sub,
+                                landuse = "grazing")
+
+      sem_sub_res <- summary(sem_sub)
+
+      p4 <- make_SEM_change_figure(sem_results = sem_sub_res,
+                            landuse = "grazing")
+
+      #(p1 + p2) + plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine')))
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine', 'c)', 'd)')))
+
+    }
+  ),
+
 
   tar_target(
     name = SEM_without_site_fig,
@@ -194,7 +293,7 @@ si_analysis_plan <- list(
 
       sem_res2 <- summary(sem2)
 
-      p2 <- make_SEM_figure(sem_results = sem_res2,
+      p2 <- make_SEM_change_figure(sem_results = sem_res2,
                             landuse = "cutting")
 
       # origin grazing
@@ -223,76 +322,225 @@ si_analysis_plan <- list(
 
       sem4 <- summary(sem4)
 
-      p4 <- make_SEM_figure(sem_results = sem4,
+      p4 <- make_SEM_change_figure(sem_results = sem4,
                             landuse = "grazing")
 
       (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Cutting (final)', 'b) change', 'c) Grazing (final)', 'd) change')))
 
     }
+  ),
+
+
+
+  tar_target(
+    name = SEM_diversity_final_fig,
+    command = {
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                               landuse = "cutting",
+                               diversity = final_richness,
+                               biomass = final_bio,
+                               change = FALSE)
+
+      sem_rich <- run_origin_SEM(data = dat_rich,
+                         landuse = "cutting")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p1 <- make_SEM_figure(sem_results = sem_rich_res,
+                            landuse = "cutting")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                               landuse = "cutting",
+                               diversity = final_evenness,
+                               biomass = final_bio,
+                               change = FALSE)
+
+      sem_even <- run_origin_SEM(data = dat_even,
+                         landuse = "cutting")
+
+      sem_even_res <- summary(sem_even)
+
+      p2 <- make_SEM_figure(sem_results = sem_even_res,
+                            landuse = "cutting")
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = final_richness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_rich <- run_origin_SEM(data = dat_rich,
+                          landuse = "grazing")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p3 <- make_SEM_figure(sem_results = sem_rich_res,
+                            landuse = "grazing")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = final_evenness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_even <- run_origin_SEM(data = dat_even,
+                          landuse = "grazing")
+
+      sem_even_res <- summary(sem_even)
+
+      p4 <- make_SEM_figure(sem_results = sem_even_res,
+                            landuse = "grazing")
+
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Richness', 'b) Evenness')))
+
+    }
+  ),
+
+
+  tar_target(
+    name = SEM_diversity_change_fig,
+    command = {
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                                landuse = "cutting",
+                                diversity = log_ratio_richness,
+                                biomass = log_ratio_bio,
+                                change = FALSE)
+
+      sem_rich <- run_origin_SEM(data = dat_rich,
+                          landuse = "cutting")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p1 <- make_SEM_change_figure(sem_results = sem_rich_res,
+                            landuse = "cutting")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                                landuse = "cutting",
+                                diversity = log_ratio_evenness,
+                                biomass = log_ratio_bio,
+                                change = FALSE)
+
+      sem_even <- run_origin_SEM(data = dat_even,
+                          landuse = "cutting")
+
+      sem_even_res <- summary(sem_even)
+
+      p2 <- make_SEM_change_figure(sem_results = sem_even_res,
+                            landuse = "cutting")
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = log_ratio_richness,
+                                biomass = log_ratio_bio,
+                                change = FALSE)
+
+      sem_rich <- run_origin_SEM(data = dat_rich,
+                          landuse = "grazing")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p3 <- make_SEM_change_figure(sem_results = sem_rich_res,
+                            landuse = "grazing")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = log_ratio_evenness,
+                                biomass = log_ratio_bio,
+                                change = FALSE)
+
+      sem_even <- run_origin_SEM(data = dat_even,
+                          landuse = "grazing")
+
+      sem_even_res <- summary(sem_even)
+
+      p4 <- make_SEM_change_figure(sem_results = sem_even_res,
+                            landuse = "grazing")
+
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Richness', 'b) Evenness')))
+
+    }
+  ),
+
+  tar_target(
+    name = SEM_origin_richness_final_fig,
+    command = {
+
+      # richness cutting
+      dat_rich <- prep_SEM_data(data = biomass_div |>
+                                  filter(origSiteID == "Alpine"),
+                                landuse = "cutting",
+                                diversity = final_richness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_rich <- run_origin_SEM(data = dat_rich,
+                                 landuse = "cutting")
+
+      sem_rich_res <- summary(sem_rich)
+
+      p1 <- make_SEM_figure(sem_results = sem_rich_res,
+                            landuse = "cutting")
+
+      dat_rich2 <- prep_SEM_data(data = biomass_div |>
+                                  filter(origSiteID == "Sub-alpine"),
+                                landuse = "cutting",
+                                diversity = final_richness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_rich2 <- run_origin_SEM(data = dat_rich2,
+                                 landuse = "cutting")
+
+      sem_rich_res2 <- summary(sem_rich2)
+
+      p2 <- make_SEM_figure(sem_results = sem_rich_res2,
+                            landuse = "cutting")
+
+      # eveness
+      dat_even <- prep_SEM_data(data = biomass_div |>
+                                  filter(origSiteID == "Alpine"),
+                                landuse = "cutting",
+                                diversity = final_evenness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_even <- run_origin_SEM(data = dat_even,
+                                 landuse = "cutting")
+
+      sem_even_res <- summary(sem_even)
+
+      p3 <- make_SEM_figure(sem_results = sem_even_res,
+                            landuse = "cutting")
+
+      dat_even2 <- prep_SEM_data(data = biomass_div |>
+                                  filter(origSiteID == "Sub-alpine"),
+                                landuse = "cutting",
+                                diversity = final_evenness,
+                                biomass = final_bio,
+                                change = FALSE)
+
+      sem_even2 <- run_origin_SEM(data = dat_even2,
+                                 landuse = "cutting")
+
+      sem_even_res2 <- summary(sem_even2)
+
+      p4 <- make_SEM_figure(sem_results = sem_even_res2,
+                            landuse = "cutting")
+
+      (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Rich alpine', 'b) sub-alpine', 'c) Even alpine', 'd) sub-alpine')))
+
+    }
   )
-
-
-
-  # tar_target(
-  #   name = SEM_diversity_fig,
-  #   command = {
-  #
-  #     # richness cutting
-  #     dat_rich <- prep_SEM_data(data = biomass_div,
-  #                              landuse = "cutting",
-  #                              diversity = log_ratio_richness)
-  #
-  #     sem_rich <- run_SEM(data = dat_rich,
-  #                        landuse = "cutting")
-  #
-  #     sem_rich_res <- summary(sem_rich)
-  #
-  #     p1 <- make_SEM_figure(sem_results = sem_rich_res,
-  #                           landuse = "cutting")
-  #
-  #     # eveness
-  #     dat_even <- prep_SEM_data(data = biomass_div,
-  #                              landuse = "cutting",
-  #                              diversity = log_ratio_evenness)
-  #
-  #     sem_even <- run_SEM(data = dat_even,
-  #                        landuse = "cutting")
-  #
-  #     sem_even_res <- summary(sem_even)
-  #
-  #     p2 <- make_SEM_figure(sem_results = sem_even_res,
-  #                           landuse = "cutting")
-  #
-  #     # richness cutting
-  #     dat_rich <- prep_SEM_data(data = biomass_div,
-  #                               landuse = "grazing",
-  #                               diversity = log_ratio_richness)
-  #
-  #     sem_rich <- run_SEM(data = dat_rich,
-  #                         landuse = "grazing")
-  #
-  #     sem_rich_res <- summary(sem_rich)
-  #
-  #     p3 <- make_SEM_figure(sem_results = sem_rich_res,
-  #                           landuse = "grazing")
-  #
-  #     # eveness
-  #     dat_even <- prep_SEM_data(data = biomass_div,
-  #                               landuse = "grazing",
-  #                               diversity = log_ratio_evenness)
-  #
-  #     sem_even <- run_SEM(data = dat_even,
-  #                         landuse = "grazing")
-  #
-  #     sem_even_res <- summary(sem_even)
-  #
-  #     p4 <- make_SEM_figure(sem_results = sem_even_res,
-  #                           landuse = "grazing")
-  #
-  #     (p1 + p2) / (p3 + p4) + plot_annotation(tag_levels = list(c('a) Richness', 'b) Evenness')))
-  #
-  #   }
-  # )
 
 
 )

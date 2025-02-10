@@ -49,13 +49,13 @@ run_direct_SEM <- function(data, landuse, diversity, biomass){
   if(landuse == "cutting"){
 
     model <- psem(
-      lm(diversity ~ biomass + warming + nitrogen + cutting + site, data)
+      lm(diversity ~ biomass + warming + nitrogen + cutting, data)
     )
 
   } else if (landuse == "grazing"){
 
     model <- psem(
-      lm(diversity ~ biomass + warming + nitrogen + grazing + site, data)
+      lm(diversity ~ biomass + warming + nitrogen + grazing, data)
     )
 
   } else if (!landuse %in% c("cutting", "grazing")){
@@ -124,6 +124,42 @@ make_SEM_figure <- function(sem_results, landuse){
 
     layout = matrix(c('nitrogen', '', '', '',
                       '', 'biomass', '','diversity',
+                      'warming','', '', '',
+                      '', 'cutting', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (landuse == "grazing"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'biomass', '', 'diversity',
+                      'warming','', '', '',
+                      '', 'grazing', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (!landuse %in% c("cutting", "grazing")){
+    print("Warning, unknonw landuse variable")
+  }
+
+  # Plot SEM with tidySEM
+  plot_model <- prepare_graph(edges = paths, layout = layout)
+  plot(plot_model)
+
+}
+
+
+make_SEM_site_figure <- function(sem_results, landuse){
+
+  # path and estimates
+  paths = tibble(from = sem_results$coefficients$Predictor,
+                 to = sem_results$coefficients$Response,
+                 label = round(sem_results$coefficients$Std.Estimate, 3),
+                 P.Value = sem_results$coefficients$P.Value) |>
+    mutate(linetype = if_else(P.Value <= 0.05, 1, 2))
+
+  if(landuse == "cutting"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'biomass', '','diversity',
                       'warming','', '', 'site',
                       '', 'cutting', '', ''),
                     nrow = 4, byrow = TRUE)
@@ -146,8 +182,48 @@ make_SEM_figure <- function(sem_results, landuse){
 
 }
 
-
 make_SEM_change_figure <- function(sem_results, landuse){
+
+  # path and estimates
+  paths = tibble(from = sem_results$coefficients$Predictor,
+                 to = sem_results$coefficients$Response,
+                 label = round(sem_results$coefficients$Std.Estimate, 3),
+                 P.Value = sem_results$coefficients$P.Value) |>
+    mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+           from = case_when(from == "biomass" ~ "Δbiomass",
+                            .default = from),
+           to = case_when(to == "biomass" ~ "Δbiomass",
+                          to == "diversity" ~ "Δdiversity",
+                          .default = from))
+
+  if(landuse == "cutting"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'Δbiomass', '','Δdiversity',
+                      'warming','', '', '',
+                      '', 'cutting', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (landuse == "grazing"){
+
+    layout = matrix(c('nitrogen', '', '', '',
+                      '', 'Δbiomass', '', 'Δdiversity',
+                      'warming','', '', '',
+                      '', 'grazing', '', ''),
+                    nrow = 4, byrow = TRUE)
+
+  } else if (!landuse %in% c("cutting", "grazing")){
+    print("Warning, unknonw landuse variable")
+  }
+
+  # Plot SEM with tidySEM
+  plot_model <- prepare_graph(edges = paths, layout = layout)
+  plot(plot_model)
+
+}
+
+
+make_SEM_change_site_figure <- function(sem_results, landuse){
 
   # path and estimates
   paths = tibble(from = sem_results$coefficients$Predictor,
