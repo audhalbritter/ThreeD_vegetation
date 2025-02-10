@@ -62,7 +62,7 @@ download_plan <- list(
   tar_target(
     name = cover_download,
     command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_cover_2019-2022_new.csv",
+                        file = "Three-D_clean_cover_2019-2022.csv",
                         path = "data",
                         remote_path = "Vegetation"),
     format = "file"
