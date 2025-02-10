@@ -7,29 +7,16 @@ figure_plan <- list(
     name = standingB_div_figure,
     command = {
 
-      # dat <- cover_total %>%
-      #   filter(year %in% c(2019, 2022)) |>
-      #   ungroup() |>
-      #   group_by(year, origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)  |>
-      #   summarise(#richness = n(),
-      #             diversity = diversity(cover)
-      #             #evenness = diversity/log(richness)
-      #             )  |>
-      #   pivot_wider(names_from = year, values_from = diversity) |>
-      #   mutate(delta_diversity = `2022` - `2019`,
-      #          log_ratio = log(`2022`/`2019`),
-      #          abs_diversity = `2022`) |>
-      #   # add standing biomass
-      #   tidylog::left_join(standing_biomass_back,
-      #             by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log'))
-
       final <- biomass_div |>
-        ggplot(aes(x = log(final_bio), y = final_diversity,
-                   colour = warming,
-                   shape = grazing,
-                   fill = interaction(origSiteID, warming),
-                   size = Namount_kg_ha_y)) +
-        geom_point() +
+        ggplot(aes(x = log(final_bio), y = final_diversity)) +
+        geom_line(data = standingB_div_final_prediction, aes(y = .fitted,
+                                                             x = `log(final_bio)`,
+                                         linetype = origSiteID),
+                  colour = "grey60", linewidth = 0.75) +
+        geom_point(data = biomass_div, aes(colour = warming,
+                                           shape = grazing,
+                                           fill = interaction(origSiteID, warming),
+                                           size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
         scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
                           name = "Origin",
@@ -42,18 +29,23 @@ figure_plan <- list(
                           ))) +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
+        scale_linetype_manual(values = c("dashed", "solid"),
+                              name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
              y = "Shannon diversity") +
         theme_bw() +
         theme(legend.position = "bottom", legend.box = "vertical")
 
-      delta <- biomass_div |>
-        ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity,
-                   colour = warming,
-                   shape = grazing,
-                   fill = interaction(origSiteID, warming),
-                   size = Namount_kg_ha_y)) +
-        geom_point() +
+      change <- biomass_div |>
+        ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity)) +
+        geom_line(data = standingB_div_change_prediction, aes(y = .fitted,
+                                                              x = log_ratio_bio,
+                                          linetype = origSiteID),
+                  colour = "grey60", linewidth = 0.75) +
+        geom_point(data = biomass_div, aes(colour = warming,
+                                           shape = grazing,
+                                           fill = interaction(origSiteID, warming),
+                                           size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
         # Fill colors: White for Alpine, specific colors for Sub-Alpine (warming levels)
         scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
@@ -67,13 +59,15 @@ figure_plan <- list(
                           ))) +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
+        scale_linetype_manual(values = c("dashed", "solid"),
+                              name = "Origin") +
         labs(x = bquote(Log(Change~standing~biomass)~g~m^-2),
              y = "Change in Shannon diversity") +
         theme_bw() +
         theme(legend.position = "bottom", legend.box = "vertical")
 
 
-      final / delta + plot_layout(guides = "collect") &
+      final / change + plot_layout(guides = "collect") &
         theme(text = element_text(size = 12),
               legend.position = "bottom",
               , legend.box="vertical")
