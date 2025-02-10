@@ -161,43 +161,34 @@ si_figure_plan <- list(
     name = standing_biomass_back_fig,
     command = {
 
-      dat <- estimated_standing_biomass |>
-        select(-sum_cover, -height) |>
-        filter(year == 2022) |>
-        # join collected biomass from control plots
-        tidylog::left_join(measured_standing_biomass |>
-                             filter(grazing == "Control"))
-
-      # Linear model
-      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = dat |>
-                  filter(grazing == "Control",
-                         year == 2022))
-
-      res <- summary(fit)
-
-      r.squared <- round(res$r.squared, 2)
-      f.stat <- res$fstatistic
+      r.squared <- round(standing_biomass_model_output$r.squared, 2)
+      f.stat <- standing_biomass_model_output$fstatistic
       p.val <- pf(f.stat[1], f.stat[2], f.stat[3], lower.tail=FALSE)
       p.val.round <- if_else(p.val < 0.001, "<0.001", paste0("= ", as.character(round(p.val, 3))))
 
+      dat <- prep_SB_back |>
+        filter(year == 2022)
+
       new_data <- crossing(dat |>
-        ungroup() |>
-        select(biomass_remaining_calc),
-        tibble(Nitrogen_log = c(0, 4.62)))
+                             ungroup() |>
+                             select(biomass_remaining_calc),
+                           tibble(Nitrogen_log = c(0, 4.62)))
 
-      newdat <- augment(fit, newdata = new_data)
+      prediction <- augment(SB_back_model_22, newdata = new_data)
 
-      ggplot(dat, aes(x = biomass_remaining_calc, y = biomass_remaining_coll)) +
-        geom_line(data = newdat, aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)), colour = "grey60") +
+      ggplot(dat,
+             aes(x = biomass_remaining_calc, y = biomass_remaining_coll)) +
+        geom_line(data = prediction,
+                  aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)),
+                  colour = "grey60") +
         geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
         annotate("text", x = 2000, y = 5,
                  label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
         scale_colour_manual(values = col_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
-        #stat_cor(label.x = 1300, label.y = 0.99) +
         guides(linetype = FALSE) +
-        labs(x = "Estimated staning biomass (cover x height)",
-             y = bquote(Standing~biomass~(g~m^-2))) +
+        labs(x = "Cover x height",
+             y = bquote(Estimated~standing~biomass~(g~m^-2))) +
         theme_bw()
 
     }
