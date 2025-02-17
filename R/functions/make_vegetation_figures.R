@@ -37,7 +37,8 @@ plot <- dat1 |>
     scale_linetype_manual(name = "Grazing", values = linetypepalette) +
     scale_shape_manual(name = "Grazing", values = shapepalette) +
     # change labels to real values
-    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
+    #scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
+    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(100)), labels = c(1, 5, 25, 100)) +
     # facet
     facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
     theme_bw() +

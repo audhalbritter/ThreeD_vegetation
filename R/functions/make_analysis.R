@@ -34,7 +34,8 @@ make_prediction <- function(model){
   #          prediction = map2(.x = model, .y = data, .f = predict, interval = "confidence"))
 
   # make predictions for more data points
-  Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  #Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  Namount_kg_ha_y = seq(from = 0, to = 100, by = 0.5)
   Nitrogen_log = seq(from = 0, to = 5, by = 0.1)
 
   model |>
@@ -61,7 +62,8 @@ make_prediction <- function(model){
 make_CN_prediction <- function(model){
 
   # make predictions for more data points
-  Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  #Namount_kg_ha_y = seq(from = 0, to = 150, by = 0.5)
+  Namount_kg_ha_y = seq(from = 0, to = 100, by = 0.5)
   Nitrogen_log = seq(from = 0, to = 5, by = 0.1)
 model |>
   mutate(result = map(model, tidy),
