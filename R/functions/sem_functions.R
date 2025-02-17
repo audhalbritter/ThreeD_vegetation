@@ -6,8 +6,6 @@ prep_SEM_data <- function(data, landuse, diversity, biomass, change){
   data <- data |>
     rename(.diversity = {{diversity}},
            .biomass = {{biomass}}) |>
-    filter(# remove highest N level
-           Namount_kg_ha_y != 150) |>
     mutate(warming = if_else(warming == "Ambient", 0, 1),
            nitrogen = Nitrogen_log,
            # Alpine is 0 and Sub-alpine is 1 (Alpine is first)
