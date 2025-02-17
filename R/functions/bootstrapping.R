@@ -7,7 +7,7 @@ make_trait_impute <- function(cover_total, trait_raw){
     ungroup() |>
     filter(year == 2022,
            grazing %in% c("Control", "Natural"),
-           Nlevel %in% c(1, 2, 3, 6, 7, 8, 10)) |>
+           Nlevel %in% c(1, 2, 3, 6, 7, 8)) |>
 
     # prettify and order factors
     mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
@@ -20,7 +20,6 @@ make_trait_impute <- function(cover_total, trait_raw){
                                                     "AC5", "WC5",
                                                     "AC10", "WC10",
                                                     "AC50", "WC50",
-                                                    "AC150", "WC150",
                                                     "AN0", "WN0")),
 
            grazing = factor(grazing, levels = c("Control", "Natural")),
@@ -84,7 +83,6 @@ make_trait_impute <- function(cover_total, trait_raw){
                                                     "AC5", "WC5",
                                                     "AC10", "WC10",
                                                     "AC50", "WC50",
-                                                    "AC150", "WC150",
                                                     "AN0", "WN0")),
 
            grazing = recode(grazing, "C" = "Control", "N" = "Natural"),
