@@ -2,31 +2,109 @@
 si_analysis_plan <- list(
 
   ## ESTIMATE STANDING BIOMASS
+  tar_target(
+    name = standing_biomass_data,
+    command = estimated_standing_biomass |>
+        select(-sum_cover, -height) |>
+        filter(year == 2022) |>
+        # join collected biomass from control plots
+        tidylog::left_join(measured_standing_biomass |>
+                             filter(grazing == "Control"))
+  ),
 
-  # tar_target(
-  #   name = standing_biomass_data,
-  #   command = estimated_standing_biomass |>
-  #       select(-sum_cover, -height) |>
-  #       filter(year == 2022) |>
-  #       # join collected biomass from control plots
-  #       tidylog::left_join(measured_standing_biomass |>
-  #                            filter(grazing == "Control"))
-  # ),
-  #
-  # tar_target(
-  #   name = standing_biomass_model,
-  #   command = {
-  #     # Linear model
-  #     fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = standing_biomass_data |>
-  #                 filter(grazing == "Control",
-  #                        year == 2022))
-  #   }
-  # ),
+  tar_target(
+    name = standing_biomass_model,
+    command = {
+      # Linear model
+      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = standing_biomass_data |>
+                  filter(grazing == "Control",
+                         year == 2022))
+    }
+  ),
 
   tar_target(
     name = standing_biomass_model_output,
     command = summary(SB_back_model_22)
   ),
+
+  ## STANDING BIOMASS AND GLOBAL CHANGE MODEL
+
+  tar_target(
+    name = biomass_model_all,
+    command = {
+
+      # test biomass in 2022
+      biomass_model_all <- run_full_model(dat = standing_biomass_back |>
+                                            filter(grazing != "Natural",
+                                                   year == 2022) |>
+                                            mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
+                                                   grazing_num = as.numeric(grazing_num)),
+                                          group = c("origSiteID"),
+                                          response = standing_biomass,
+                                          grazing_var = grazing_num) |>
+        # make long table
+        pivot_longer(cols = -c(origSiteID, data),
+                     names_sep = "_",
+                     names_to = c(".value", "effects", "names")) |>
+        unnest(glance) |>
+        select(origSiteID:adj.r.squared, AIC, deviance)
+    }
+  ),
+
+  # only interaction model
+  tar_target(
+    name = biomass_model,
+    command = biomass_model_all |>
+      # remove model with single effects
+      filter(effects == "interaction") |>
+      # log model is the best or within delta AIC of 2
+      filter(names == "log")
+      # select parsimonious model
+      #filter(AIC == min(AIC))
+  ),
+
+  # # check models
+  # tar_quarto(name = model_check,
+  #            path = "R/model_output.qmd"),
+
+
+  tar_target(
+    name = biomass_output,
+    command = make_prediction(biomass_model)
+
+  ),
+
+  # prepare model output
+  tar_target(
+    name =   biomass_prediction,
+    command = biomass_output |>
+      # merge data and prediction
+      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
+      select(origSiteID, output) |>
+      unnest(output) |>
+      rename(prediction = fit)
+  ),
+
+  # stats
+  tar_target(
+    name =   biomass_anova_table,
+    command = biomass_output |>
+      select(origSiteID, names, anova_tidy) |>
+      unnest(anova_tidy) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
+  # stats
+  tar_target(
+    name =   biomass_summary_table,
+    command = biomass_output |>
+      select(origSiteID, names, result) |>
+      unnest(result) |>
+      ungroup() |>
+      fancy_stats()
+  ),
+
 
   ## MICROCLIMATE
   # run 3-way interaction model for climate
