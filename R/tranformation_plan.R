@@ -70,6 +70,9 @@ tranformation_plan <- list(
         # only useful data for last year
         filter(year %in% c(2022)) %>%
 
+        # remove 150 kg N
+        filter(Namount_kg_ha_y != 150) %>%
+
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
 
@@ -208,6 +211,8 @@ tranformation_plan <- list(
     command = cover_raw %>%
       # first and last year
       filter(year %in% c(2019, 2022)) |>
+      # remove 150 kg N
+      filter(Namount_kg_ha_y != 150) |>
       # fix species names
       mutate(species = case_when(str_detect(species, "Antennaria") ~ "Antennaria sp",
                                  species == "Carex capillaris cf" ~ "Carex capillaris",
@@ -323,6 +328,8 @@ tranformation_plan <- list(
         filter(year %in% c(2019, 2022)) |>
         # add meta data
         left_join(metaTurfID, by = "turfID") |>
+        # remove 150 kg N
+        filter(Namount_kg_ha_y != 150) |>
 
         # prettify
         mutate(origSiteID = recode(origSiteID, "Liahovden" = "Alpine", "Joasete" = "Sub-alpine"),
