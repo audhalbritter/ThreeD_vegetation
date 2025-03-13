@@ -67,3 +67,5 @@ Manuscript/google.R
 *.tex
 
 *.DS_Store
+
+/.quarto/

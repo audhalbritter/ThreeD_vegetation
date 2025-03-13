@@ -21,6 +21,11 @@ library(patchwork)
 library(MuMIn)
 library(glue)
 library(wesanderson)
+library(lavaan)
+library(tidySEM)
+library(piecewiseSEM)
+library(gt)
+library(ggpubr)
 
 
 # Stuff

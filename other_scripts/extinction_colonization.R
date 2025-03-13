@@ -39,7 +39,7 @@ calculate_colo_ext <- function(cover){
 
 
   #select data
-  dat <- cover |>
+  dat <- cover_total |>
     # select control grazing and 4 N levels
     filter(origBlockID %in% c(1, 3, 5, 6),
            grazing != "Natural") |>
@@ -146,12 +146,12 @@ calculate_colo_ext <- function(cover){
     geom_hline(yintercept = 0, colour = "grey") +
     #geom_text(data = legend, aes(x = x2, y = y2, label = t), size = 5) +
     labs(x = "Nitrogen level", y = "Nr extinctions / colonization") +
-    facet_grid(origSiteID ~ warming) +
+    facet_grid(grazing ~ warming) +
     theme_minimal() +
     theme(text = element_text(size = 20),
           legend.position = "none")
 
-  return(colo_ext_figure)
+  colo_ext_figure
 
 }
 

@@ -1,6 +1,33 @@
 # make analysis
 si_analysis_plan <- list(
 
+  ## ESTIMATE STANDING BIOMASS
+  tar_target(
+    name = standing_biomass_data,
+    command = estimated_standing_biomass |>
+        select(-sum_cover, -height) |>
+        filter(year == 2022) |>
+        # join collected biomass from control plots
+        tidylog::left_join(measured_standing_biomass |>
+                             filter(grazing == "Control"))
+  ),
+
+  tar_target(
+    name = standing_biomass_model,
+    command = {
+      # Linear model
+      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = standing_biomass_data |>
+                  filter(grazing == "Control",
+                         year == 2022))
+    }
+  ),
+
+  tar_target(
+    name = standing_biomass_model_output,
+    command = summary(SB_back_model_22)
+  ),
+
+
   ## MICROCLIMATE
   # run 3-way interaction model for climate
   tar_target(
@@ -19,11 +46,11 @@ si_analysis_plan <- list(
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1))
 
-        run_full_model(dat = average_summer_climate |>
-                         filter(grazing != "Natural"),
-                       group = c("origSiteID", "variable"),
-                       response = value,
-                       grazing_var = grazing_num) |>
+      run_full_model(dat = average_summer_climate |>
+                       filter(grazing != "Natural"),
+                     group = c("origSiteID", "variable"),
+                     response = value,
+                     grazing_var = grazing_num) |>
         # make long table
         pivot_longer(cols = -c(origSiteID, variable, data),
                      names_sep = "_",
@@ -34,7 +61,7 @@ si_analysis_plan <- list(
         filter(effects == "interaction") |>
         # select best model (BY HAND!!!)
         filter(names == "log")
-        #filter(AIC == min(AIC)) # normally one would do this
+      #filter(AIC == min(AIC)) # normally one would do this
 
     }
 
@@ -56,7 +83,7 @@ si_analysis_plan <- list(
       select(origSiteID, variable, output) |>
       unnest(output) |>
       rename(prediction = fit) #|>
-      # mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
+    # mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
   ),
 
 
@@ -90,225 +117,1259 @@ si_analysis_plan <- list(
       gtsave("output/microclimate_stats.png", expand = 10)
   ),
 
-
-
-  ### PRODUCTIVITY
+  # SEM other diversity indices
+  # change in biomass and diversity indices
+  # cutting and richness
   tar_target(
-    name = productivity_model_all,
+    name = cut_change_richness,
     command = {
 
-      # sum fun groups
-      total_productivity <- productivity |>
-        ungroup() |>
-        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year) |>
-        summarise(sum_productivity = sum(productivity))
+      # change in richness across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                           landuse = "cutting",
+                           diversity = log_ratio_richness,
+                           biomass = log_ratio_bio)
 
-      # test biomass in 2022
-      productivity_model_all <- run_full_model(dat = total_productivity |>
-                                                 filter(grazing != "Natural"),
-                                               group = c("origSiteID"),
-                                               response = sum_productivity,
-                                               grazing_var = grazing_num) |>
-        # make long table
-        pivot_longer(cols = -c(origSiteID, data),
-                     names_sep = "_",
-                     names_to = c(".value", "effects", "names")) |>
-        unnest(glance) |>
-        select(origSiteID:adj.r.squared, AIC, deviance)
+      mod1 <- run_SEM(data = dat1,
+              landuse = "cutting")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                      to = out1$coefficients$Response,
+                      label = round(out1$coefficients$Std.Estimate, 3),
+                      P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+                        to = case_when(to == "biomass" ~ "Δbiomass",
+                                       to == "diversity" ~ "Δrichness",
+                                       .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                        '', 'Δbiomass', '','Δrichness',
+                        'warming','', '', '',
+                        '', 'cutting', '', ''),
+                      nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                      landuse = "cutting")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      layout2 = matrix(c('nitrogen', '', '', '',
+                        '', 'Δbiomass', '','Δrichness',
+                        'warming','', '', 'site',
+                        '', 'cutting', '', ''),
+                      nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "cutting")
+
+      out3 <- summary(mod3)
+
+      # path and estimates
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "cutting")
+
+      out4 <- summary(mod4)
+
+      # path and estimates
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
     }
   ),
 
-  # only interaction model
+
+  # cutting and evenness
   tar_target(
-    name = productivity_model,
-    command = productivity_model_all |>
-      # remove model with single effects
-      filter(effects == "interaction") |>
-      # select parsimonious model
-      filter(AIC == min(AIC))
+    name = cut_change_evenness,
+    command = {
+
+      # change in richness across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "cutting",
+                            diversity = log_ratio_evenness,
+                            biomass = log_ratio_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "cutting")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δevenness',
+                         'warming','', '', '',
+                         '', 'cutting', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "cutting")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      layout2 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δevenness',
+                         'warming','', '', 'site',
+                         '', 'cutting', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "cutting")
+
+      out3 <- summary(mod3)
+
+      # path and estimates
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "cutting")
+
+      out4 <- summary(mod4)
+
+      # path and estimates
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-  tar_target(
-    name = productivity_output,
-    command = make_prediction(productivity_model)
 
+  # grazing and richness
+  tar_target(
+    name = graz_change_richness,
+    command = {
+
+      # change in richness across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "grazing",
+                            diversity = log_ratio_richness,
+                            biomass = log_ratio_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "grazing")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δrichness',
+                         'warming','', '', '',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "grazing")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      layout2 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δrichness',
+                         'warming','', '', 'site',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "grazing")
+
+      out3 <- summary(mod3)
+
+      # path and estimates
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "grazing")
+
+      out4 <- summary(mod4)
+
+      # path and estimates
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δrichness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-  # prepare model output
+  # grazing and evenness
   tar_target(
-    name =   productivity_prediction,
-    command = productivity_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, output) |>
-      unnest(output) |>
-      rename(prediction = fit)
+    name = graz_change_evenness,
+    command = {
+
+      # change in richness across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "grazing",
+                            diversity = log_ratio_evenness,
+                            biomass = log_ratio_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "grazing")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δevenness',
+                         'warming','', '', '',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "grazing")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      layout2 = matrix(c('nitrogen', '', '', '',
+                         '', 'Δbiomass', '','Δevenness',
+                         'warming','', '', 'site',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "grazing")
+
+      out3 <- summary(mod3)
+
+      # path and estimates
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "grazing")
+
+      out4 <- summary(mod4)
+
+      # path and estimates
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               from = case_when(from == "biomass" ~ "Δbiomass",
+                                .default = from),
+               to = case_when(to == "biomass" ~ "Δbiomass",
+                              to == "diversity" ~ "Δevenness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-  # stats
+
+  # Final biomass and diversity indices
+  # cutting and diversity
   tar_target(
-    name =   productivity_anova_table,
-    command = productivity_output |>
-      select(origSiteID, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
+    name = cut_final_diversity,
+    command = {
+
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "cutting",
+                            diversity = final_diversity,
+                            biomass = final_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "cutting")
+
+      out1 <- summary(mod1)
+
+      fig1 <- make_SEM_figure(sem_results = out1,
+                              type = "final",
+                              landuse = "cutting",
+                              col = sem_colour)
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "cutting")
+
+      out2 <- summary(mod2)
+
+      fig2 <- make_SEM_site_figure(sem_results = out2,
+                              type = "final",
+                              landuse = "cutting",
+                              col = sem_colour)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "cutting")
+
+      out3 <- summary(mod3)
+
+      fig3 <- make_SEM_figure(sem_results = out3,
+                              type = "final",
+                              landuse = "cutting",
+                              col = sem_colour)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "cutting")
+
+      out4 <- summary(mod4)
+
+      fig4 <- make_SEM_figure(sem_results = out4,
+                              type = "final",
+                              landuse = "cutting",
+                              col = sem_colour)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
+  # cutting and richness
   tar_target(
-    name = productivity_stats,
-    command = make_biomass_stats(productivity_anova_table)
+    name = cut_final_richness,
+    command = {
+
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "cutting",
+                            diversity = final_richness,
+                            biomass = final_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "cutting")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'biomass', '','richness',
+                         'warming','', '', '',
+                         '', 'cutting', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "cutting")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      layout2 =  matrix(c('nitrogen', '', '', '',
+                          '', 'biomass', '','richness',
+                          'warming','', '', 'site',
+                          '', 'cutting', '', ''),
+                        nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "cutting")
+
+      out3 <- summary(mod3)
+
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "cutting")
+
+      out4 <- summary(mod4)
+
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
+  # cutting and evenness
   tar_target(
-    name = productivity_save,
-    command = productivity_stats |>
-      gtsave("output/productivity_stats.png", expand = 10)
+    name = cut_final_evenness,
+    command = {
+
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "cutting",
+                            diversity = final_evenness,
+                            biomass = final_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "cutting")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'biomass', '','evenness',
+                         'warming','', '', '',
+                         '', 'cutting', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "cutting")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      layout2 =  matrix(c('nitrogen', '', '', '',
+                          '', 'biomass', '','evenness',
+                          'warming','', '', 'site',
+                          '', 'cutting', '', ''),
+                        nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "cutting")
+
+      out3 <- summary(mod3)
+
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "cutting")
+
+      out4 <- summary(mod4)
+
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-  # stats
+
+
+  # grazing and diversity
   tar_target(
-    name =   productivity_summary_table,
-    command = productivity_output |>
-      select(origSiteID, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
+    name = graz_final_diversity,
+    command = {
+
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "grazing",
+                            diversity = final_diversity,
+                            biomass = final_bio)
+
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "grazing")
+
+      out1 <- summary(mod1)
+
+      fig1 <- make_SEM_figure(sem_results = out1,
+                              type = "final",
+                              landuse = "grazing",
+                              col = sem_colour)
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "grazing")
+
+      out2 <- summary(mod2)
+
+      fig2 <- make_SEM_site_figure(sem_results = out2,
+                                   type = "final",
+                                   landuse = "grazing",
+                                   col = sem_colour)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "grazing")
+
+      out3 <- summary(mod3)
+
+      fig3 <- make_SEM_figure(sem_results = out3,
+                              type = "final",
+                              landuse = "grazing",
+                              col = sem_colour)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "grazing")
+
+      out4 <- summary(mod4)
+
+      fig4 <- make_SEM_figure(sem_results = out4,
+                              type = "final",
+                              landuse = "grazing",
+                              col = sem_colour)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-  ## FUNCTIONAL GROUP COVER
-  # natural grazing
-  # run 3-way interaction model for cover
+  # cutting and richness
   tar_target(
-    name = cover_CN_model,
-    command = run_full_model(dat = functional_group_cover |>
-                               filter(grazing %in% c("Control", "Natural")) |>
-                               select(-grazing_num),
-                             group = c("origSiteID", "functional_group", "group"),
-                             response = delta,
-                             grazing_var = grazing) |>
-      # make long table
-      pivot_longer(cols = -c(origSiteID, functional_group, group, data),
-                   names_sep = "_",
-                   names_to = c(".value", "effects", "names")) |>
-      unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC) |>
-      # select only interaction models
-      filter(effects == "interaction") |>
-      # select best model
-      filter(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "log" |
-               origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "linear" |
-               AIC == min(AIC)) |>
-      filter(!(origSiteID == "Sub-alpine" & functional_group == "forb" & names == "linear")) |>
-      filter(!(origSiteID == "Sub-alpine" & functional_group == "graminoid" & names == "quadratic"))
-    ),
+    name = graz_final_richness,
+    command = {
 
-  # prediction and model output
-  tar_target(
-    name = cover_CN_output,
-    command = make_CN_prediction(cover_CN_model)
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "grazing",
+                            diversity = final_richness,
+                            biomass = final_bio)
 
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "grazing")
+
+      out1 <- summary(mod1)
+
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'biomass', '','richness',
+                         'warming','', '', '',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
+
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
+
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "grazing")
+
+      out2 <- summary(mod2)
+
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      layout2 =  matrix(c('nitrogen', '', '', '',
+                          '', 'biomass', '','richness',
+                          'warming','', '', 'site',
+                          '', 'grazing', '', ''),
+                        nrow = 4, byrow = TRUE)
+
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "grazing")
+
+      out3 <- summary(mod3)
+
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "grazing")
+
+      out4 <- summary(mod4)
+
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "richness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   ),
 
-
-
-  # prepare model output
+  # cutting and evenness
   tar_target(
-    name = cover_CN_prediction,
-    command = cover_CN_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, functional_group, output) |>
-      unnest(output) |>
-      rename(prediction = fit,
-             grazing = .grazing) |>
-      mutate(functional_group = factor(functional_group, levels = c("graminoid", "forb", "sedge", "legume")))
-  ),
+    name = graz_final_evenness,
+    command = {
 
+      # change in diversity across site
+      dat1 <- prep_SEM_data(data = biomass_div,
+                            landuse = "grazing",
+                            diversity = final_evenness,
+                            biomass = final_bio)
 
-  # stats
-  tar_target(
-    name =   cover_CN_anova_table,
-    command = cover_CN_output |>
-      select(origSiteID, functional_group, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
-  ),
+      mod1 <- run_SEM(data = dat1,
+                      landuse = "grazing")
 
-  tar_target(
-    name = cover_CN_stats,
-    command = cover_CN_output |>
-      select(origSiteID, functional_group, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
-  ),
+      out1 <- summary(mod1)
 
+      # path and estimates
+      paths1 <- tibble(from = out1$coefficients$Predictor,
+                       to = out1$coefficients$Response,
+                       label = round(out1$coefficients$Std.Estimate, 3),
+                       P.Value = out1$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
 
-  # DIVERSITY
+      layout1 = matrix(c('nitrogen', '', '', '',
+                         '', 'biomass', '','evenness',
+                         'warming','', '', '',
+                         '', 'grazing', '', ''),
+                       nrow = 4, byrow = TRUE)
 
-  # natural grazing
-  # run 3-way interaction model for cover
-  tar_target(
-    name = diversity_CN_model,
-    command = run_full_model(dat = diversity |>
-                               filter(grazing %in% c("Control", "Natural")) |>
-                               select(-grazing_num),
-                             group = c("origSiteID", "diversity_index"),
-                             response = delta,
-                             grazing_var = grazing)|>
-      # make long table
-      pivot_longer(cols = -c(origSiteID, diversity_index, data),
-                   names_sep = "_",
-                   names_to = c(".value", "effects", "names")) |>
-      unnest(glance) |>
-      select(origSiteID:adj.r.squared, AIC) |>
-      # select only interaction models
-      filter(effects == "interaction") |>
-      # select best model
-      # choose log for Alpine evenness and richness because dAIC < 2
-      filter(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names == "log" | AIC == min(AIC)) |>
-      filter(!(origSiteID == "Alpine" & diversity_index %in% c("evenness", "richness") & names != "log"))
-  ),
+      plot_model1 <- prepare_graph(edges = paths1, layout = layout1)
+      fig1 <- plot(plot_model1)
 
-  # prediction and model output
-  tar_target(
-    name = diversity_CN_output,
-    command = make_CN_prediction(diversity_CN_model)
+      # with site
+      mod2 <- run_site_SEM(data = dat1,
+                           landuse = "grazing")
 
-  ),
+      out2 <- summary(mod2)
 
-  # prepare model output
-  tar_target(
-    name = diversity_CN_prediction,
-    command = diversity_CN_output |>
-      # merge data and prediction
-      mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-      select(origSiteID, diversity_index, output) |>
-      unnest(output) |>
-      rename(prediction = fit,
-             grazing = .grazing) |>
-      mutate(diversity_index = factor(diversity_index, levels = c("richness", "diversity", "evenness")))
-  ),
+      # path and estimates
+      paths2 <- tibble(from = out2$coefficients$Predictor,
+                       to = out2$coefficients$Response,
+                       label = round(out2$coefficients$Std.Estimate, 3),
+                       P.Value = out2$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
 
-  # stats
-  tar_target(
-    name =   diversity_CN_anova_table,
-    command = diversity_CN_output |>
-      select(origSiteID, diversity_index, names, anova_tidy) |>
-      unnest(anova_tidy) |>
-      ungroup() |>
-      fancy_stats()
-  ),
+      layout2 =  matrix(c('nitrogen', '', '', '',
+                          '', 'biomass', '','evenness',
+                          'warming','', '', 'site',
+                          '', 'grazing', '', ''),
+                        nrow = 4, byrow = TRUE)
 
-  tar_target(
-    name =   diversity_CN_stats,
-    command = diversity_CN_output |>
-      select(origSiteID, diversity_index, names, result) |>
-      unnest(result) |>
-      ungroup() |>
-      fancy_stats()
+      plot_model2 <- prepare_graph(edges = paths2, layout = layout2)
+      fig2 <- plot(plot_model2)
+
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "grazing")
+
+      out3 <- summary(mod3)
+
+      paths3 <- tibble(from = out3$coefficients$Predictor,
+                       to = out3$coefficients$Response,
+                       label = round(out3$coefficients$Std.Estimate, 3),
+                       P.Value = out3$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      plot_model3 <- prepare_graph(edges = paths3, layout = layout1)
+      fig3 <- plot(plot_model3)
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "grazing")
+
+      out4 <- summary(mod4)
+
+      paths4 <- tibble(from = out4$coefficients$Predictor,
+                       to = out4$coefficients$Response,
+                       label = round(out4$coefficients$Std.Estimate, 3),
+                       P.Value = out4$coefficients$P.Value) |>
+        mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
+               colour = if_else(label > 0, sem_colour[1], sem_colour[2]),
+               size = case_when(P.Value <= 0.05 ~ 1.5,
+                                P.Value > 0.05 & P.Value <= 0.09 ~ 1,
+                                TRUE ~ 0.5),
+               to = case_when(to == "diversity" ~ "evenness",
+                              .default = to))
+
+      plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
+      fig4 <- plot(plot_model4)
+
+      figure <- (fig1 + fig2) /
+        (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        Across = out1$coefficients,
+        Site = out2$coefficients,
+        Alpine = out3$coefficients,
+        "Sub-alpine" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   )
 
 )
+

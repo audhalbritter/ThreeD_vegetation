@@ -1,5 +1,4 @@
-# try to make as few targets as possible as each target is cached.
-# With many intermediate steps, it uses a lot of disk space.
+# transformation plan
 
 tranformation_plan <- list(
 
@@ -59,6 +58,7 @@ tranformation_plan <- list(
 
 
   # biomass
+  # (scale to m2, 2022 and prettify dataset)
   tar_target(
     name = biomass,
     command = {
@@ -67,18 +67,22 @@ tranformation_plan <- list(
         mutate(area_m2 = area_cm2 / 10000,
                biomass_scaled = biomass / area_m2
         ) %>%
-        # only useful data for last 2 years
+        # only useful data for last year
         filter(year %in% c(2022)) %>%
+
+        # remove 150 kg N
+        filter(Namount_kg_ha_y != 150) %>%
 
         # log transform Nitrogen
         mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
 
         # prettify
-        mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
+        mutate(origSiteID = recode(origSiteID, "Liahovden" = "Alpine", "Joasete" = "Sub-alpine"),
                origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
                grazing = factor(grazing, levels = c("C", "M", "I", "N")),
                grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
                warming = recode(warming, "A" = "Ambient", "W" = "Warming")) |>
+
 
         # make grazing numeric
         mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
@@ -87,48 +91,128 @@ tranformation_plan <- list(
     }),
 
 
-  # standing biomass
+  # Measured standing biomass
+  # (calc remaining biomass from control - cuts)
   tar_target(
-    name = standing_biomass,
-    command = {
-      biomass |>
-        # get peak biomass and remove litter
-        filter(grazing == "Control" & cut == 3| grazing %in% c("Medium", "Intensive") & cut == 4) |>
-        filter(!fun_group %in% c("litter")) |>
+    name = measured_standing_biomass,
+    command =  biomass |>
+      # get peak biomass and remove litter
+      filter(grazing == "Control" & cut == 3| grazing %in% c("Medium", "Intensive") & cut == 4) |>
+      filter(!fun_group %in% c("litter")) |>
+      group_by(origSiteID, destSiteID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing) |>
+      summarise(biomass = sum(biomass), .groups = "drop") |>
+      pivot_wider(names_from = grazing, values_from = biomass) |>
+      # remaining biomass from control - cutting
+      mutate(Medium = Control - Medium,
+             Intensive = Control - Intensive) |>
+      pivot_longer(cols = c(Control, Medium, Intensive), names_to = "grazing", values_to = "biomass_remaining_coll")
+  ),
 
-        # Calculate mean of 0 kg N per m2 y
-        ungroup() |>
-        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, fun_group, year) |>
-        summarise(biomass = mean(biomass_scaled))
-
-    }),
-
-  # annual productivity
+  # Estimate standing biomass
+  # (from species cover and height)
   tar_target(
-    name = productivity,
+    name = estimated_standing_biomass,
+    command = cover_total |>
+      filter(year %in% c(2019, 2022)) |>
+      group_by(year, origSiteID, warming, grazing, Nlevel, Namount_kg_ha_y, Nitrogen_log) |>
+      summarise(sum_cover = sum(cover)) |>
+      left_join(height |>
+                  filter(vegetation_layer == "Vascular plant layer") |>
+                  select(-destSiteID, -vegetation_layer, -delta) |>
+                  pivot_longer(cols = c(`2019`, `2022`), names_to = "year", values_to = "height") |>
+                  mutate(year = as.numeric(year)),
+                         by = c("year", "origSiteID", "warming", "grazing", "Namount_kg_ha_y")) |>
+      mutate(biomass_remaining_calc = sum_cover * height) |>
+      select(-grazing_num)
+      ),
+
+  # ESTIMATE STANDING BIOMASS FROM COVER X HEIGHT
+  # prep data
+  tar_target(
+    name = prep_SB_back,
+    command = estimated_standing_biomass |>
+        select(-sum_cover, -height) |>
+        # join collected biomass from control plots
+        tidylog::left_join(measured_standing_biomass |>
+                             filter(grazing == "Control"))
+  ),
+
+  # run separate models for first and last year
+  # including a correction for nitrogen in 2022
+  tar_target(
+    name = SB_back_model_22,
+    command = lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = prep_SB_back |>
+                   filter(grazing == "Control",
+                          year == 2022))
+  ),
+
+  tar_target(
+    name = SB_back_model_19,
+    command = lm(biomass_remaining_coll ~ biomass_remaining_calc, data = prep_SB_back |>
+                   filter(grazing == "Control",
+                          year == 2019))
+  ),
+
+  # back transform calculated biomass using model from control plots
+  tar_target(
+    name = standing_biomass_back,
     command = {
-      biomass |>
-        # remove litter
-        filter(!fun_group %in% c("litter")) |>
 
-        # summarise the cuts to get annual productivity
-        group_by(origSiteID, origBlockID, origPlotID, turfID, destSiteID, destBlockID, destPlotID, warming, Nlevel, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, fun_group, year) %>%
-        summarise(productivity = sum(biomass_scaled)) %>%
+    bind_rows(
+      # 2022 data
+      augment(x = SB_back_model_22, newdata = prep_SB_back |>
+                filter(grazing != "Control",
+                       year == 2022)) |>
+        rename(standing_biomass = .fitted) |>
+        select(-biomass_remaining_calc, -biomass_remaining_coll),
 
-        # Calculate mean of 0 kg N per m2 y
+      # 2019 data
+      augment(x = SB_back_model_19, newdata = prep_SB_back |>
+                filter(year == 2019)) |>
+        rename(standing_biomass = .fitted) |>
+        select(-biomass_remaining_calc, -biomass_remaining_coll)
+    ) |>
+      # add collected standing biomass for control plots
+      bind_rows(measured_standing_biomass |>
+                  filter(grazing == "Control") |>
+                  mutate(year = 2022) |>
+                  rename(standing_biomass = biomass_remaining_coll)) |>
+      select(-destSiteID, -.resid)
+
+    }
+  ),
+
+
+  ### Needed?
+  # Estimate consumption from standing biomass
+  # (from species cover and height)
+  tar_target(
+    name = estimated_consumption,
+    command = {
+
+      estimated_standing_biomass |>
         ungroup() |>
-        group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, fun_group, year) |>
-        summarise(productivity = mean(productivity))
+        select(-sum_cover, -height) |>
+        pivot_wider(names_from = grazing, values_from = biomass_remaining_calc) |>
+        mutate(Medium = Control - Medium,
+               Intensive = Control - Intensive,
+               Natural = Control - Natural,
+               Control = 0) |>
+        pivot_longer(cols = c(Control:Natural), names_to = "grazing", values_to = "consumption")
 
-    }),
+    }
+  ),
 
 
-  # prep cover
+  # Prepare cover data
+  # keep 3 control plots
   tar_target(
     name = cover_total,
     command = cover_raw %>%
       # first and last year
       filter(year %in% c(2019, 2022)) |>
+      # remove 150 kg N
+      filter(Namount_kg_ha_y != 150) |>
       # fix species names
       mutate(species = case_when(str_detect(species, "Antennaria") ~ "Antennaria sp",
                                  species == "Carex capillaris cf" ~ "Carex capillaris",
@@ -148,9 +232,13 @@ tranformation_plan <- list(
       filter(!str_detect(species, "Unknown"),
              !species %in% c("Carex rupestris", "Carex rupestris cf",
                              "Carex norvegica cf", "Carex sp")) |>
+      ungroup() |>
+      # sum cover of duplicates species
+      tidylog::summarise(cover = sum(cover), .by = c(turfID, warming, grazing,
+                                                     Nlevel, species, year, origSiteID, origBlockID, origPlotID, destSiteID, destBlockID, destPlotID, Namount_kg_ha_y)) |>
 
       # prettify
-      mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
+      mutate(origSiteID = recode(origSiteID, "Liahovden" = "Alpine", "Joasete" = "Sub-alpine"),
              origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
              grazing = factor(grazing, levels = c("C", "M", "I", "N")),
              grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
@@ -159,187 +247,187 @@ tranformation_plan <- list(
              grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = NA_character_),
                     grazing_num = as.numeric(grazing_num)) %>%
 
-      # add Namount variable
-      left_join(metaTurfID %>%
-                  distinct(Nlevel, Namount_kg_ha_y), by = "Nlevel") %>%
       # log transform Nitrogen
       mutate(Nitrogen_log = log(Namount_kg_ha_y + 1))
 
   ),
 
-
-  tar_target(
-    name = cover,
-    command = cover_total |>
-
-      # take average cover of 3 control plots
-      group_by(year, date, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, species) |>
-      summarise(cover = mean(cover)) |>
-
-      # add taxon information
-      left_join(sp_list |>
-                  mutate(species = paste(genus, species, sep = " ")), by = "species") |>
-      # fix NA's in functional group
-      mutate(functional_group = case_when(species == "Carex nigra" ~ "graminoid",
-                                          species %in% c("Oxytropa laponica", "Galium verum", "Veronica officinalis", "Erigeron uniflorus", "Epilobium anagallidifolium") ~ "forb",
-                                          functional_group == "pteridophyte" ~ "forb",
-                                          grepl("Carex", species) ~ "sedge",
-                                          TRUE ~ functional_group)) |>
-      ungroup() |>
-      select(-genus, -family)
-  ),
+  # average controls
+  # tar_target(
+  #   name = cover,
+  #   command = cover_total |>
+  #
+  #     # take average cover of 3 control plots
+  #     group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, species) |>
+  #     summarise(cover = mean(cover)) |>
+  #
+  #     # add taxon information
+  #     left_join(sp_list |>
+  #                 mutate(species = paste(genus, species, sep = " ")), by = "species") |>
+  #     # fix NA's in functional group
+  #     mutate(functional_group = case_when(species == "Carex nigra" ~ "graminoid",
+  #                                         species %in% c("Oxytropa laponica", "Galium verum", "Veronica officinalis", "Erigeron uniflorus", "Epilobium anagallidifolium") ~ "forb",
+  #                                         functional_group == "pteridophyte" ~ "forb",
+  #                                         grepl("Carex", species) ~ "sedge",
+  #                                         TRUE ~ functional_group)) |>
+  #     ungroup() |>
+  #     select(-genus, -family)
+  # ),
 
   # Change in functional group cover
-  tar_target(
-    name = functional_group_cover,
-    command = {
-      all <- cover %>%
-      # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
-      filter(functional_group != "shrub",
-             !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
-             !(functional_group == "legume" & origSiteID == "Alpine"))
-
-      # graminoids including sedge, forbs, including legumes and sedges, legumes separate
-      bind_rows(all = all |>
-                  mutate(functional_group = case_when(functional_group == "sedge" ~ "graminoid",
-                                                      functional_group == "legume" ~ "forb",
-                                                      TRUE ~ functional_group)),
-                sedge = all |>
-                  filter(functional_group == "sedge"),
-                legume = all |>
-                  filter(functional_group == "legume"),
-                .id = "group") |>
-        group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, group, functional_group, year) %>%
-      summarise(cover = sum(cover)) %>%
-      pivot_wider(names_from = year, values_from = cover) %>%
-      # Fun groups that do not exist in one year => 0
-      # calculate difference between years
-      mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
-             `2022` = if_else(is.na(`2022`), 0, `2022`),
-             delta = `2022` - `2019`) %>%
-      ungroup()
-
-    }
-
-      # cover %>%
-      # # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
-      # filter(functional_group != "shrub",
-      #        !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
-      #        !(functional_group == "legume" & origSiteID == "Alpine")) |>
-      # group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, functional_group, year) %>%
-      # summarise(cover = sum(cover)) %>%
-      # pivot_wider(names_from = year, values_from = cover) %>%
-      # # Fun groups that do not exist in one year => 0
-      # # calculate difference between years
-      # mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
-      #        `2022` = if_else(is.na(`2022`), 0, `2022`),
-      #        delta = `2022` - `2019`) %>%
-      # ungroup()
-  ),
-
+  # tar_target(
+  #   name = functional_group_cover,
+  #   command = {
+  #     all <- cover %>%
+  #     # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
+  #     filter(functional_group != "shrub",
+  #            !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
+  #            !(functional_group == "legume" & origSiteID == "Alpine"))
+  #
+  #     # graminoids including sedge, forbs, including legumes and sedges, legumes separate
+  #     bind_rows(all = all |>
+  #                 mutate(functional_group = case_when(functional_group == "sedge" ~ "graminoid",
+  #                                                     functional_group == "legume" ~ "forb",
+  #                                                     TRUE ~ functional_group)),
+  #               sedge = all |>
+  #                 filter(functional_group == "sedge"),
+  #               legume = all |>
+  #                 filter(functional_group == "legume"),
+  #               .id = "group") |>
+  #       group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, group, functional_group, year) %>%
+  #     summarise(cover = sum(cover)) %>%
+  #     pivot_wider(names_from = year, values_from = cover) %>%
+  #     # Fun groups that do not exist in one year => 0
+  #     # calculate difference between years
+  #     mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
+  #            `2022` = if_else(is.na(`2022`), 0, `2022`),
+  #            delta = `2022` - `2019`) %>%
+  #     ungroup()
+  #
+  #   }
+  #
+  # ),
 
   # prep height
   tar_target(
     name = height,
-    command = height_raw %>%
-      # first and last year
-      filter(year %in% c(2019, 2022)) |>
-      # add meta data
-      left_join(metaTurfID, by = "turfID") |>
+    command = {
 
-      # prettify
-      mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
-             origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
-             grazing = factor(grazing, levels = c("C", "M", "I", "N")),
-             grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
-             warming = recode(warming, "A" = "Ambient", "W" = "Warming"),
-             # make grazing numeric
-             grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = NA_character_),
-             grazing_num = as.numeric(grazing_num)) |>
+      # replace height values of 0 with average from previous year
+      height_estimation <- height_raw |>
+        filter(vegetation_layer == "Vascular plant layer") |>
+        filter(turfID %in% c("133 WN4C 186", "33 AN10I 33", "35 AN10C 35", "70 AN9C 70")) |>
+        filter(height > 0) |>
+        group_by(turfID) |>
+        summarise(height_est = mean(height),
+                  year = 2022,
+                  vegetation_layer = "Vascular plant layer")
 
-      # take average cover of 3 control plots
-      group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, grazing_num, vegetation_layer) |>
-      summarise(height = mean(height)) |>
-      ungroup() |>
-      pivot_wider(names_from = year, values_from = height) |>
-      # Fun groups that do not exist in one year => 0
-      # calculate difference between years
-      mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
-             `2022` = if_else(is.na(`2022`), 0, `2022`),
-             delta = `2022` - `2019`) |>
-      ungroup()
+      height_raw %>%
+        # first and last year
+        filter(year %in% c(2019, 2022)) |>
+        # add meta data
+        left_join(metaTurfID, by = "turfID") |>
+        # remove 150 kg N
+        filter(Namount_kg_ha_y != 150) |>
+
+        # prettify
+        mutate(origSiteID = recode(origSiteID, "Liahovden" = "Alpine", "Joasete" = "Sub-alpine"),
+               origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
+               grazing = factor(grazing, levels = c("C", "M", "I", "N")),
+               grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
+               warming = recode(warming, "A" = "Ambient", "W" = "Warming"),
+               # make grazing numeric
+               grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = NA_character_),
+               grazing_num = as.numeric(grazing_num)) |>
+        # replace 0 heights
+        left_join(height_estimation, by = c("turfID", "year", "vegetation_layer")) |>
+        mutate(height = if_else(!is.na(height_est), height_est, height)) |>
+        select(-height_est) |>
+
+        # take average cover of 3 control plots
+        group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, grazing_num, vegetation_layer) |>
+        summarise(height = mean(height)) |>
+        ungroup() |>
+        pivot_wider(names_from = year, values_from = height) |>
+        # Fun groups that do not exist in one year => 0
+        # calculate difference between years
+        mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
+               `2022` = if_else(is.na(`2022`), 0, `2022`),
+               delta = `2022` - `2019`) |>
+        ungroup()
+
+    }
+
   ),
 
-  # community structure
-  tar_target(
-    name = comm_structure,
-    command = community_structure_raw  |>
-      # first and last year and relevant groups
-      filter(year %in% c(2019, 2022),
-             !functional_group %in% c("Wool", "Poop", "SumofCover")) |>
-
-      # prettify
-      mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
-             origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")),
-             grazing = factor(grazing, levels = c("C", "M", "I", "N")),
-             grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
-             warming = recode(warming, "A" = "Ambient", "W" = "Warming"),
-             # make grazing numeric
-             grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = NA_character_),
-             grazing_num = as.numeric(grazing_num)) |>
-
-      # add Namount variable
-      left_join(metaTurfID %>%
-                  distinct(Nlevel, Namount_kg_ha_y), by = "Nlevel") |>
-
-      # log transform Nitrogen
-      mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
-
-      # take average cover of 3 control plots
-      group_by(year, origSiteID, destSiteID, warming, grazing, Nitrogen_log, Namount_kg_ha_y, grazing_num, functional_group) |>
-      summarise(cover = mean(cover)) |>
-      ungroup() |>
-      pivot_wider(names_from = year, values_from = cover) |>
-      # Fun groups that do not exist in one year => 0
-      # calculate difference between years
-      mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
-             `2022` = if_else(is.na(`2022`), 0, `2022`),
-             delta = `2022` - `2019`)
-  ),
 
   # diversity
   tar_target(
-    name = diversity,
-    command = cover %>%
-      group_by(origSiteID, year, warming, grazing, grazing_num, Namount_kg_ha_y, Nitrogen_log) %>%
-      summarise(richness = n(),
-                diversity = diversity(cover),
-                evenness = diversity/log(richness)) %>%
-      pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
+    name = biomass_div,
+    command = {
 
-      # average for 0 kg N treatment
-      ungroup() |>
-      group_by(origSiteID, year, warming, grazing, grazing_num, Namount_kg_ha_y, Nitrogen_log, diversity_index) |>
-      summarise(value = mean(value)) |>
-      pivot_wider(names_from = year, values_from = value) %>%
-      mutate(delta = `2022` - `2019`) |>
-      # make grazing numeric
-      mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
-             grazing_num = as.numeric(grazing_num)) |>
-      ungroup()
+      # get change in diversity (delta) and log ratio
+      dat <- cover_total %>%
+        ungroup() |>
+        group_by(origSiteID, year, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log) %>%
+        summarise(richness = n(),
+                  diversity = diversity(cover),
+                  evenness = diversity/log(richness)) %>%
+        pivot_longer(cols = c(richness, diversity, evenness), names_to = "diversity_index", values_to = "value") |>
+        pivot_wider(names_from = year, values_from = value) %>%
+        mutate(delta = `2022` - `2019`,
+               log_ratio = log(`2022`/`2019`),
+               final = `2022`) |>
+        select(-c(`2019`, `2022`)) |>
+        ungroup() |>
+        pivot_wider(names_from = diversity_index, values_from = c(delta, log_ratio, final)) |>
+        # add standing biomass
+        left_join(standing_biomass_back |>
+                    pivot_wider(names_from = year, values_from = standing_biomass) |>
+                    mutate(delta_bio = `2022` - `2019`,
+                           log_ratio_bio = log(`2022`/`2019`),
+                           final_bio = `2022`) |>
+                    select(-c(`2019`, `2022`)),
+                  by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log')) |>
+        mutate(grazing_num = as.numeric(recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = "2")),
+               grazing = factor(grazing, levels = c("Control", "Medium", "Intensive", "Natural")),
+               origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")))
+
+    }
+
   ),
 
-  # productivity and diversity
+  # ### bootstrapping traits
+  #
+  # # trait impute
+  # tar_target(
+  #   name = trait_impute,
+  #   command = make_trait_impute(cover_total, trait_raw, ellenberg)
+  # ),
+  #
+  # # trait impute
+  # tar_target(
+  #   name = trait_mean,
+  #   command = make_bootstrapping(trait_impute)
+  # ),
+
+
+  ### ELLENBERG VALUES
   tar_target(
-    name = biomass_diversity,
-    command = diversity |>
-    filter(grazing != "Natural") |>
-    left_join(standing_biomass |>
-                filter(fun_group != "litter") |>
-                ungroup() |>
-                group_by(origSiteID, destSiteID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num) |>
-                summarise(biomass = sum(biomass)),
-              by = c('origSiteID', "grazing", "grazing_num", 'warming', 'Namount_kg_ha_y', 'Nitrogen_log'))
+    name = ellenberg,
+    command = {
+
+      ellenberg_raw |>
+        clean_names() |>
+        rename(seq_id = x1, species = x2) |>
+        slice(-1) |>
+        mutate(species = str_replace(species, " aggr.", ""),
+               species = case_when(species == "Gnaphalium supinum" ~ "Omalotheca supina",
+                                   TRUE ~ species)) |>
+        mutate(across(c(light, temperature, moisture, reaction, nutrients, salinity), as.numeric))
+
+    }
   )
 
 )
