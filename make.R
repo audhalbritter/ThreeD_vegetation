@@ -22,9 +22,10 @@ trackdown::upload_file(file = "test_file.qmd",
 ggsave("output/Fig2_sem_fig.png", sem_fig, dpi = 300, height = 4, width = 10)
 ggsave("output/Fig3_biomass_div.png", standingB_div_figure, dpi = 300, height = 6, width = 6)
 ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6, width = 6)
+ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6, width = 6)
 
 
 ggsave("output/FigSx_origin.png", SEM_origin_fig, dpi = 300, height = 8, width = 10)
 ggsave("output/FigSx_div.png", SEM_diversity_fig, dpi = 300, height = 8, width = 10)
 
-ggsave("output/consumption.png", productivity_consumption_figure, dpi = 300, height = 4, width = 8)
+ggsave("output/joint_trait_figure.png", joint_trait_figure, dpi = 300, height = 8, width = 10)
