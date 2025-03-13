@@ -1,6 +1,6 @@
 # trait bootstrapping functions
 
-make_trait_impute <- function(cover_total, trait_raw){
+make_trait_impute <- function(cover_total, trait_raw, ellenberg){
 
   #prepare community data
   comm <- cover_total |>
@@ -8,6 +8,14 @@ make_trait_impute <- function(cover_total, trait_raw){
     filter(year == 2022,
            grazing %in% c("Control", "Natural"),
            Nlevel %in% c(1, 2, 3, 6, 7, 8)) |>
+
+    # fix species names so it matches ellenberg values
+    mutate(species = str_replace(species, " cf", ""),
+           species = case_when(species == "Betula pubescence" ~ "Betula pubescens",
+                               species == "Salix herbaceae" ~ "Salix herbacea",
+                               species == "Trientalis europea" ~ "Trientalis europaea",
+                               species == "Oxytropa laponica" ~ "Oxytropis lapponica",
+                               TRUE ~ species)) |>
 
     # prettify and order factors
     mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
@@ -32,10 +40,11 @@ make_trait_impute <- function(cover_total, trait_raw){
     tidylog::filter(!is.na(treatment))
 
 
+
   #prepare trait data
   trait <- trait_raw |>
     tidylog::filter(siteID != "Hogsete",
-                    !c(siteID == "Vikesland" & gradient == "gradient")) |>
+                    !(siteID == "Vikesland" & gradient == "gradient") | is.na(gradient)) |>
     select(-gradient) |>
 
     # remove missing treatment (3 leaves)
@@ -48,6 +57,14 @@ make_trait_impute <- function(cover_total, trait_raw){
     mutate(species = case_when(str_detect(species, "Antennaria") ~ "Antennaria sp",
                                str_detect(species, "Pyrola") ~ "Pyrola sp",
                                TRUE ~ species)) |>
+    # fix species names to match ellenberg values
+    mutate(species = str_replace(species, " cf", ""),
+           species = case_when(species == "Betula pubescence" ~ "Betula pubescens",
+                               species == "Salix herbaceae" ~ "Salix herbacea",
+                               species == "Trientalis europea" ~ "Trientalis europaea",
+                               species == "Oxytropa laponica" ~ "Oxytropis lapponica",
+                               TRUE ~ species)) |>
+
     # log transform size traits
     mutate(
       value_trans = if_else(
@@ -96,6 +113,14 @@ make_trait_impute <- function(cover_total, trait_raw){
            blockID = as.numeric(blockID)) |>
     # remove 27 accidental some observations with warm, grazing and N5
     filter(!is.na(treatment)) |>
+
+    pivot_wider(names_from = trait, values_from = value) |>
+    # add ellenberg values
+    tidylog::left_join(ellenberg, by = "species") |>
+    pivot_longer(cols = c(plant_height_cm:sla_cm2_g, light:salinity),
+                 names_to = "trait",
+                 values_to = "value") |>
+
     select(siteID, blockID, turfID, warming, grazing, Nlevel, Namount_kg_ha_y, treatment, species, trait_trans, value_trans, origSiteID, destSiteID)
 
   #set seed for bootstrapping repeatability
@@ -120,44 +145,47 @@ make_trait_impute <- function(cover_total, trait_raw){
 
 fancy_trait_name_dictionary <- function(dat){
 
-  dat <- dat %>%
-    mutate(trait_fancy = recode(trait_trans,
-                                plant_height_cm_log = "Height cm",
-                                dry_mass_g_log = "Dry mass g",
-                                leaf_area_cm2_log = "Area cm2",
-                                leaf_thickness_mm_log = "Thickness mm",
-                                ldmc = "LDMC g/g",
-                                sla_cm2_g = "SLA cm2/g",
-                                N_percent = "N %",
-                                NP_ratio = "NP",
-                                P_percent = "P %",
-                                C_percent = "C %",
-                                CN_ratio = "CN",
-                                dC13_permil = "δC13 ‰",
-                                dN15_permil = "δN15 ‰")) |>
+  dat %>%
+    mutate(trait_fancy = case_match(trait_trans,
+                                    "plant_height_cm_log" ~ "Height cm",
+                                    "dry_mass_g_log" ~ "Dry mass g",
+                                    "leaf_area_cm2_log" ~ "Area cm2",
+                                    "leaf_thickness_mm_log" ~ "Thickness mm",
+                                    "ldmc" ~ "LDMC g/g",
+                                    "sla_cm2_g" ~ "SLA cm2/g",
+                                    "light" ~ "Light",
+                                    "temperature" ~ "Temperature",
+                                    "nutrients" ~ "Nutrients",
+                                    "moisture" ~ "Moisture",
+                                    "salinity" ~ "Salinity",
+                                    "reaction" ~ "Reaction")) |>
     mutate(figure_names = case_match(trait_trans,
                                      "plant_height_cm_log" ~ "Plant~height~(cm)",
                                      "dry_mass_g_log" ~ "Leaf~dry~mass~(g)",
                                      "leaf_area_cm2_log" ~ "Leaf~area~(cm^2)",
                                      "leaf_thickness_mm_log" ~ "Leaf~thickness~(mm)",
                                      "ldmc" ~ "LDMC~(gg^{-1})",
-                                     "sla_cm2_g" ~ "SLA~(cm^2*g^{-1})")) |>
+                                     "sla_cm2_g" ~ "SLA~(cm^2*g^{-1})",
+                                     "light" ~ "Light",
+                                     "temperature" ~ "Temperature",
+                                     "nutrients" ~ "Nutrients",
+                                     "moisture" ~ "Moisture",
+                                     "salinity" ~ "Salinity",
+                                     "reaction" ~ "Reaction")) |>
     mutate(figure_names = factor(figure_names,
-                                 levels = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})"))) |>
-    # "C_percent" ~ "C~('%')",
-    # "N_percent" ~ "N~('%')",
-    # "CN_ratio" ~ "CN",
-    # "P_percent" ~ "P~('%')",
-    # "NP_ratio" ~ "NP",
-    # "dC13_permil" ~ "δ^{13}~C~'(‰)'",
-    # "dN15_permil" ~ "δ^{15}~N~'(‰)'"))
-    # add class
-    mutate(class = case_when(trait_trans %in% c("plant_height_cm_log", "dry_mass_g_log", "leaf_area_cm2_log", "leaf_thickness_mm_log") ~ "Size",
-                             trait_trans %in% c("dC13_permil", "dN15_permil") ~ "Isotopes",
-                             TRUE ~ "Leaf economics"),
-           class = factor(class, levels = c("Size", "Leaf economics", "Isotopes")))
+                                 levels = c("Plant~height~(cm)",
+                                            "Leaf~dry~mass~(g)",
+                                            "Leaf~area~(cm^2)",
+                                            "Leaf~thickness~(mm)",
+                                            "SLA~(cm^2*g^{-1})",
+                                            "LDMC~(gg^{-1})",
+                                            "Light",
+                                            "Temperature",
+                                            "Nutrients",
+                                            "Moisture",
+                                            "Salinity",
+                                            "Reaction")))
 
-  return(dat)
 }
 
 
@@ -168,10 +196,8 @@ make_bootstrapping <- function(trait_impute){
 
   trait_mean <- trait_summarise_boot_moments(CWM) |>
     ungroup() |>
-    select(-global, -n) %>%
-    fancy_trait_name_dictionary(.) |>
-    # order traits
-    mutate(trait_trans = factor(trait_trans, levels = c("plant_height_cm_log", "dry_mass_g_log", "leaf_area_cm2_log", "leaf_thickness_mm_log", "ldmc", "sla_cm2_g")))
+    select(-global, -n) |>
+    fancy_trait_name_dictionary()
 
   trait_mean
 
