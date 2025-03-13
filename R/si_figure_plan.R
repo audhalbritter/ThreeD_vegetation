@@ -81,87 +81,6 @@ si_figure_plan <- list(
     }
   ),
 
-  ### BIOMASS
-  # standing biomass and drivers
-  tar_target(
-    name = bio_figure,
-    command = {
-
-      biomass_text <- biomass_anova_table |>
-        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
-                                        p.value >= 0.07 ~ "non-sign",
-                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
-                                        TRUE ~ "sign")) |>
-        # BY HAND CODE!!!
-        filter(significance %in% c("sign", "marginal")) |>
-        distinct(origSiteID, term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "G", "WxN", "WxG", "GxN", "WxGxN"))) |>
-        group_by(origSiteID, significance)
-
-      make_vegetation_figure(dat1 = biomass_output |>
-                                                 unnest(data) |>
-                                                 mutate(biomass = "biomass"),
-                                               x_axis = Nitrogen_log,
-                                               yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                               colourpalette = col_palette,
-                                               linetypepalette = c("solid", "dashed", "dotted"),
-                                               shapepalette = c(16, 0, 2),
-                                               facet_2 = "biomass",
-                                               dat2 = biomass_prediction) +
-        # add stats
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(1), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 1.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(2), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 3, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(3), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 4.6, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(4), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 6.2, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "marginal"),
-                              by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 6.2, label = term),
-                  size = 3, colour = "grey") +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(5), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 7.8, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    left_join(biomass_text |>
-                                filter(significance == "sign") |>
-                                slice(6), by = "origSiteID"),
-                  aes(x = -Inf, y = Inf, hjust = 0, vjust = 9.4, label = term),
-                  size = 3, colour = text_colour)
-    }
-  ),
-
-
 
   # needed?
   tar_target(
@@ -270,33 +189,6 @@ si_figure_plan <- list(
         guides(linetype = FALSE) +
         labs(x = "Cover x height",
              y = bquote(Estimated~standing~biomass~(g~m^-2))) +
-        theme_bw()
-
-    }
-  ),
-
-  tar_target(
-    name = trait_fig,
-    command = {
-
-      dat <- trait_mean |>
-        # join biomass data
-        tidylog::left_join(standing_biomass_back,
-                  by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log')) |>
-        filter(trait_trans == "sla_cm2_g")
-
-      fit <- lm(mean ~ standing_biomass, data = dat)
-      summary(fit)
-
-      dat |>
-        ggplot(aes(x = standing_biomass, y = mean,
-                   colour = warming,
-                   shape = grazing,
-                   size = Namount_kg_ha_y)) +
-        geom_jitter() +
-        scale_colour_manual(name = "Warming", values = col_palette) +
-        labs(x = "Standing biomass",
-             y = "Community weighted SLA") +
         theme_bw()
 
     }
