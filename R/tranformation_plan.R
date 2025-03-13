@@ -137,7 +137,7 @@ tranformation_plan <- list(
                              filter(grazing == "Control"))
   ),
 
-  # run speparate models for first and last year
+  # run separate models for first and last year
   # including a correction for nitrogen in 2022
   tar_target(
     name = SB_back_model_22,
@@ -391,24 +391,43 @@ tranformation_plan <- list(
                     select(-c(`2019`, `2022`)),
                   by = c('origSiteID', 'warming', "grazing", "Nlevel", 'Namount_kg_ha_y', 'Nitrogen_log')) |>
         mutate(grazing_num = as.numeric(recode(grazing, Control = "0", Medium = "2", Intensive  = "4", Natural = "2")),
+               grazing = factor(grazing, levels = c("Control", "Medium", "Intensive", "Natural")),
                origSiteID = factor(origSiteID, levels = c("Alpine", "Sub-alpine")))
 
     }
 
   ),
 
-  ### bootstrapping traits
+  # ### bootstrapping traits
+  #
+  # # trait impute
+  # tar_target(
+  #   name = trait_impute,
+  #   command = make_trait_impute(cover_total, trait_raw, ellenberg)
+  # ),
+  #
+  # # trait impute
+  # tar_target(
+  #   name = trait_mean,
+  #   command = make_bootstrapping(trait_impute)
+  # ),
 
-  # trait impute
-  tar_target(
-    name = trait_impute,
-    command = make_trait_impute(cover_total, trait_raw)
-  ),
 
-  # trait impute
+  ### ELLENBERG VALUES
   tar_target(
-    name = trait_mean,
-    command = make_bootstrapping(trait_impute)
+    name = ellenberg,
+    command = {
+
+      ellenberg_raw |>
+        clean_names() |>
+        rename(seq_id = x1, species = x2) |>
+        slice(-1) |>
+        mutate(species = str_replace(species, " aggr.", ""),
+               species = case_when(species == "Gnaphalium supinum" ~ "Omalotheca supina",
+                                   TRUE ~ species)) |>
+        mutate(across(c(light, temperature, moisture, reaction, nutrients, salinity), as.numeric))
+
+    }
   )
 
 )
