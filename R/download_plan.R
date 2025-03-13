@@ -99,6 +99,18 @@ download_plan <- list(
   ),
 
 
+  # ellenberg values
+  tar_target(
+    name = ellenberg_download,
+    command =  {
+      url <- "https://zenodo.org/records/7427088/files/Indicator.values-tables-2022-11-07-Zenodo.v2.xlsx?download=1"
+      destfile <- "data/ellenberg.xlsx"  # Local file name
+      download.file(url, destfile, mode = "wb")
+      # print path to file
+      destfile
+    },
+    format = "file"
+  ),
 
   # import and transform in data
   # climate
@@ -156,6 +168,13 @@ download_plan <- list(
   tar_target(
     name = trait_raw,
     command = read_delim(file = trait_download, delim = ",")
+  ),
+
+  # traits
+  tar_target(
+    name = ellenberg_raw,
+    command = read_xlsx(path = ellenberg_download,
+                        sheet = "Tab-IVs-Tichy-et-al2023")
   )
 
 )
