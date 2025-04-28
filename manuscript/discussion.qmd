@@ -1,0 +1,39 @@
+---
+title: "Discussion"
+format: html
+editor: visual
+---
+
+## Discussion
+
+## Acknowledgements
+
+We thank Sigurd Vikesland for sparking the idea for this experiment, and all the landowners for permission to use their land for this study. We thank Silje Östmann, Susanne Berthelsen, Linn Voldstad, Ingrid Dahle, Ragnhild Gya for helping with recording species composition, Dagmar Egelkraut and Linn Cecilie Krüger for experimental and site maintenance, and numerous students and friends including Elia Betschen, Leire Campos, Mary Chatzitriantafillou, Manon Denis, Mari Dybwad, Julie Eriksen, Joseph Gaudard, Regine Romain Goury, Gulbrandsen, Ragnhild Gya, Marie Hoensbroech, Jana Kovacic, Michaela Lebedova, Elisa Lehmann, Emma Little, Josh S. Lynn, Frida Merkesvik, Silvia Montagnani, Kevin Rechsteiner, Jana Rüthers, Christina Perez Sanchez, Christian Stømme, Eliska Suchoparova, Agnieszka Tokarczyk, Joachim Töpper, Alexander Vågenes, Camilla Zernichow, and Vincent Zimmermann for helping transplanting turfs and pretending to be grazers by clipping and then sorting plants. This study was supported by the Norwegian Research Council (Grant 287801).
+
+## Competing interest
+
+The authors declare that they have no competing interests.
+
+## Data availability
+
+All data underlying these analyses (including raw and processed data) are openly available on the Open Science Framework (OSF) repository[(63)](https://paperpile.com/c/KKq9O1/AhYc). 
+
+## Code availability
+
+All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub[(64)](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hopefully) fully reproducible by using a target pipeline[(65)](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv[(66)](https://paperpile.com/c/KKq9O1/L148). Please fork the GitHub repo and reproduce the analyses and manuscript. Feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
+
+## Author contributions
+
+We follow the CreDiT taxonomy[(67)](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).
+
+\\
+
+\## Code availability
+
+All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub\[(64)\](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hopefully) fully reproducible by using a target pipeline\[(65)\](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv\[(66)\](https://paperpile.com/c/KKq9O1/L148). Please feel free to fork the GitHub repo and reproduce the analyses and manuscript and feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
+
+\\
+
+\## Author contributions
+
+We follow the CreDiT taxonomy\[(67)\](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).

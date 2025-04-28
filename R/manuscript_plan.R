@@ -3,10 +3,10 @@ manuscript_plan <- list(
 
   # manuscript
   tar_quarto(name = manuscript,
-             path = "Main.qmd"),
+             path = "manuscript/main_manuscript.qmd"),
 
   # SI
   tar_quarto(name = si,
-             path = "SI.qmd")
+             path = "manuscript/SI.qmd")
 
 )

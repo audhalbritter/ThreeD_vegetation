@@ -1,5 +1,9 @@
+---
+editor: visual
+---
+
 ```{r}
-#| label: set-up
+#| label: set-up-res
 #| echo: false
 #| message: false
 library(targets)
@@ -12,8 +16,6 @@ library(piecewiseSEM)
 library(patchwork)
 library(ggpubr)
 
-tar_load(all_data, store = here::here(tar_config_get("store")))
-
 ```
 
 # Results
@@ -24,7 +26,7 @@ tar_load(all_data, store = here::here(tar_config_get("store")))
 #| label: mean-bio
 #| echo: false
 
-tar_load(biomass_div)
+tar_load(biomass_div, store = here::here(tar_config_get("store")))
 
 bio <- biomass_div |> 
   group_by(origSiteID) |> 
@@ -38,11 +40,11 @@ div <- biomass_div |>
 
 ```
 
-Standing biomass was significantly higher at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) compared to the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^; @fig-1-biomass-diversity a). Warming and nitrogen addition increases standing biomass at both sites. Clipping reduces standing biomass and more so with warming (WxC interaction).
+Standing biomass twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) compared to the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^; @fig-1-biomass-diversity a). Warming and nitrogen addition increased standing biomass significantly at both sites. Clipping reduces standing biomass and more so with warming (WxC interaction).
 
-At the alpine site, standing biomass increases more with warming and nitrogen addition (WxN; @fig-1-biomass-diversity b). Cutting decreased standing biomass and more so with warming (WxC) and with nitrogen addition (NxC). At the sub-alpine site, standing biomass increased with warming and nitrogen addition, and decreased with cutting.
+When doing the analysis separately for each sites, standing biomass increased more with warming and nitrogen addition at the alpine site (WxN; @fig-1-biomass-diversity b). Clipping decreased standing biomass and more so with warming (WxC) and with nitrogen addition (NxC). At the sub-alpine site, standing biomass increased with warming and nitrogen addition, and decreased with cutting, but there were no interactive effects.
 
-Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) compared to the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`) and decreased with nitrogen addition, in particular at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity c). When splitting the analysis by origin site, both warming and nitrogen addition decrease diversity at both sites (@fig-1-biomass-diversity d). At the alpine site, cutting also mitigates the negative effects of warming and nitrogen addition on diversity (three-way interaction: WxNxC).
+Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) compared to the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`) and decreased with nitrogen addition, in particular at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity c). When splitting the analysis by origin site, nitrogen addition decrease diversity at both sites (@fig-1-biomass-diversity d). Warming increases diversity at low nitrogen levels in the alpine site and decreases at nitrogen levels above 25 kg N ha^-1^ y^-1^. At the sub-alpine site, warming has a negative effect on the diversity irrespective of the nitrogen levels. At the alpine site, cutting can also mitigate the negative effects of warming and nitrogen addition on diversity (three-way interaction: WxNxC).
 
 ```{r}
 #| label: fig-1-biomass-diversity
@@ -51,26 +53,45 @@ Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$
 #| warning: false
 #| fig-width: 8
 #| fig-height: 12
-#| fig-cap: Standing biomass (g m^-2^) (a), Shannon diversity (b), and Shannon diversity by origin site (c) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) communities. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, WxC = interaction). 
+#| fig-cap: Standing biomass (g m^-2^) (a), standing biomass analysed separately by site (b), Shannon diversity (c), and Shannon diversity analysed separately by origin site (d) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions).
 
-tar_read(bio_div_figure)
+tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-### Including biomass in the analysis
+### Does including standing biomass improve the model?
 
-Do we need to include biomass and or interactions in the model?
+The best model describing the effect on diversity includes biomass and the main effects of the three drivers. For the sub-alpine site, the best model includes only main effect and not biomass.
 
 ```{r}
 #| label: var-explained
 #| echo: false
 
-tar_load(biomass_div)
+tar_load(biomass_div, store = here::here(tar_config_get("store")))
 
-alp <- biomass_div |> 
-  filter(origSiteID == "Alpine")
+all <- biomass_div |> 
+  nest() |>
+  mutate(bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
+         main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
+         biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
+         interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
+         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .)),
+         biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))) |>
+  mutate(bio = map(bio, glance),
+         main = map(main, glance),
+         biomain = map(biomain, glance),
+         interaction = map(interaction, glance),
+         full = map(full, glance),
+         biofull = map(biofull, glance)) |>
+  rename(biomass = bio, "main effects" = main, "biomass + main effects" = biomain, "interactions only" = interaction, "main effects + interactions" = full, "biomass + main + interactions" = biofull) |> 
+  # make long table
+        pivot_longer(cols = -c(data),
+                     names_to = "model",
+                     values_to = "glance") |> 
+  mutate(origSiteID = "Both")
 
-biomass_div |> 
+
+site <- biomass_div |> 
   group_by(origSiteID) |>
   nest() |>
   mutate(bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
@@ -89,7 +110,8 @@ biomass_div |>
   # make long table
         pivot_longer(cols = -c(origSiteID, data),
                      names_to = "model",
-                     values_to = "glance") |> 
+                     values_to = "glance")
+bind_rows(all, site) |> 
   unnest(glance) |> 
   select(origSiteID, model, r.squared, adj.r.squared, AIC) |> 
   mutate(r.squared = round(r.squared, 2),
@@ -101,19 +123,17 @@ biomass_div |>
 
 ### Does global change operate through the same mechanisms?
 
-Warming and nitrogen addition had the expected positive effect while cutting had a negative effect on standing biomass. Only at the alpine site operated these global change drivers through biomass to affect diversity. Warming and nitrogen addition had a direct negative effect on diversity at the sub-alpine site. Interestingly, in the alpine site, warming had a direct positive effect on diversity.
+We expected warming, nitrogen addition and clipping to operate through the same mechanisms, namely standing biomass to affect diversity (H1). Warming and nitrogen addition had the expected positive effect while cutting had a negative effect on standing biomass (@fig-cut-final-diversity c and d). However, only at the alpine site affected the three global change drivers diversity through standing biomass. Increasing standing biomass resulted in a negative net effect on diversity. At the sub-alpine site, the three drivers had the same effect on standing biomass, but this did not indirectly affect diversity. Warming and nitrogen addition had however a direct negative effect on diversity. Interestingly, warming had a direct positive effect on diversity at the alpine site.
 
 <!-- This is describing panel a and b which we maybe do not want to show? -->
 
-Warming, nitrogen addition and cutting affect change in Shannon diversity indirectly through change in biomass when comparing across the two sites. Warming and nitrogen addition have a positive effect and cutting a negative on biomass, with a negative net effect on diversity. Warming also has a direct negative effect on diversity.
+Warming, nitrogen addition and cutting affect change in Shannon diversity indirectly through change in biomass when comparing across the two sites (@fig-cut-final-diversity a). Warming and nitrogen addition have a positive effect and cutting a negative on biomass, with a negative net effect on diversity. Warming also has a direct negative effect on diversity.
 
-When including origin site of the plant communities (site) in the model, the the indirect effect through change in biomass weakens (only a trend). Site strongly affects change in biomass and diversity. The effects of the drivers on change in biomass stay similar and nitrogen addition also has a direct negative effect on diversity.
+When including origin site of the plant communities (site) in the model, the the indirect effect through change in biomass weakens (only a trend; @fig-cut-final-diversity b). Site strongly affects change in biomass and diversity. The effects of the drivers on change in biomass stay similar and nitrogen addition also has a direct negative effect on diversity.
 
-The patterns are the same for species richness and evenness, with the exception that warming does not affect evenness directly in the sub-alpine site, but cutting does.
+The patterns are the same for species richness and evenness, with some exceptions at the sub-alpine site. Nitrogen addition has only a negative direct trend on species richness Warming does not affect evenness directly in the sub-alpine site, but cutting has a direct negative effect on evenness.
 
-<!-- Needs checking: We see same patterns for grazing. -->
-
-<!-- One exception is that the warming has a much smaller effect on change in biomass at the sub-alpine site. -->
+Grazing shows similar patterns as clipping, but the three drivers do not affect any diversity index indirectly via biomass (although the effect size is large). In addition, warming does not affec biomass at the sub-alpine site.
 
 So, why does the increase in biomass not affect diversity at the sub-alpine site?
 
@@ -127,158 +147,34 @@ So, why does the increase in biomass not affect diversity at the sub-alpine site
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_final_diversity)
+tar_load(cut_final_diversity, store = here::here(tar_config_get("store")))
 
 cut_final_diversity[[1]]
 
 ```
 
-```{r}
-#| label: tbl-cut-final-stats
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 10
-#| tbl-cap: Stats from SEM
-
-cut_final_diversity[[2]] |> 
-  select(Type:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
-  mutate(Std.Estimate = round(Std.Estimate, 2),
-           Std.Error = round(Std.Error, 2),
-           P.Value = if_else(P.Value <= 0.001, "≤ 0.001", as.character(round(P.Value, 3)))) |> 
-  group_by(Type) |> 
-  gt() |> 
-  tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
-        rows = P.Value <= 0.05
-      )) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
-    )
-
-```
-
-### Biomass and diversity relationship
-
-The relationship between biomass and Shannon diversity (i.e. log ratios) was negative (*P* = 0.087). This relationship was stronger in the sub-alpine site compared to the alpine site.
-
-```{r}
-#| label: fig-bio-div
-#| echo: false
-#| warning: false
-#| fig-height: 7.5
-#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
-
-tar_read(standingB_div_final_figure)
-
-```
-
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
-
-tar_load(standingB_div_final_model)
-
-tidy(standingB_div_final_model) |>
-  mutate(term = case_match(term,
-                           "(Intercept)" ~ "Intercept",
-                           "log(final_bio)" ~ "Log(Biomass)",
-                           "origSiteIDSub-alpine" ~ "Origin",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xOrigin")) |>  
-  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
-  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
-
-```
-
 ### Dive into the mechanisms: who is winning and losing?
-
-```{r}
-#| label: tbl-winlos-sp
-#| echo: false
-#| message: false
-#| tbl-cap: Species in each group and origin site.
-
-tar_load(cover_wl)
-
-cover_wl |> 
-  group_by(origSiteID, status) |> 
-  filter(warming == "Warming",
-         status != "stable") |> 
-  count(species) |> 
-  arrange(origSiteID, status, -n) |> 
-  filter(n > 9) |> 
-  group_by(status) |> 
-  gt()
-
-```
 
 **Question:** Do winners and losers have different traits?
 
-Traits are only available for ungrazed and grazed plots and some nitrogen addition levels. Using `trait_fill` to fill in the missing traits to the treatments. E.g. cutting treatments receive the grazing treatment traits. Missing nitrogen levels get traits from closest nitrogen level below.
+At the alpine site, with warming warm and moisture demanding species are lost (does not make sense!). 
+With nitrogen addition, cold demanding species are lost. 
+And with warming and nitrogen addition, light demanding and nutrient demanding (?) species are lost.
 
-**CWM:** community weighted trait mean calculated for the whole community (using bootstrapping method) and for each status.
+With warming, shorter species, light demanding, and nutrient poor demanding species are increasing in cover.
+With increasing nitrogen addition, taller, shade tolerant, and warm demanding species are increasing in cover.
+The combination of warming and nitrogen addition, increases cover of cold species.
+WxCxN for moisture?
+With warming, shorter plants and warm loving species win.
+With nitrogen addition taller plants win, but less so when the vegetation is cut.
 
-**Idea / Hypotheses:**
+At the sub-alpine site, moisture demanding species are lost.
+Warming and nitrogen addition, increase the loss of cold adapted species.
+WxC?
+With increasing nitrogen addition, taller (?), cold adapted and nutrient poor demanding plants are decreasing in cover.
+Warming increases the cover of shorter plants, while nitrogen addition increases the cover of taller plants.
+Grazing can to some extent mitigate this at lower levels of nitrogen addition.
+Warming increases the cover of light demanding species (?), but less so with cutting (?). 
 
--   We expect trait responses to the global change drivers to differ at the alpine and sub-alpine sites.
 
--   Winners and losers have different traits, e.g. losers are smaller or have more conservative traits, while winners are taller and have resource aquisitative traits.
-
-```{r}
-#| label: fig-joint-traits
-#| echo: false
-#| message: false
-#| fig-height: 10
-#| fig-cap: Community weighted traits for different species.
-
-knitr::include_graphics("output/joint_trait_figure.png")
-
-```
-
-## Discussion
-
-## Acknowledgements
-
-We thank Sigurd Vikesland for sparking the idea for this experiment, and all the landowners for permission to use their land for this study. We thank Silje Östmann, Susanne Berthelsen, Linn Voldstad, Ingrid Dahle, Ragnhild Gya for helping with recording species composition, Dagmar Egelkraut and Linn Cecilie Krüger for experimental and site maintenance, and numerous students and friends including Elia Betschen, Leire Campos, Mary Chatzitriantafillou, Manon Denis, Mari Dybwad, Julie Eriksen, Joseph Gaudard, Regine Romain Goury, Gulbrandsen, Ragnhild Gya, Marie Hoensbroech, Jana Kovacic, Michaela Lebedova, Elisa Lehmann, Emma Little, Josh S. Lynn, Frida Merkesvik, Silvia Montagnani, Kevin Rechsteiner, Jana Rüthers, Christina Perez Sanchez, Christian Stømme, Eliska Suchoparova, Agnieszka Tokarczyk, Joachim Töpper, Alexander Vågenes, Camilla Zernichow, and Vincent Zimmermann for helping transplanting turfs and pretending to be grazers by clipping and then sorting plants. This study was supported by the Norwegian Research Council (Grant 287801).
-
-## Competing interest
-
-The authors declare that they have no competing interests.
-
-\
-
-## Data availability
-
-All data underlying these analyses (including raw and processed data) are openly available on the Open Science Framework (OSF) repository[(63)](https://paperpile.com/c/KKq9O1/AhYc). 
-
-\
-
-## Code availability
-
-All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub[(64)](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hopefully) fully reproducible by using a target pipeline[(65)](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv[(66)](https://paperpile.com/c/KKq9O1/L148). Please feel free to fork the GitHub repo and reproduce the analyses and manuscript and feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
-
-\
-
-## Author contributions
-
-We follow the CreDiT taxonomy[(67)](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).
-
-## Supplementary Material
-
-## References
+![Community weighted traits.](figures/Fig3_traits.jpeg){#fig-traits}

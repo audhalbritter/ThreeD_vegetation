@@ -1,0 +1,43 @@
+---
+title: "Global change impacts alpine grasslands throught the same mechanisms"
+author:
+  - name: Aud H. Halbritter
+    orcid: 0000-0001-...
+    email: aud.halbritter@uib.no
+    affiliations:
+      - name: Department of Biological Sciences, University of Bergen 
+        city: Bergen
+        address: Postbox 7803
+        country: Norway
+        postal-code: N-5020
+format:
+  html: 
+    self-contained: false
+#output-file: "ThreeD_paper.docx"
+editor: visual
+abstract: >
+  Alpine biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 
+  Here we tested if these drivers affect alpine biodiversity through the same underlying mechanisms, namely standing biomass. 
+  Over three years, we studied the combined effects of these global change drivers on biomass and diversity of alpine grasslands by transplanting communities to lower elevation (warming), applying nitrogen, and grazing as well as mimicking grazing by clipping. 
+  Results…
+
+keywords:
+  - ...
+  - ...
+  
+bibliography: bibliography.bib
+
+csl: science-advances.csl
+link-citations: true
+
+execute:
+  echo: false
+  error: true
+  out-width: '100%'
+---
+
+{{< include introduction.qmd >}}
+
+{{< include methods.qmd >}}
+
+{{< include SEM_output.qmd >}}
