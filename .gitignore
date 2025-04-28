@@ -69,3 +69,13 @@ Manuscript/google.R
 *.DS_Store
 
 /.quarto/
+
+# ignore other scripts
+other_scripts/
+
+# Ignore the renv library (the actual installed packages)
+renv/library/
+
+# Ignore the renv local caches (renv stores package copies here)
+renv/python/    # if you're using reticulate/renv together
+renv/staging/
