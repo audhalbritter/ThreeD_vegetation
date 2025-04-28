@@ -40,7 +40,7 @@ Standing biomass is estimated from the community data using *sum of cover x vege
 #| warning: false
 #| fig-cap: Relationship between collected and estimated standing biomass in the control plots.
 
-tar_read(standing_biomass_back_fig)
+tar_read(standing_biomass_back_fig, store = here::here(tar_config_get("store")))
 
 ```
 
@@ -51,7 +51,7 @@ tar_read(standing_biomass_back_fig)
 #| warning: false
 #| tbl-cap: Model output for the relationship between estimated and collected standing biomass.
 
-tar_load(standing_biomass_model)
+tar_load(standing_biomass_model, store = here::here(tar_config_get("store")))
 
 
 tidy(standing_biomass_model) |> 
@@ -74,6 +74,45 @@ tidy(standing_biomass_model) |>
 
 ### Biomass diversity relationship
 
+The relationship between biomass and Shannon diversity (i.e. log ratios) was negative (*P* = 0.087). This relationship was stronger in the sub-alpine site compared to the alpine site.
+
+```{r}
+#| label: fig-bio-div
+#| echo: false
+#| warning: false
+#| fig-height: 7.5
+#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
+
+tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
+
+```
+
+```{r}
+#| label: tbl-bio-div
+#| echo: false
+#| warning: false
+#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
+
+tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
+
+tidy(standingB_div_final_model) |>
+  mutate(term = case_match(term,
+                           "(Intercept)" ~ "Intercept",
+                           "log(final_bio)" ~ "Log(Biomass)",
+                           "origSiteIDSub-alpine" ~ "Origin",
+                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xOrigin")) |>  
+  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
+  gt() |> 
+  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
+  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
+
+```
+
 ```{r}
 #| label: fig-bio
 #| echo: false
@@ -81,7 +120,7 @@ tidy(standing_biomass_model) |>
 #| fig-height: 7
 #| fig-cap: Relationship of standing biomass and Shannon diversity.
 
-tar_read(standingB_div_change_figure)
+tar_read(standingB_div_change_figure, store = here::here(tar_config_get("store")))
 
 ```
 
@@ -92,7 +131,7 @@ tar_read(standingB_div_change_figure)
 #| warning: false
 #| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
 
-tar_load(standingB_div_change_model)
+tar_load(standingB_div_change_model, store = here::here(tar_config_get("store")))
 
 tidy(standingB_div_change_model) |>
   mutate(term = case_match(term,
@@ -116,6 +155,43 @@ tidy(standingB_div_change_model) |>
 
 ### Structural equation model
 
+**Stats for final cut diversity**
+
+
+```{r}
+#| label: tbl-cut-final-stats
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| tbl-cap: Stats from SEM
+
+tar_load(cut_final_diversity, store = here::here(tar_config_get("store")))
+
+cut_final_diversity[[2]] |> 
+  select(Type:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
+  mutate(Std.Estimate = round(Std.Estimate, 2),
+           Std.Error = round(Std.Error, 2),
+           P.Value = if_else(P.Value <= 0.001, "≤ 0.001", as.character(round(P.Value, 3)))) |> 
+  group_by(Type) |> 
+  gt() |> 
+  tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        rows = P.Value <= 0.05
+      )) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    )
+
+```
+
 **Cutting - final richness/evenness and biomass**
 
 ```{r}
@@ -126,7 +202,7 @@ tidy(standingB_div_change_model) |>
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_final_richness)
+tar_load(cut_final_richness, store = here::here(tar_config_get("store")))
 
 cut_final_richness[[1]]
 
@@ -140,7 +216,7 @@ cut_final_richness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_final_evenness)
+tar_load(cut_final_evenness, store = here::here(tar_config_get("store")))
 
 cut_final_evenness[[1]]
 
@@ -156,7 +232,7 @@ cut_final_evenness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(graz_final_diversity)
+tar_load(graz_final_diversity, store = here::here(tar_config_get("store")))
 
 graz_final_diversity[[1]]
 
@@ -170,7 +246,7 @@ graz_final_diversity[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on sepcies richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(graz_final_richness)
+tar_load(graz_final_richness, store = here::here(tar_config_get("store")))
 
 graz_final_richness[[1]]
 
@@ -184,7 +260,7 @@ graz_final_richness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(graz_final_evenness)
+tar_load(graz_final_evenness, store = here::here(tar_config_get("store")))
 
 graz_final_evenness[[1]]
 
@@ -201,7 +277,7 @@ graz_final_evenness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_read(cut_change_figure)
+tar_read(cut_change_figure, store = here::here(tar_config_get("store")))
 
 ```
 
@@ -213,7 +289,7 @@ tar_read(cut_change_figure)
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_change_richness)
+tar_load(cut_change_richness, store = here::here(tar_config_get("store")))
 
 cut_change_richness[[1]]
 
@@ -227,7 +303,7 @@ cut_change_richness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_change_evenness)
+tar_load(cut_change_evenness, store = here::here(tar_config_get("store")))
 
 cut_change_evenness[[1]]
 
@@ -244,7 +320,7 @@ cut_change_evenness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through change in biomass on change in Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_read(graz_change_figure)
+tar_read(graz_change_figure, store = here::here(tar_config_get("store")))
 
 ```
 
@@ -257,7 +333,7 @@ tar_read(graz_change_figure)
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(graz_change_richness)
+tar_load(graz_change_richness, store = here::here(tar_config_get("store")))
 
 graz_change_richness[[1]]
 
@@ -271,68 +347,30 @@ graz_change_richness[[1]]
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(graz_change_evenness)
+tar_load(graz_change_evenness, store = here::here(tar_config_get("store")))
 
 graz_change_evenness[[1]]
 
 ```
 
-
-
-**Interaction model**
+### Winners and losers
 
 ```{r}
-#| label: model-int
-#| echo: true
-#| eval: false
-
-# model
-model <- psem(
-  lm(diversity ~ biomass + warming * nitrogen * cutting, dat),
-  lm(biomass ~ warming * nitrogen * cutting, dat)
-  )
-
-# site model
-model <- psem(
-  lm(diversity ~ biomass + warming * nitrogen * cutting + site, dat),
-  lm(biomass ~ warming * nitrogen * cutting + site, dat)
-  )
-
-```
-
-
-```{r}
-#| label: fig-cut-change-int
+#| label: tbl-winlos-sp
 #| echo: false
 #| message: false
-#| fig-width: 13
-#| fig-height: 13
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting as well as their interactions and indirectly through change in biomass on change in Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| tbl-cap: Species in each group and origin site.
 
-tar_read(div_figure)
+tar_load(cover_wl, store = here::here(tar_config_get("store")))
 
-```
-
-```{r}
-#| label: fig-cut-change-int-r
-#| echo: false
-#| message: false
-#| fig-width: 13
-#| fig-height: 13
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
-
-tar_read(rich_figure)
-
-```
-
-```{r}
-#| label: fig-cut-change-int-e
-#| echo: false
-#| message: false
-#| fig-width: 13
-#| fig-height: 13
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
-
-tar_read(env_figure)
+cover_wl |> 
+  group_by(origSiteID, status) |> 
+  filter(warming == "Warming",
+         status != "stable") |> 
+  count(species) |> 
+  arrange(origSiteID, status, -n) |> 
+  filter(n > 9) |> 
+  group_by(status) |> 
+  gt()
 
 ```

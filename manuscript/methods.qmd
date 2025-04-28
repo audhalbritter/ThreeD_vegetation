@@ -3,14 +3,12 @@ editor: visual
 ---
 
 ```{r}
-#| label: set-up
+#| label: set-up-methods
 #| echo: false
 #| message: false
 library(targets)
 library(tarchetypes)
 library(tidyverse)
-library(lubridate)
-
 
 ```
 
@@ -47,7 +45,7 @@ ta <- temp |>
   arrange(siteID)
   
 
-tar_load(consumption)
+tar_load(consumption, store = here::here(tar_config_get("store")))
 prod <- consumption |> 
   group_by(siteID) |> 
   summarise(mean = round(mean(Ungrazed), 2),
@@ -63,13 +61,11 @@ cons <- consumption |>
 
 Three semi-natural, species rich, perennial grassland sites (469, 920, and 1290 m a.s.l.) were established along an elevational gradient in Western Norway (@fig-concept c; 7.17°E, 60.88°N). Effectively, the experimental design has only two sites (alpine and sub-alpine), because the lowland site received only transplanted communities (warming treatment crossed with grazing and nitrogen, see below). The sites were 400 m apart in elevation, corresponding to a temperature difference of approximately 3°C in summer air, ground and soil temperature over the duration of the experiment (air temperature; alpine: `r ta$mean[1]` ± `r ta$se[1]` °C; sub-alpine `r ta$mean[2]` ± `r ta$se[2]` °C; lowland: `r ta$mean[3]` ± `r ta$se[3]` °C, *in situ* measurement between May - September in 2019-2022; Figure S1). Annual precipitation was similar at the two lowest sites and approximately 800 mm higher at the highest site (alpine: 2089 mm; sub-alpine 1256 mm; lowland: 1292 mm; modeled climate data from the period of 2008 - 2021 by Norwegian Meteorological Institute, met.no). The sites were located on calcareous bedrock with loamy sand and grazed by sheep, goats and deer at the lowland and sub-alpine sites, and mainly sheep and reindeer at the alpine site. Annual plant productivity is similar at the lowland and sub-alpine site (`r prod$mean[1]` ± `r prod$se[1]` g m^-2^ y^-1^, `r prod$mean[2]` ± `r prod$se[2]` g m^-2^ y^-1^, respectively) and about four times lower at the alpine site (`r prod$mean[3]` ± `r prod$se[3]` g m^-2^ y^-1^) (Figure S2a). Grazing pressure is 3 - 5 time higher in the sub-alpine site (`r cons$mean[2]` ± `r cons$se[2]` g m2 y-1, 1) compared to the lowland (`r cons$mean[1]` ± `r cons$se[1]` g m2 y-1) and alpine site (`r cons$mean[3]` ± `r cons$se[3]` g m2 y-1; Figure S2b). Other factors such as land-use history, vegetation type, slope and exposure were kept as constant as possible. To simulate the natural grazing regime at each site, and to avoid accumulation of biomass, the biomass within the fence was removed at the end of each field season.
 
-<!-- Should we describe whole experiment and then say exclude 150 because too acid? Or leave out 150 block/treatment? -->
-
 In summer 2019, ten experimental blocks containing six 50 x 50 cm plots were established at each site (@fig-concept c) and fenced in early spring 2020. In addition, two plots per block were located outside the fence (n = 160). Each plot received a combination of warming, nitrogen addition and grazing treatments in two steps. First, each block was randomly assigned a nitrogen level, to avoid nitrogen contamination between the plots within the blocks. Second, the warming and grazing treatments were randomized within each block, with the exception of the naturally grazed plots, that were located outside the fenced area (for more details see ThreeD data paper).
 
 At the end of the growing season in 2019, half of the plots of entire plant communities including roots were cut to a depth of 5 - 25 cm and transplanted to lower elevation, simulating an approximately 3.0 °C warmer growing season temperature. The control plots were not excavated, because studies from similar systems have shown that the effect of transplanting does not affect species composition [@Vandvik2020-hu; @Yang2018-uq]. If necessary, loose soil was carefully removed from the underside of the turf, or local soil was added to the gap or around the edges to ensure the soil surface was in plane with the surrounding vegetation.
 
-Each block received one of the following eight nitrogen treatments: 0, 0.5, 1, 5, 10, 50, 100, 150 kg N ha^-1^ y^-1^, where three blocks were controls and received no nitrogen addition. Nitrogen was added to each plot using slow dissolving fertilizer pellets (YaraBela OPTI-NS 27-0-0 (4S)). We used oxidised nitrogen (NO~x~) formed mainly by combustion processes [@holland2005nitrogen], which are the main sources of atmospheric nitrogen deposition in remote regions (i.e., away from intensive agriculture and other sources or reduced nitrogen). The nitrogen was added once at the start and once in the middle of the growing season from 2020 - 2022, except in 2020 at the lowest site, where the whole dose of fertilizer was applied at the start of the season.
+Each block received one of the following seven nitrogen treatments: 0, 0.5, 1, 5, 10, 50, and 100 kg N ha^-1^ y^-1^, where three blocks were controls and received no nitrogen addition. Nitrogen was added to each plot using slow dissolving fertilizer pellets (YaraBela OPTI-NS 27-0-0 (4S)). We used oxidised nitrogen (NO~x~) formed mainly by combustion processes [@holland2005nitrogen], which are the main sources of atmospheric nitrogen deposition in remote regions (i.e., away from intensive agriculture and other sources or reduced nitrogen). The nitrogen was added once at the start and once in the middle of the growing season from 2020 - 2022, except in 2020 at the lowest site, where the whole dose of fertilizer was applied at the start of the season.
 
 Finally, each plot was assigned one of four grazing treatments: control (inside grazing exclosure with no grazing or clipping), simulated intermediate grazing, simulated intensive grazing or natural grazing (outside grazing exclosure). We simulated grazing by manually clipping the vegetation using scissors, because our main focus was to understand the effect of biomass removal and we were less interested in the effect of fertilization and trampling by grazers. The simulated intermediate and intensive grazing plots were clipped two or four times about 2-3 cm above the ground during each growing season. The plots located outside the fence were naturally grazed by domestic and wild animals to control for the difference between grazing and clipping (i.e. selectivity of grazers and nutrients addition and trampling of grazers).
 
@@ -77,7 +73,7 @@ In 2020, the intensive grazing plots at the highest alpine site was only cut thr
 
 ### Data collection
 
-Microclimate data was recorded continuously every 15 minutes, between July 2019 and September 2022, using Tomst TM4 loggers [@Wild2019-nk]. Air, ground and soil temperature as well as soil moisture were measured at 15, 0 cm above and -6 cm below the ground in all warming and grazing treatments inside the fence and at 0, 1, 10, 100 and 150 kg N ha^-1^ y^-1^ (n = 72 loggers). At the alpine site, the block with 0.5 kg N ha^-1^ y^-1^ also received climate loggers, because this block is located further away from the rest and we wanted to make sure to catch any difference in the microclimate. The warming treatment increased air, ground and soil temperature by c. 3 °C and decreased soil moisture (Figure S1 and S8, Table S8), but nitrogen addition and grazing had no effect on the microclimate (Figure S8, Table S8).
+Microclimate data was recorded continuously every 15 minutes, between July 2019 and September 2022, using Tomst TM4 loggers [@Wild2019-nk]. Air, ground and soil temperature as well as soil moisture were measured at 15, 0 cm above and -6 cm below the ground in all warming and grazing treatments inside the fence and at 0, 1, 10, and 100 kg N ha^-1^ y^-1^ (n = 72 loggers). At the alpine site, the block with 0.5 kg N ha^-1^ y^-1^ also received climate loggers, because this block is located further away from the rest and we wanted to make sure to catch any difference in the microclimate. The warming treatment increased air, ground and soil temperature by c. 3 °C and decreased soil moisture (Figure S1 and S8, Table S8), but nitrogen addition and grazing had no effect on the microclimate (Figure S8, Table S8).
 
 In 2022, standing biomass was harvested at peak growing season in all plots that were not clipped or grazed. The biomass was harvested 2-3 cm above the ground, sorted to plant functional groups (graminoids with Cyperaceae sorted separately, forbs, legumes, shrubs, bryophytes, lichen and litter as dead unattached plant material), dried at 65 °C for 72 h and weighed. For standing biomass, the biomass of all plant functional groups were summed, except for plant litter.
 
@@ -85,7 +81,7 @@ Plant species composition was recorded annually at peak growing season in all pl
 
 <!-- remove 150? -->
 
-Plant height was collected at peak growing season in 2022 for the species making up 80 % of the total species coverage in a subset of plots. The data was collected from ambient and warmed plots that received 0, 5, 10, 50, or 150 kg N ha^-1^ y^-1^ of nitrogen and ambient and warmed plots that were grazed (n = 40 plots). Vegetative plant height was measured as the unstreched plant height from the ground to the highest photosynthetic tissue on the plant from up to five individuals per species and plot (n = x individual measurements). For more details on the measurements see (Vandvik PFTC6 data paper).
+Plant height was collected at peak growing season in 2022 for the species making up 80 % of the total species coverage in a subset of plots. The data was collected from ambient and warmed plots that received 0, 5, 10, or 50 kg N ha^-1^ y^-1^ of nitrogen and ambient and warmed plots that were grazed (n = 40 plots). Vegetative plant height was measured as the unstreched plant height from the ground to the highest photosynthetic tissue on the plant from up to five individuals per species and plot (n = x individual measurements). For more details on the measurements see (Vandvik PFTC6 data paper).
 
 Ellenberg indicator values for light, temperature, nitrogen, and moisture were extracted from a database for European vascular plants (Tichy et al. 2022).
 
