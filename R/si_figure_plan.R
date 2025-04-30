@@ -192,6 +192,27 @@ si_figure_plan <- list(
         theme_bw()
 
     }
+  ),
+
+  # Biomass vs. diversity analysis
+  tar_target(
+    name = standingB_div_final_model,
+    command = lm(final_diversity ~ log(final_bio) * origSiteID, data = biomass_div)
+  ),
+
+  tar_target(
+    name = standingB_div_final_prediction,
+    command = augment(standingB_div_final_model)
+  ),
+
+  tar_target(
+    name = standingB_div_change_model,
+    command = lm(log_ratio_diversity ~ log_ratio_bio * origSiteID, data = biomass_div)
+  ),
+
+  tar_target(
+    name = standingB_div_change_prediction,
+    command = augment(standingB_div_change_model)
   )
 
 
