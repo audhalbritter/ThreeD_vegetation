@@ -1,117 +1,106 @@
 # trait analysis
 
 trait_plan <- list(
+  
+  # join traits
+  tar_target(
+     name = joint_traits,
+     command = bind_rows(trait_mean_all |>
+                          mutate(status = "all"),
+                        trait_mean_status |>
+                          select(-data, -trait_impute) |> 
+                          unnest(trait_mean))
+   ),
 
-  # tar_target(
-  #   name = trait_model_all,
-  #   command = {
-  #
-  #     trait_model <- run_full_model(dat = trait_mean_all |>
-  #                      filter(grazing != "Natural"),
-  #                    group = c("origSiteID"),
-  #                    response = mean,
-  #                    grazing_var = grazing_num) |>
-  #       # make long table
-  #       pivot_longer(cols = -c(origSiteID, data),
-  #                    names_sep = "_",
-  #                    names_to = c(".value", "effects", "names")) |>
-  #       unnest(glance) |>
-  #       select(origSiteID:adj.r.squared, AIC, deviance)
-  #   }
-  # ),
-  #
-  # # only interaction model
-  # tar_target(
-  #   name = trait_model,
-  #   command = trait_model_all |>
-  #     # remove model with single effects
-  #     filter(effects == "interaction",
-  #            # choose log model
-  #            names == "log") #|>
-  #     # # select parsimonious model
-  #     # filter(AIC == min(AIC))
-  # ),
-  #
-  # tar_target(
-  #   name = trait_output,
-  #   command = make_prediction(trait_model)
-  # ),
-  #
-  # # prepare model output
-  # tar_target(
-  #   name =   trait_prediction,
-  #   command = trait_output |>
-  #     # merge data and prediction
-  #     mutate(output = map2(.x = newdata, .y = prediction, ~ bind_cols(.x, .y))) |>
-  #     select(origSiteID, output) |>
-  #     unnest(output) |>
-  #     rename(prediction = fit)
-  # ),
-  #
-  # # stats
-  # tar_target(
-  #   name =   trait_anova_table,
-  #   command = trait_output |>
-  #     select(origSiteID, names, anova_tidy) |>
-  #     unnest(anova_tidy) |>
-  #     ungroup() |>
-  #     fancy_stats()
-  # ),
-  #
-  # # stats
-  # tar_target(
-  #   name =   trait_summary_table,
-  #   command = trait_output |>
-  #     select(origSiteID, names, result) |>
-  #     unnest(result) |>
-  #     ungroup() |>
-  #     fancy_stats()
-  # ),
+   tar_target(name = traits,
+              command = joint_traits |>
+                filter(trait_trans %in% c("plant_height_cm_log",
+                              "light",
+                              "nutrients",
+                              "moisture",
+                              "temperature")) |>
+                mutate(status = factor(status, levels = c("all", "loser",
+              "decrease", "stable", "increase", "winner")),
+              warming = factor(warming, levels = c("Ambient", "Warming"))) |>
+                filter(!status %in% c("all", "stable")) |>
+                filter(grazing != "Natural") |> 
+                mutate(figure_names = factor(figure_names,
+                  levels = c("Plant~height~(cm)",
+                               "Light",
+                               "Moisture",
+                               "Temperature",
+                               "Nutrients")))
+                              ),
 
+    tar_target(name = trait_model,
+                command = traits |>
+                  group_by(origSiteID, status, trait_trans, figure_names) |>
+                  nest() |>
+                  # run model
+                  mutate(
+                    model = map(data, ~ lm(mean ~ warming * grazing_num * Nitrogen_log, data = .x)),
+                    
+                    result = map(model, tidy),
+                    anova = map(model, car::Anova),
+                    anova_tidy = map(anova, tidy)) |>
+                  # Create a prediction grid per group
+                  mutate(
+                    newdata = map(data, ~ expand.grid(
+                      warming = unique(.x$warming),
+                      grazing_num = unique(.x$grazing_num),
+                      Nitrogen_log = seq(min(.x$Nitrogen_log), 
+                      max(.x$Nitrogen_log), length.out = 100)
+                    )),
+                    # Predict using the model on the new grid
+                    predictions = map2(model, newdata, ~ {
+                      pred <- predict(.x, newdata = .y, 
+                        interval = "confidence", 
+                        level = 0.95)
+                      cbind(.y, as.data.frame(pred))  
+                      # bind prediction + CI columns to newdata
+                    }
+                  )
+                )
+  ),
 
-  ### winners and loosers
-  # tar_target(
-  #   name = number_cover,
-  #   command = cover_wl |>
-  #     filter(grazing == "Control") |>
-  #     group_by(turfID, warming, grazing, Namount_kg_ha_y, year, origSiteID, status) |>
-  #     summarise(cover = sum(cover),
-  #               n = n()) |>
-  #     group_by(warming, grazing, Namount_kg_ha_y, year, origSiteID, status) |>
-  #     summarise(n = mean(n),
-  #               cover = mean(cover)) |>
-  #     mutate(status = factor(status, levels = c("loser", "decrease", "stable", "increase", "winner")))
-  # ),
-  #
-  # tar_target(
-  #   name = win_loos_nc_figure,
-  #   command = {
-  #
-  #     nr <- ggplot(number_cover,
-  #            aes(x = as.factor(Namount_kg_ha_y), y = n,
-  #                fill = warming)) +
-  #       geom_col(position = "dodge") +
-  #       scale_fill_manual(name = "Warming", values = col_palette) +
-  #       labs(x = "Nitrogen addition", y = "Number of species") +
-  #       facet_grid(cols = vars(status),
-  #                  rows = vars(origSiteID)) +
-  #       theme_bw()
-  #
-  #     cov <- ggplot(number_cover,
-  #                   aes(x = as.factor(Namount_kg_ha_y), y = cover,
-  #                       fill = warming)) +
-  #       geom_col(position = "dodge") +
-  #       scale_fill_manual(name = "Warming", values = col_palette) +
-  #       labs(x = "Nitrogen addition", y = "Sum of cover (%)") +
-  #       facet_grid(cols = vars(status),
-  #                  rows = vars(origSiteID)) +
-  #       theme_bw()
-  #
-  #     nr / cov + plot_layout(guides = "collect") &
-  #       theme(text = element_text(size = 12))
-  #
-  #   }
-  # )
+tar_target(
+  name = pred,
+  command = trait_model |>
+    unnest(predictions) |>
+    left_join(traits |>
+      select(grazing_num, grazing) |>
+      distinct(), by = "grazing_num")
+),
+
+tar_target(
+  name = traits_stats,
+  command = trait_model |>
+    select(anova_tidy) |>
+    unnest(anova_tidy) |>
+    ungroup() |>
+    mutate(term = str_replace(term, "Nitrogen_log", "N"),
+           term = str_replace(term, "warming", "W"),
+           term = str_replace(term, "grazing_num", "C"),
+           term = str_replace_all(term, ":", "x"))
+),
 
 
+# check significans
+# trait_model |>
+#   select(result) |>
+#   unnest(result) |>
+#   ungroup() |>
+#   mutate(term = str_replace(term, "Nitrogen_log", "N"),
+#          term = str_replace(term, "warmingWarming", "W"),
+#          term = str_replace(term, "grazing_num", "C"),
+#          term = str_replace_all(term, ":", "x")) |>
+#   filter(p.value <= 0.05,
+#          term != "(Intercept)")
+
+
+  tar_target(
+    name = traits_figure,
+    command = make_trait_figure(traits, traits_stats, pred, col_palette)
+  )
+  
 )
