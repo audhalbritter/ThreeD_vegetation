@@ -126,7 +126,7 @@ tar_read(standingB_div_change_figure, store = here::here(tar_config_get("store")
 
 
 ```{r}
-#| label: tbl-bio-div
+#| label: tbl-bio-div2
 #| echo: false
 #| warning: false
 #| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
