@@ -157,24 +157,14 @@ cut_final_diversity[[1]]
 
 **Question:** Do winners and losers have different traits?
 
-At the alpine site, with warming warm and moisture demanding species are lost (does not make sense!). 
-With nitrogen addition, cold demanding species are lost. 
-And with warming and nitrogen addition, light demanding and nutrient demanding (?) species are lost.
+At the alpine site, with warming cold and dry demanding species are lost. With nitrogen addition, cold demanding species are lost. With warming and nitrogen addition, species that require light and nutrient poor conditions are lost.
 
-With warming, shorter species, light demanding, and nutrient poor demanding species are increasing in cover.
-With increasing nitrogen addition, taller, shade tolerant, and warm demanding species are increasing in cover.
-The combination of warming and nitrogen addition, increases cover of cold species.
-WxCxN for moisture?
-With warming, shorter plants and warm loving species win.
-With nitrogen addition taller plants win, but less so when the vegetation is cut.
+With warming, taller, less light, and nutrient demanding species are increasing in cover. Similarly, with nitrogen addition, taller and less light sensitive species are increasing in cover. With warming and nutrient addition, temperature demanding species are increasing in cover. With increasing temperature taller and temperature demanding species win. With increasing nitrogen, taller plants win, but when the vegetation is cut, this trend is stronger at lower nitrogen levels and smaller at higher nitrogen levels.
 
-At the sub-alpine site, moisture demanding species are lost.
-Warming and nitrogen addition, increase the loss of cold adapted species.
-WxC?
-With increasing nitrogen addition, taller (?), cold adapted and nutrient poor demanding plants are decreasing in cover.
-Warming increases the cover of shorter plants, while nitrogen addition increases the cover of taller plants.
-Grazing can to some extent mitigate this at lower levels of nitrogen addition.
-Warming increases the cover of light demanding species (?), but less so with cutting (?). 
+At the sub-alpine site with nitrogen addition moisture demanding species lose. With warming and nitrogen addition, cold demanding species lose. With nitrogen addition, taller, colder (?), and nutrient poor species decrease in cover. With warming, taller species increase in cover.
 
+Sub-alpine: When the vegetation is cut, shorter species are lost. With warming and cutting, taller species are lost. With nitrogen addition, taller species increase in cover and more so with cutting in particular at high nitrogen levels. With warming and cutting, light demanding species increase in cover.
+
+WxNxC: with warming and nitrogen drier species increase in cover, but with cutting less so?
 
 ![Community weighted traits.](figures/Fig3_traits.jpeg){#fig-traits}
