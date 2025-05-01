@@ -12,13 +12,14 @@ tar_source()
 combined_plan <- c(
   download_plan,
   tranformation_plan,
-  piecewiseSEM_plan,
-  figure_plan,
-  si_analysis_plan,
-  si_figure_plan,
   analysis_plan,
+  piecewiseSEM_plan,
+  trait_plan,
+  si_analysis_plan,
+  si_SEM_plan,
+  figure_plan,
+  si_figure_plan,
   manuscript_plan
-  #trait_plan
   # nutrient_plan,
   # output_plan
 )
