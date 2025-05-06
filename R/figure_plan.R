@@ -303,12 +303,14 @@ figure_plan <- list(
     name = standingB_div_final_figure,
     command = {
 
-      final <- biomass_div |>
+      biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_line(data = standingB_div_final_prediction, aes(y = .fitted,
-                                                             x = `log(final_bio)`,
-                                                             linetype = origSiteID),
-                  colour = "grey60", linewidth = 0.75) +
+        geom_line(data = standingB_div_final_prediction, 
+          aes(y = .fitted,
+            x = `log(final_bio)`,
+            linetype = origSiteID,
+            colour = warming),
+            linewidth = 0.75) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
                                            fill = interaction(origSiteID, warming),
@@ -325,7 +327,7 @@ figure_plan <- list(
                           ))) +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("dashed", "solid"),
+        scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
              y = "Shannon diversity") +
