@@ -99,8 +99,12 @@ tidy(standingB_div_final_model) |>
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
                            "log(final_bio)" ~ "Log(Biomass)",
-                           "origSiteIDSub-alpine" ~ "Origin",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xOrigin")) |>  
+                           "origSiteIDSub-alpine" ~ "Site",
+                           "warmingWarming" ~ "Warming",
+                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
+                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
+                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
+                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
   select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
   gt() |> 
   gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
@@ -136,10 +140,13 @@ tar_load(standingB_div_change_model, store = here::here(tar_config_get("store"))
 tidy(standingB_div_change_model) |>
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
-                           "log_ratio_bio" ~ "Biomass",
-                           "origSiteIDSub-alpine" ~ "Origin",
-                           "log_ratio_bio:origSiteIDSub-alpine" ~ "BiomassxOrigin",
-                           )) |>  
+                           "log(final_bio)" ~ "Log(Biomass)",
+                           "origSiteIDSub-alpine" ~ "Site",
+                           "warmingWarming" ~ "Warming",
+                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
+                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
+                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
+                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
   select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
   gt() |> 
   gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 

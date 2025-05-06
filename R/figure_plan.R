@@ -266,10 +266,12 @@ figure_plan <- list(
 
       biomass_div |>
         ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity)) +
-        geom_line(data = standingB_div_change_prediction, aes(y = .fitted,
-                                                              x = log_ratio_bio,
-                                          linetype = origSiteID),
-                  colour = "grey60", linewidth = 0.75) +
+        geom_line(data = standingB_div_change_prediction, 
+          aes(y = .fitted,
+            x = log_ratio_bio,
+            linetype = origSiteID,
+            colour = warming),
+            linewidth = 0.75) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
                                            fill = interaction(origSiteID, warming),
