@@ -159,7 +159,7 @@ cut_final_diversity[[1]]
 
 At the alpine site, with warming cold and dry demanding species are lost. With nitrogen addition, cold demanding species are lost. With warming and nitrogen addition, species that require light and nutrient poor conditions are lost.
 
-With warming, taller, less light, and nutrient demanding species are increasing in cover. Similarly, with nitrogen addition, taller and less light sensitive species are increasing in cover. With warming and nutrient addition, temperature demanding species are increasing in cover. With increasing temperature taller and temperature demanding species win. With increasing nitrogen, taller plants win, but when the vegetation is cut, this trend is stronger at lower nitrogen levels and smaller at higher nitrogen levels.
+With warming, taller, less light, and nutrient demanding species are increasing in cover. Similarly, with nitrogen addition, taller and less light sensitive \$\$species are increasing in cover. With warming and nutrient addition, temperature demanding species are increasing in cover. With increasing temperature taller and temperature demanding species win. With increasing nitrogen, taller plants win, but when the vegetation is cut, this trend is stronger at lower nitrogen levels and smaller at higher nitrogen levels.
 
 At the sub-alpine site with nitrogen addition moisture demanding species lose. With warming and nitrogen addition, cold demanding species lose. With nitrogen addition, taller, colder (?), and nutrient poor species decrease in cover. With warming, taller species increase in cover.
 
@@ -167,4 +167,15 @@ Sub-alpine: When the vegetation is cut, shorter species are lost. With warming a
 
 WxNxC: with warming and nitrogen drier species increase in cover, but with cutting less so?
 
-![Community weighted traits.](figures/Fig3_traits.jpeg){#fig-traits}
+```{r}
+#| label: fig-traits
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: v
+
+tar_read(traits_figure, store = here::here(tar_config_get("store")))
+
+```
