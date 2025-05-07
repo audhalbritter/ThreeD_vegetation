@@ -19,8 +19,8 @@ trait_plan <- list(
                               "nutrients",
                               "moisture",
                               "temperature")) |>
-                mutate(status = factor(status, levels = c("all", "loser",
-              "decrease", "stable", "increase", "winner")),
+                mutate(status = factor(status, levels = c("all", "extinction",
+              "decrease", "stable", "increase", "colonization")),
               warming = factor(warming, levels = c("Ambient", "Warming"))) |>
                 filter(!status %in% c("all", "stable")) |>
                 filter(grazing != "Natural") |> 

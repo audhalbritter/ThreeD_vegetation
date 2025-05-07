@@ -20,8 +20,8 @@ get_winners_and_losers <- function(cover_total){
   winners = anti_join(last_transplant, first_transplant, by = c("origSiteID", "destSiteID", "destBlockID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "grazing", "grazing_num", "species"))
 
   # combine winner and losers
-  winn_loos <- bind_rows(winner = winners,
-                         loser = losers,
+  winn_loos <- bind_rows(colonization = winners,
+                          extinction = losers,
                          .id = "status") |>
     select(-cover)
 
@@ -53,6 +53,8 @@ get_winners_and_losers <- function(cover_total){
   ### PROBABLY WANT TO REMOVE YEAR AND INCREASE, DECREASE AND STABLE FROM 2019. THEY ARE THE SAME AS FROM 2022. QUESTION, DO WE NEED COVER FROM 2019, AND WANT TO KEEP THEM?
 
 }
+
+
 
 make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
 

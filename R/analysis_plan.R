@@ -368,7 +368,7 @@ analysis_plan <- list(
   tar_target(
     name = trait_impute_all,
     command = make_trait_impute2(cover_wl |>
-                                   filter(year == "2022"),
+                                   filter(year == "2022" | year == 2019 & status == "extinction"),
                                  trait_raw,
                                  ellenberg)
   ),
@@ -387,7 +387,7 @@ analysis_plan <- list(
       dat <- cover_wl |>
         # remove duplicates
         tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-        mutate(status = fct_relevel(status, "loser", "decrease", "stable", "increase", "winner"))
+        mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
 
       dat |>
         group_by(status) |>
