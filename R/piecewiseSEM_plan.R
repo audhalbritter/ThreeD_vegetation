@@ -15,7 +15,7 @@ piecewiseSEM_plan <- list(
     name = cut_final_diversity,
     command = {
 
-      # change in diversity across site
+      # final diversity across site
       dat1 <- prep_SEM_data(data = biomass_div,
                             landuse = "cutting",
                             diversity = final_diversity,
@@ -42,7 +42,7 @@ piecewiseSEM_plan <- list(
                               landuse = "cutting",
                               col = sem_colour)
 
-      # change in richness alpine
+      # final diversity alpine
       mod3 <- run_SEM(data = dat1 |>
                         filter(origSiteID == "Alpine"),
                       landuse = "cutting")
@@ -54,7 +54,7 @@ piecewiseSEM_plan <- list(
                               landuse = "cutting",
                               col = sem_colour)
 
-      # change in richness sub-alpine
+      # final diversity sub-alpine
       mod4 <- run_SEM(data = dat1 |>
                         filter(origSiteID == "Sub-alpine"),
                       landuse = "cutting")
