@@ -74,48 +74,6 @@ tidy(standing_biomass_model) |>
 
 ### Biomass diversity relationship
 
-The relationship between biomass and Shannon diversity (i.e. log ratios) was negative (*P* = 0.087). This relationship was stronger in the sub-alpine site compared to the alpine site.
-
-```{r}
-#| label: fig-bio-div
-#| echo: false
-#| warning: false
-#| fig-height: 7.5
-#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
-
-tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
-
-```
-
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
-
-tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
-
-tidy(standingB_div_final_model) |>
-  mutate(term = case_match(term,
-                           "(Intercept)" ~ "Intercept",
-                           "log(final_bio)" ~ "Log(Biomass)",
-                           "origSiteIDSub-alpine" ~ "Site",
-                           "warmingWarming" ~ "Warming",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
-                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
-                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
-                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
-  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
-  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
-
-```
 
 ```{r}
 #| label: fig-bio
@@ -140,13 +98,13 @@ tar_load(standingB_div_change_model, store = here::here(tar_config_get("store"))
 tidy(standingB_div_change_model) |>
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
-                           "log(final_bio)" ~ "Log(Biomass)",
+                           "log_ratio_bio" ~ "Log ratio(Biomass)",
                            "origSiteIDSub-alpine" ~ "Site",
                            "warmingWarming" ~ "Warming",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
-                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
+                           "log_ratio_bio:origSiteIDSub-alpine" ~ "Log ratio(Biomass)xSite",
+                           "log_ratio_bio:warmingWarming" ~ "Log ratio(Biomass)xWarming",
                            "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
-                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
+                           "log_ratio_bio:origSiteIDSub-alpine:warmingWarming" ~ "Log ratio(Biomass)xSitexWarming")) |>  
   select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
   gt() |> 
   gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 

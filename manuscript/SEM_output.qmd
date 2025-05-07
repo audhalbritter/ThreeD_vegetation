@@ -20,7 +20,7 @@ library(ggpubr)
 
 # Results
 
-### Global change affects standing biomass and diversity in complex ways
+### Global change drivers affect standing biomass and diversity in complex ways
 
 ```{r}
 #| label: mean-bio
@@ -59,6 +59,53 @@ tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
 ```
 
+
+The overall relationship between standing biomass and Shannon diversity is negative (F{1, 142} = 53.88, *P* <= 0.001), but differs between sites and the warming treatment.
+In the alpine site, diversity decreases with increasing biomass under warming.
+Contrary, in the sub-alpine site, there is a negative relationship between standing biomass and diveresity under ambient conditions.
+
+```{r}
+#| label: fig-bio-div
+#| echo: false
+#| warning: false
+#| fig-height: 7.5
+#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
+
+tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
+
+```
+
+```{r}
+#| label: tbl-bio-div
+#| echo: false
+#| warning: false
+#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
+
+tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
+
+tidy(standingB_div_final_model) |>
+  mutate(term = case_match(term,
+                           "(Intercept)" ~ "Intercept",
+                           "log(final_bio)" ~ "Log(Biomass)",
+                           "origSiteIDSub-alpine" ~ "Site",
+                           "warmingWarming" ~ "Warming",
+                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
+                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
+                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
+                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
+  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
+  gt() |> 
+  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
+  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
+
+```
+
+
 ### Does including standing biomass improve the model?
 
 The best model describing the effect on diversity includes biomass and the main effects of the three drivers. For the sub-alpine site, the best model includes only main effect and not biomass.
@@ -71,19 +118,17 @@ tar_load(biomass_div, store = here::here(tar_config_get("store")))
 
 all <- biomass_div |> 
   nest() |>
-  mutate(bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
+  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
          main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
          biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
-         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .)),
-         biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))) |>
-  mutate(bio = map(bio, glance),
-         main = map(main, glance),
+         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
+         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .))
+         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
+         ) |>
+  mutate(main = map(main, glance),
          biomain = map(biomain, glance),
-         interaction = map(interaction, glance),
-         full = map(full, glance),
-         biofull = map(biofull, glance)) |>
-  rename(biomass = bio, "main effects" = main, "biomass + main effects" = biomain, "interactions only" = interaction, "main effects + interactions" = full, "biomass + main + interactions" = biofull) |> 
+         full = map(full, glance)) |>
+  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
   # make long table
         pivot_longer(cols = -c(data),
                      names_to = "model",
@@ -94,24 +139,22 @@ all <- biomass_div |>
 site <- biomass_div |> 
   group_by(origSiteID) |>
   nest() |>
-  mutate(bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
+  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
          main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
          biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
+         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .))
          full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .)),
-         biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))) |>
-  mutate(bio = map(bio, glance),
-         main = map(main, glance),
+         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
+         ) |>
+  mutate(main = map(main, glance),
          biomain = map(biomain, glance),
-         interaction = map(interaction, glance),
-         full = map(full, glance),
-         biofull = map(biofull, glance)) |>
-  rename(biomass = bio, "main effects" = main, "biomass + main effects" = biomain, "interactions only" = interaction, "main effects + interactions" = full, "biomass + main + interactions" = biofull) |> 
+         full = map(full, glance)) |>
+  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
   # make long table
         pivot_longer(cols = -c(origSiteID, data),
                      names_to = "model",
                      values_to = "glance")
-bind_rows(all, site) |> 
+site |> 
   unnest(glance) |> 
   select(origSiteID, model, r.squared, adj.r.squared, AIC) |> 
   mutate(r.squared = round(r.squared, 2),
@@ -150,6 +193,20 @@ So, why does the increase in biomass not affect diversity at the sub-alpine site
 tar_load(cut_final_diversity, store = here::here(tar_config_get("store")))
 
 cut_final_diversity[[1]]
+
+```
+
+```{r}
+#| label: fig-cut-final-diversity-AW
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on Shannon diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+
+tar_load(cut_final_diversity_AW, store = here::here(tar_config_get("store")))
+
+cut_final_diversity_AW[[1]]
 
 ```
 
