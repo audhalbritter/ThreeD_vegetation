@@ -259,48 +259,6 @@ figure_plan <- list(
     }
   ),
 
-  # Biomass vs diversity figure
-  tar_target(
-    name = standingB_div_change_figure,
-    command = {
-
-      biomass_div |>
-        ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity)) +
-        geom_line(data = standingB_div_change_prediction, 
-          aes(y = .fitted,
-            x = log_ratio_bio,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
-        geom_point(data = biomass_div, aes(colour = warming,
-                                           shape = grazing,
-                                           fill = interaction(origSiteID, warming),
-                                           size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        # Fill colors: White for Alpine, specific colors for Sub-Alpine (warming levels)
-        scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
-        scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-        scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("dashed", "solid"),
-                              name = "Origin") +
-        labs(x = bquote(Log(Change~standing~biomass)~g~m^-2),
-             y = "Change in Shannon diversity") +
-        theme_bw() +
-        theme(legend.position = "bottom",
-              legend.box = "vertical",
-              text = element_text(size = 12))
-
-    }
-  ),
-
   tar_target(
     name = standingB_div_final_figure,
     command = {
@@ -318,7 +276,7 @@ figure_plan <- list(
                                            fill = interaction(origSiteID, warming),
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
+        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
                           name = "Origin",
                           #breaks = c("Alpine", "Sub-alpine"),
                           labels = c("Alpine", "Sub-Alpine", "", ""),
