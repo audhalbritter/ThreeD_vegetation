@@ -64,12 +64,18 @@ trait_plan <- list(
   ),
 
 tar_target(
-  name = pred,
+  name = trait_prediction,
   command = trait_model |>
     unnest(predictions) |>
     left_join(traits |>
       select(grazing_num, grazing) |>
       distinct(), by = "grazing_num")
+),
+
+tar_target(
+  name = trait_prediction_clean,
+  command = trait_prediction |> 
+    select(-c(data:newdata))
 ),
 
 tar_target(
@@ -84,6 +90,20 @@ tar_target(
            term = str_replace_all(term, ":", "x"))
 ),
 
+#large trait figure
+  tar_target(
+    name = traits_figure,
+    command = make_trait_figure(traits, traits_stats, trait_prediction, col_palette)
+  ),
+
+  # small trait figure
+  tar_target(
+    name = small_traits_figure,
+    command = make_trait_figure_small(traits, traits_stats, trait_prediction_clean, col_palette)
+  )
+  
+  
+)
 
 # check significans
 # trait_model |>
@@ -96,11 +116,3 @@ tar_target(
 #          term = str_replace_all(term, ":", "x")) |>
 #   filter(p.value <= 0.05,
 #          term != "(Intercept)")
-
-
-  tar_target(
-    name = traits_figure,
-    command = make_trait_figure(traits, traits_stats, pred, col_palette)
-  )
-  
-)
