@@ -318,24 +318,17 @@ graz_change_evenness[[1]]
 
 ```
 
-### Winners and losers
+### Plant traits
 
 ```{r}
-#| label: tbl-winlos-sp
+#| label: fig-traits-large
 #| echo: false
 #| message: false
-#| tbl-cap: Species in each group and origin site.
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Traits etc.
 
-tar_load(cover_wl, store = here::here(tar_config_get("store")))
-
-cover_wl |> 
-  group_by(origSiteID, status) |> 
-  filter(warming == "Warming",
-         status != "stable") |> 
-  count(species) |> 
-  arrange(origSiteID, status, -n) |> 
-  filter(n > 9) |> 
-  group_by(status) |> 
-  gt()
+tar_read(traits_figure, store = here::here(tar_config_get("store")))
 
 ```
