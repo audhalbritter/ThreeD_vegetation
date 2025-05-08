@@ -314,49 +314,6 @@ analysis_plan <- list(
   ),
 
 
-  # tar_target(
-  #   name = diversity_model,
-  #   command = diversity_model_all_origin |>
-  #     group_by(diversity_index, origSiteID, mod) |>
-  #     arrange(origSiteID, diversity_index, mod, AIC) |>
-  #     # get delta AIC and keep all models within delta 2
-  #     mutate(delta_AIC = AIC - min(AIC)) |>
-  #     filter(delta_AIC <= 2) |>
-  #     # Keep linear model if there are 2 models
-  #     mutate(n = n()) |>
-  #     filter(n == 1 | n == 2 & names == "linear")
-  # ),
-
-  ## Figure 2
-  tar_target(
-    name = fig,
-    command = {
-
-      bind_rows(
-        Full = diversity_model_all |>
-          filter(diversity_index == "diversity") |>
-          ungroup(),
-        origin = diversity_model_all_origin |>
-          filter(diversity_index == "diversity") |>
-          ungroup(),
-        .id = "model"
-      ) |>
-        select(model, origSiteID, mod, adj.r.squared) |>
-        mutate(model = if_else(model == "origin", origSiteID, model)) |>
-        pivot_wider(names_from = mod, values_from = c(adj.r.squared)) |>
-        mutate(biomass = bio,
-               "main effects" = biomain - bio,
-               interactions = biointeraction - bio,
-               model = factor(model, levels = c("Full", "Sub-alpine", "Alpine"))) |>
-        pivot_longer(cols = c(biomass, "main effects", interactions), names_to = "term", values_to = "value") |>
-        ggplot(aes(x = model, y = value, fill = term)) +
-        geom_col() +
-        scale_fill_manual(name = "", values = c("darkgreen", "orange", "blue")) +
-        theme_bw()
-
-    }
-  ),
-
   # status: winners, losers, increasing, decreasing and stable species
   # mark status of species in cover data
   tar_target(

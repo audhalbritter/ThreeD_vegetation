@@ -252,62 +252,6 @@ tranformation_plan <- list(
 
   ),
 
-  # average controls
-  # tar_target(
-  #   name = cover,
-  #   command = cover_total |>
-  #
-  #     # take average cover of 3 control plots
-  #     group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, species) |>
-  #     summarise(cover = mean(cover)) |>
-  #
-  #     # add taxon information
-  #     left_join(sp_list |>
-  #                 mutate(species = paste(genus, species, sep = " ")), by = "species") |>
-  #     # fix NA's in functional group
-  #     mutate(functional_group = case_when(species == "Carex nigra" ~ "graminoid",
-  #                                         species %in% c("Oxytropa laponica", "Galium verum", "Veronica officinalis", "Erigeron uniflorus", "Epilobium anagallidifolium") ~ "forb",
-  #                                         functional_group == "pteridophyte" ~ "forb",
-  #                                         grepl("Carex", species) ~ "sedge",
-  #                                         TRUE ~ functional_group)) |>
-  #     ungroup() |>
-  #     select(-genus, -family)
-  # ),
-
-  # Change in functional group cover
-  # tar_target(
-  #   name = functional_group_cover,
-  #   command = {
-  #     all <- cover %>%
-  #     # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
-  #     filter(functional_group != "shrub",
-  #            !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
-  #            !(functional_group == "legume" & origSiteID == "Alpine"))
-  #
-  #     # graminoids including sedge, forbs, including legumes and sedges, legumes separate
-  #     bind_rows(all = all |>
-  #                 mutate(functional_group = case_when(functional_group == "sedge" ~ "graminoid",
-  #                                                     functional_group == "legume" ~ "forb",
-  #                                                     TRUE ~ functional_group)),
-  #               sedge = all |>
-  #                 filter(functional_group == "sedge"),
-  #               legume = all |>
-  #                 filter(functional_group == "legume"),
-  #               .id = "group") |>
-  #       group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, group, functional_group, year) %>%
-  #     summarise(cover = sum(cover)) %>%
-  #     pivot_wider(names_from = year, values_from = cover) %>%
-  #     # Fun groups that do not exist in one year => 0
-  #     # calculate difference between years
-  #     mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
-  #            `2022` = if_else(is.na(`2022`), 0, `2022`),
-  #            delta = `2022` - `2019`) %>%
-  #     ungroup()
-  #
-  #   }
-  #
-  # ),
-
   # prep height
   tar_target(
     name = height,
@@ -398,20 +342,6 @@ tranformation_plan <- list(
 
   ),
 
-  # ### bootstrapping traits
-  #
-  # # trait impute
-  # tar_target(
-  #   name = trait_impute,
-  #   command = make_trait_impute(cover_total, trait_raw, ellenberg)
-  # ),
-  #
-  # # trait impute
-  # tar_target(
-  #   name = trait_mean,
-  #   command = make_bootstrapping(trait_impute)
-  # ),
-
 
   ### ELLENBERG VALUES
   tar_target(
@@ -431,3 +361,60 @@ tranformation_plan <- list(
   )
 
 )
+
+
+# average controls
+  # tar_target(
+  #   name = cover,
+  #   command = cover_total |>
+  #
+  #     # take average cover of 3 control plots
+  #     group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, species) |>
+  #     summarise(cover = mean(cover)) |>
+  #
+  #     # add taxon information
+  #     left_join(sp_list |>
+  #                 mutate(species = paste(genus, species, sep = " ")), by = "species") |>
+  #     # fix NA's in functional group
+  #     mutate(functional_group = case_when(species == "Carex nigra" ~ "graminoid",
+  #                                         species %in% c("Oxytropa laponica", "Galium verum", "Veronica officinalis", "Erigeron uniflorus", "Epilobium anagallidifolium") ~ "forb",
+  #                                         functional_group == "pteridophyte" ~ "forb",
+  #                                         grepl("Carex", species) ~ "sedge",
+  #                                         TRUE ~ functional_group)) |>
+  #     ungroup() |>
+  #     select(-genus, -family)
+  # ),
+
+  # Change in functional group cover
+  # tar_target(
+  #   name = functional_group_cover,
+  #   command = {
+  #     all <- cover %>%
+  #     # remove shrubs, sedge from sub-alpine and legumes from alpine (too few species)
+  #     filter(functional_group != "shrub",
+  #            !(functional_group == "sedge" & origSiteID == "Sub-alpine"),
+  #            !(functional_group == "legume" & origSiteID == "Alpine"))
+  #
+  #     # graminoids including sedge, forbs, including legumes and sedges, legumes separate
+  #     bind_rows(all = all |>
+  #                 mutate(functional_group = case_when(functional_group == "sedge" ~ "graminoid",
+  #                                                     functional_group == "legume" ~ "forb",
+  #                                                     TRUE ~ functional_group)),
+  #               sedge = all |>
+  #                 filter(functional_group == "sedge"),
+  #               legume = all |>
+  #                 filter(functional_group == "legume"),
+  #               .id = "group") |>
+  #       group_by(origSiteID, warming, grazing, Namount_kg_ha_y, Nitrogen_log, grazing_num, group, functional_group, year) %>%
+  #     summarise(cover = sum(cover)) %>%
+  #     pivot_wider(names_from = year, values_from = cover) %>%
+  #     # Fun groups that do not exist in one year => 0
+  #     # calculate difference between years
+  #     mutate(`2019` = if_else(is.na(`2019`), 0, `2019`),
+  #            `2022` = if_else(is.na(`2022`), 0, `2022`),
+  #            delta = `2022` - `2019`) %>%
+  #     ungroup()
+  #
+  #   }
+  #
+  # ),
