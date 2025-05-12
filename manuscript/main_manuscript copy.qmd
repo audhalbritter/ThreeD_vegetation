@@ -1,6 +1,6 @@
 ---
 title: "Global change impacts alpine grasslands throught the same mechanisms"
-author: 
+author:
   - name: Aud H. Halbritter
     orcid: 0000-0003-2597-6328
     email: aud.halbritter@uib.no
@@ -49,6 +49,7 @@ author:
 format:
   html: 
     self-contained: false
+  docx:
 editor: visual
 abstract: >
   Alpine biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 
