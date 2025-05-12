@@ -40,11 +40,11 @@ div <- biomass_div |>
 
 ```
 
-Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) compared to the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition and cutting (@fig-1-biomass-diversity a). Warming and nitrogen addition increased standing biomass significantly at both sites, while lipping reduces standing biomass but more so with warming (WxC interaction). Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) compared to the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`) and was only affected by nitrogen addition. Diversity decreased with increasing nitrogen at both sites, in particular at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity c).
+Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) compared to the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition and clipping (@fig-1-biomass-diversity a). Warming and nitrogen addition increased standing biomass significantly at both sites, while clipping reduced standing biomass but more so with warming (WxC interaction). Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) compared to the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`) and was only affected by nitrogen addition. Diversity decreased with increasing nitrogen at both sites, in particular at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity c).
 
-To understand if these global change drivers affect Shannon diversity through standing biomass, we tested the relationship between standing biomass and diversity. Overall, their relationship was negative (F<sub>1, 142</sub> = 53.88, *P* ≤ 0.001), but it differed between the two sites and under ambinet and warm conditions (@fig-bio-div). In the alpine site, diversity decreases with increasing biomass under warming, but not under ambient temperature. Contrary, in the sub-alpine site, there was a negative relationship between standing biomass and diveresity under ambient conditions, however not with warming. This suggests that the these drivers affect diversity through biomass only under specific conditions and that also depends on the site.
+We tested the relationship between standing biomass and Shannon diversity and found that overall, their relationship was negative (F<sub>1, 142</sub> = 53.88, *P* ≤ 0.001). It differed however between the two sites and under ambient and warm conditions (@fig-bio-div). In the alpine site, diversity decreases with increasing biomass under warming, but not under ambient temperature. Contrary, in the sub-alpine site, there was a negative relationship between standing biomass and diveresity under ambient conditions, however not with warming. This suggests that the these drivers affect diversity through biomass only under specific conditions and that also depends on the site and warming treatment.
 
-When checking the effect of the three global change drivers separately for each sites, we found that standing biomass was co-limited by warming and nitrogen addition at the alpine site, with an additive effect for the interaction of the two drivers (WxN interaction; @fig-1-biomass-diversity b). There were also interactive effects, where clipping decreased standing biomass more with warming (WxC interaction) and with nitrogen addition (NxC interaction). Standing biomass increased with warming and nitrogen addition, and decreased with clipping at the sub-alpine site, but we found no interactive effects. In the alpine site, warming and nitrogen addition increased Shannon diversity when little nitrogen was added, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity d). In addition, clipping could mitigate the negative effects of warming and nitrogen addition on diversity at the higher levels of nitrogen addition (WxNxC interaction). At the sub-alpine site, warming had a negative effect on the diversity irrespective of the nitrogen levels, while nitrogen addition decrease diversity. There was no effect of clipping or interactive effects of the driveres at the sub-alpine site.
+When testing the effect of the three global change drivers separately for each sites, we found that standing biomass was co-limited by warming and nitrogen addition at the alpine site, with an additive effect for the interaction of the two drivers (WxN interaction; @fig-1-biomass-diversity b). There were also interactive effects, where clipping decreased standing biomass more with warming (WxC interaction) and with nitrogen addition (NxC interaction). Standing biomass increased with warming and nitrogen addition, and decreased with clipping at the sub-alpine site, but we found no interactive effects. In the alpine site, warming and nitrogen addition increased Shannon diversity when little nitrogen was added, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity d). In addition, clipping could mitigate the negative effects of warming and nitrogen addition on diversity at the higher levels of nitrogen addition (WxNxC interaction). At the sub-alpine site, warming had a negative effect on the diversity irrespective of the nitrogen levels, and nitrogen addition decrease diversity. There was no effect of clipping or interactive effects of the drivers at the sub-alpine site.
 
 ```{r}
 #| label: fig-1-biomass-diversity
@@ -64,7 +64,7 @@ tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 #| echo: false
 #| warning: false
 #| fig-height: 7.5
-#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
+#| fig-cap: Relationship of change in standing biomass and Shannon diversity. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing, diamond = natural grazing). Filled symbols are from the alpine site and open symbols from the sub-alpine site. The lines show the prediction line of the model for the alpine (solid) and sub-alpine site (dashed).
 
 tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
 
@@ -96,7 +96,15 @@ tidy(standingB_div_final_model) |>
     style = list(
       cell_text(weight = "bold")
       ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
+    locations = cells_column_labels(columns = c(Term, Estimate, `Std. Error`, `t value`, `P value`))) |> 
+    tab_style(
+          style = list(
+            cell_text(weight = "bold")
+          ),
+          locations = cells_body(
+            columns = c(Term, Estimate, `Std. Error`, `t value`, `P value`),
+            rows = `P value` <= 0.05
+          ))
 
 ```
 
@@ -179,7 +187,7 @@ cut_final_diversity[[1]]
 
 ```
 
-Because standing biomass affected diversity differently between the two sites and the warming treatment (@fig-bio-div), we also ran the SEMs separately for ambient and warm conditions. At the alpine site, the drivers only operated through standing biomass under warming (@fig-cut-final-diversity-AW a and b). At the sub-alpine site, the drivers did not affect diversity through standing biomass under any of the warming treatments. Nitrogen addition had a direct effect on diversity under warming.
+Because standing biomass affected diversity differently between the two sites and the warming treatment (@fig-bio-div), we also ran the SEMs separately for ambient and warm conditions at the two sites. At the alpine site, the drivers only operated through standing biomass under warming (@fig-cut-final-diversity-AW a and b). At the sub-alpine site, the drivers did not affect diversity through standing biomass under any of the warming treatments. Nitrogen addition had a direct effect on diversity under warming.
 
 The patterns are the same for species richness and evenness, with some exceptions at the sub-alpine site. Nitrogen addition has only a negative direct trend on species richness. Warming does not affect evenness directly in the sub-alpine site, but cutting has a direct negative effect on evenness.
 
@@ -199,9 +207,9 @@ cut_final_diversity_AW[[1]]
 
 ```
 
-### Traits of winners and losers in response to global change
+### Trait responses to global change of winners and losers
 
-There were more winners (i.e. species that colonized or increased in cover) and losers (i.e. species that go extinct or decrease in cover) in response to warming, nitrogen addition or both in the alpine than the sub-alpine site @fig-traits a) and b)). In the alpine site, species that went extinct in response to warming were shorter and had lower temperature requirements (@fig-traits a)). Contrary, species that increased in cover or colonized plots with warming were taller and warm adapted species. At the sub-alpine site, species that increased in cover in response to warming were taller (no other traits significant...).
+There were more winners (i.e. species that colonized or increased in cover) and losers (i.e. species that go extinct or decrease in cover) in response to warming, nitrogen addition or both drivers in the alpine compared to the sub-alpine site (@fig-traits a) and b)). In the alpine site, species that went extinct in response to warming were shorter and had lower temperature requirements (@fig-traits a)). Contrary, species that increased in cover or colonized plots with warming were taller and warm adapted species. At the sub-alpine site, species that increased in cover in response to warming were taller (no other traits significant...).
 
 With increasing nitrogen addition at the alpine site, taller species increased in cover and cold adapted species went extinct (@fig-traits b)). In the sub-alpine site, cold adapted species decreased in cover.
 
@@ -213,7 +221,7 @@ At the alpine site in response to warming and nitrogen addition, species that we
 #| message: false
 #| warning: false
 #| fig-width: 10
-#| fig-height: 10
+#| fig-height: 6
 #| fig-cap: Plant height and Ellenberg light and temperature indicator values. a) Mean plant height and temperature values are shown for plant species going extinct, increasing in cover, and colonizing under ambient (grey) and warm (pink) conditions in the alpine and sub-alpine site. b) Mean plant height, light, and temperature values are shown for plant species going extinct, decrease, or increase in cover in the alpine and sub-alpine site. The points show the raw data, and the lines show the prediction lines from the models where either there was a significant relashionship for nitrogen addition (one grey line) or for warming x nitrogen (grey and pink lines). The linetype indicates the status of the species (solid = extinction,dotted = decreasing, dashed = increasing) and the color shows the warming treatment.
 
 tar_read(small_traits_figure, store = here::here(tar_config_get("store")))
