@@ -34,7 +34,7 @@ trait_plan <- list(
 
     tar_target(name = trait_model,
                 command = traits |>
-                  group_by(origSiteID, status, trait_trans, figure_names) |>
+                  group_by(origSiteID, status2, trait_trans, figure_names) |>
                   nest() |>
                   # run model
                   mutate(

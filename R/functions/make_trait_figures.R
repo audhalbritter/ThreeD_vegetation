@@ -9,7 +9,7 @@ make_trait_figure <- function(traits, traits_stats, trait_prediction, col_palett
 
 traits_text <- traits_stats |>
   filter(p.value <= 0.05) |>
-  mutate(nr = 1:n(), .by = c(origSiteID, status, trait_trans, figure_names)) |>
+  mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
   left_join(max_y, by = c("figure_names")) |>
   mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
          y = y_max + nr * 0.1 * y_max,
@@ -36,7 +36,7 @@ traits |>
   labs(y = "Trait mean",
        x = "Log(Nitrogen)") +
   facet_grid(rows = vars(figure_names),
-             cols = vars(status),
+             cols = vars(status2),
              scales = "free_y", labeller = label_parsed) +
   theme_bw()
   
@@ -44,64 +44,58 @@ traits |>
 
 make_trait_figure_small <- function(traits, traits_stats, trait_prediction_clean, col_palette){
 
-  warm <- traits_stats |>
-  filter(p.value <= 0.05) |> 
-  filter(trait_trans %in% c("plant_height_cm_log", "temperature"),
-          term == "W")
-
-fig_warm <- traits |> 
-  tidylog::inner_join(warm, by = c("origSiteID", "status", "trait_trans", "figure_names")) |> 
-  ggplot(aes(x = status, y = mean, fill = warming)) +
-  geom_violin(draw_quantiles = 0.5, alpha = 0.8) +
-  scale_fill_manual(values = col_palette, name = "Warming") +
-  labs(tag = "a)") +
-  facet_grid(rows = vars(figure_names), cols = vars(origSiteID),
-              labeller = label_parsed) +
-  theme_bw()
-
-
-nitrogen <- traits_stats |>
-  filter(p.value <= 0.05) |> 
-  filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light"),
-          term %in% c("N", "WxN"))
+# average for winners and losers
+traits_wl <- traits |> 
+  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
+  group_by(origSiteID, status2, trait_trans, figure_names, Nitrogen_log, warming, grazing) |> 
+  summarise(mean = mean(mean))
   
 prediction <- trait_prediction_clean |> 
-  tidylog::inner_join(nitrogen, by = c("origSiteID", "status", "trait_trans", "figure_names"))
-
-pred_N <- prediction |> 
-  filter(term == "N") |> 
-  # remove if N and WxN
-  filter(!c(origSiteID == "Alpine" & status == "extinction" & trait_trans == "light")) |> 
-  filter(!c(origSiteID == "Alpine" & status == "increase" & trait_trans == "light")) |> 
-  filter(!c(origSiteID == "Sub-alpine" & status == "increase" & trait_trans == "plant_height_cm_log")) |> 
-  group_by(origSiteID, status, trait_trans, figure_names, Nitrogen_log) |> 
+  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
+    group_by(origSiteID, status2, trait_trans, figure_names, warming, Nitrogen_log) |> 
   summarise(fit = mean(fit))
+  
+# figure text
+max_y <- traits_wl |>
+  group_by(figure_names) |>
+  summarise(y_max = max(mean, na.rm = TRUE), .groups = "drop")
 
-pred_WxN <- prediction |> 
-  filter(term == "WxN") |> 
-  group_by(origSiteID, status, trait_trans, figure_names, Nitrogen_log, warming) |> 
-  summarise(fit = mean(fit))
+
+traits_text <- traits_stats |>
+  filter(p.value <= 0.05) |>
+  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |> 
+  mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
+  left_join(max_y, by = c("figure_names")) |>
+  mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
+         y = y_max + nr * 0.05 * y_max,
+         hjust = if_else(origSiteID == "Alpine", 0, 1))
 
 
-fig_nitro <- traits |> 
-  tidylog::inner_join(nitrogen, by = c("origSiteID", "status", "trait_trans", "figure_names")) |> 
+traits_wl |> 
   ggplot(aes(
     x = Nitrogen_log, 
-    y = mean,
-    linetype = status  # Global linetype mapping
+    y = mean
   )) +
   
   # Points: Warming colors (only for NxW, but also visible for N as grey)
-  geom_point(aes(color = warming)) +
+  geom_point(aes(color = warming,
+                 shape = grazing,
+                 fill = interaction(origSiteID, warming))) +
   
-  geom_line(data = pred_N,
-    aes(y = fit),
-    colour = "grey30",
-    linewidth = 0.5) +
-
-  geom_line(data = pred_WxN,
-    aes(y = fit, colour = warming),
+  geom_line(data = prediction,
+    aes(y = fit,
+        colour = warming,
+        linetype = origSiteID),
         linewidth = 0.5) +
+
+  geom_text(
+    data = traits_text,
+    aes(x = x, y = y, label = term,
+        hjust = hjust,
+        alpha = origSiteID),
+        inherit.aes = FALSE,
+        size = 3
+      ) +
   
     # Define color mapping
     scale_colour_manual(
@@ -109,26 +103,38 @@ fig_nitro <- traits |>
       name = "Warming"
     ) +
   
+    scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
+  
+    scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
+    name = "Origin",
+    labels = c("Alpine", "Sub-Alpine", "", ""),
+    guide = guide_legend(override.aes = list(
+      shape = 21,
+      linetype = c("solid", "dashed"),
+      colour = "grey30",
+      fill = c("grey30", "white")
+    ))
+  ) +
+  
     scale_linetype_manual(
-      values = c("solid", "dotted", "dashed"),
-      name = ""
+      values = c("solid", "dashed"),
+      name = "Clipping"
     ) +
   
-    labs(tag = "b)") +
+  scale_alpha_manual(values = c(1, 0.6)) +   
+      
+  labs(y = "Trait mean",
+       x = "Log(Nitrogen)") +
   
   # Faceting
   facet_grid(
     rows = vars(figure_names), 
-    cols = vars(origSiteID),
+    cols = vars(status2),
     labeller = label_parsed, 
     scales = "free"
   ) +
   
   theme_bw()
 
-fig_warm / fig_nitro + plot_layout(guides = "collect",
-                                   heights = c(2, 3)) &
-  theme(plot.tag.position = c(0, 1),
-        plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
 }

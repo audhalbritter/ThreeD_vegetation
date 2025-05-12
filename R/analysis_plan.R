@@ -347,7 +347,7 @@ analysis_plan <- list(
         mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
 
       dat |>
-        group_by(status) |>
+        group_by(status, status2) |>
         nest() |>
         mutate(trait_impute = map(data, ~ make_trait_impute2(.x, trait_raw, ellenberg)),
                trait_mean = map(trait_impute, ~ make_bootstrapping(.x)))

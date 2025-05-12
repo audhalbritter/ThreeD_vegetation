@@ -48,7 +48,9 @@ get_winners_and_losers <- function(cover_total){
   cover_all |>
     tidylog::left_join(cov, by = c("origSiteID", "origBlockID", "origPlotID", "destSiteID", "destBlockID", "destPlotID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel", "grazing", "grazing_num", "species", "status")) |>
     mutate(status = if_else(is.na(status), status2, status)) |>
-    select(-status2)
+    select(-status2) |> 
+    # merge for winner and losers
+    mutate(status2 = if_else(status %in% c("extinction", "decrease"), "loser", "winner"))
 
   ### PROBABLY WANT TO REMOVE YEAR AND INCREASE, DECREASE AND STABLE FROM 2019. THEY ARE THE SAME AS FROM 2022. QUESTION, DO WE NEED COVER FROM 2019, AND WANT TO KEEP THEM?
 
