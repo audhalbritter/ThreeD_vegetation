@@ -227,3 +227,18 @@ At the alpine site in response to warming and nitrogen addition, species that we
 tar_read(small_traits_figure, store = here::here(tar_config_get("store")))
 
 ```
+
+**Grazing effect on diversity**
+
+```{r}
+#| label: fig-grazing
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 6
+#| fig-height: 6
+#| fig-cap: Grazing effect on diversity.
+
+tar_read(grazing_div_figure, store = here::here(tar_config_get("store")))
+
+```
