@@ -51,14 +51,15 @@ format:
     self-contained: false
 editor: visual
 abstract: >
-  Alpine biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 
-  Here we tested if these drivers affect alpine biodiversity through the same underlying mechanisms, namely standing biomass. 
+  Biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 
+  Here we tested in alpine vegetation, if these drivers affect biodiversity through the same underlying mechanisms, namely standing biomass. 
   Over three years, we studied the combined effects of these global change drivers on standing biomass and diversity of an alpine and sub-alpine grassland by transplanting communities to lower elevation (warming), applying nitrogen, and grazing as well as mimicking grazing by clipping. 
-  We found that the three global change drivers affect standing biomass and diveresity, but the response differed between the two sites.
-  The biomass-diversity relationship differed between the sites and warming treatments etc, suggesting that these drivers might not operate through the same mechanism etc.
-  Indeed, we found that three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. 
+  We found that the three global change drivers affect standing biomass and diveresity, but the impact depended on the site and limiting resources.
+  The three global change drivers operated indeed on diversity through standing biomass, but only at the alpine site where the grassland both temperature and nutrient limited.
+  Warming and nitrogen addition increased standing biomass resulting in a negative net effect on diversity. 
   Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity.
-  Overall, our study shows that etc.
+  The effect of grazing operated through standing biomass independent of site, however only in the alpine site under warming, grazing could mitigate negative impacts of the other drivers.
+  Overall, our study showed that ... mechanisms more complex and works when resources are limited, something on help making management decisions.
   
 
 keywords:
