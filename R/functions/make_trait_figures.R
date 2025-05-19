@@ -138,3 +138,143 @@ traits_wl |>
 
 
 }
+
+
+make_trait_figure_grazing <- function(traits, traits_stats, trait_prediction_clean, col_palette){
+
+  # average for winners and losers
+  traits_wl <- traits |> 
+    filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
+    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
+    group_by(origSiteID, status2, trait_trans, figure_names, Nitrogen_log, warming, grazing) |> 
+    summarise(mean = mean(mean))
+    
+  prediction <- trait_prediction_clean |> 
+    filter(trait_trans %in% c("plant_height_cm_log")) |>
+    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
+    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing) |> 
+    summarise(fit = mean(fit))
+
+  prediction <- trait_prediction_clean |> 
+    filter(trait_trans %in% c("temperature")) |>
+    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
+    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing) |> 
+    summarise(fit = mean(fit))
+    
+  # figure text
+  max_y <- traits_wl |>
+    group_by(figure_names) |>
+    summarise(y_max = max(mean, na.rm = TRUE), .groups = "drop")
+  
+  
+  traits_text <- traits_stats |>
+    filter(p.value <= 0.05) |>
+    filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |> 
+    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
+    mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
+    left_join(max_y, by = c("figure_names")) |>
+    mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
+           y = y_max + nr * 0.05 * y_max,
+           hjust = if_else(origSiteID == "Alpine", 0, 1))
+  
+# Plant height
+height <- traits_wl |> 
+  filter(trait_trans == "plant_height_cm_log") |> 
+  ggplot(aes(
+    x = Nitrogen_log, 
+    y = mean,
+    linetype = grazing
+  )) +
+  
+  # Points: Warming colors (only for NxW, but also visible for N as grey)
+  geom_point(aes(shape = grazing,
+                 color = warming,)) +
+  
+  geom_line(data = trait_prediction,
+    aes(y = fit, alpha = origSiteID),
+    linewidth = 0.5
+  ) +
+  
+  #geom_smooth(method = "lm", se = FALSE, colour = "grey40") +
+  
+  geom_text(
+    data = traits_text |> 
+      filter(trait_trans == "plant_height_cm_log"),
+    aes(x = x, y = y, label = term,
+        hjust = hjust),
+        alpha = 0.6,
+        inherit.aes = FALSE,
+        size = 3
+      ) +
+  
+  # Define color mapping
+  scale_colour_manual(
+      values = c(col_palette),
+      name = "Warming"
+    ) +
+  
+  scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
+  
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  
+  scale_alpha_manual(values = c(1, 0.6)) +   
+      
+  labs(y = "Trait mean",
+       x = "Log(Nitrogen)") +
+  
+  facet_wrap(vars(figure_names),
+            labeller = label_parsed) +
+  
+  theme_bw()
+
+
+
+  # Temperature
+ temp <- traits_wl |> 
+  filter(trait_trans == "temperature") |> 
+  ggplot(aes(
+    x = Nitrogen_log, 
+    y = mean,
+    color = warming,
+    linetype = grazing
+  )) +
+  
+  # Points: Warming colors (only for NxW, but also visible for N as grey)
+  geom_point(aes(shape = grazing)) +
+  
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  geom_text(
+    data = traits_text |> 
+      filter(trait_trans == "temperature",
+             term == "WxC"),
+    aes(x = x, y = y, label = term,
+        hjust = hjust),
+        alpha = 0.6,
+        inherit.aes = FALSE,
+        size = 3
+      ) +
+  
+  # Define color mapping
+  scale_colour_manual(
+      values = c(col_palette),
+      name = "Warming"
+    ) +
+  
+  scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
+
+  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  
+  scale_alpha_manual(values = c(1, 0.6)) +   
+      
+  labs(y = "Trait mean",
+       x = "Log(Nitrogen)") +
+  
+  facet_wrap(vars(figure_names),
+            labeller = label_parsed, 
+            scales = "free", nrow = 2) +
+  
+  theme_bw()
+
+  height / temp + plot_layout(guides = "collect")
+}
