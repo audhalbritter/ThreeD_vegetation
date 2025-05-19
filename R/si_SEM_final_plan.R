@@ -112,9 +112,9 @@ si_SEM_final_plan <- list(
       plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
       fig4 <- plot(plot_model4)
 
-      figure <- (fig1 + fig2) /
-        (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+      #figure <- (fig1 + fig2) / (fig3 + fig4) +
+      figure <- (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
@@ -241,9 +241,9 @@ si_SEM_final_plan <- list(
       plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
       fig4 <- plot(plot_model4)
 
-      figure <- (fig1 + fig2) /
-        (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+      #figure <- (fig1 + fig2) /
+      figure <- (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
@@ -318,9 +318,9 @@ si_SEM_final_plan <- list(
                               landuse = "grazing",
                               col = sem_colour)
 
-      figure <- (fig1 + fig2) /
-        (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+      #figure <- (fig1 + fig2) /
+      figure <- (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
@@ -447,9 +447,9 @@ si_SEM_final_plan <- list(
       plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
       fig4 <- plot(plot_model4)
 
-      figure <- (fig1 + fig2) /
-        (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+      #figure <- (fig1 + fig2) /
+      figure <- (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
@@ -576,9 +576,9 @@ si_SEM_final_plan <- list(
       plot_model4 <- prepare_graph(edges = paths4, layout = layout1)
       fig4 <- plot(plot_model4)
 
-      figure <- (fig1 + fig2) /
-        (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Across sites', 'b) Including site', 'c) Alpine site', 'd) Sub-alpine site'))) &
+      #figure <- (fig1 + fig2) /
+      figure <- (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
