@@ -110,65 +110,6 @@ tidy(standingB_div_final_model) |>
 
 ### Do global change drivers operate through the same mechanisms on diversity?
 
-*This should maybe be in the method?*
-
-To test if the three global change drivers affect Shannon diversity through the same mechanisms, i.e. standing biomass, we compared the AIC value of different models. A main effects model only, main effects and interactions and main effects and standing biomass. We found that at the alpine site, adding standing biomass or the interactions between the drivers improved the model both by ca. 2.5 AIC units (@tbl-var-explained). This did however not improve the model at the sub-alpine site. This suggests that using only main effects and standing biomass for the further analsyis can be justified.
-
-```{r}
-#| label: tbl-var-explained
-#| echo: false
-#| tbl-cap: Model comparisions and AIC values.
-
-tar_load(biomass_div, store = here::here(tar_config_get("store")))
-
-all <- biomass_div |> 
-  nest() |>
-  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
-         main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
-         biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
-         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .))
-         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
-         ) |>
-  mutate(main = map(main, glance),
-         biomain = map(biomain, glance),
-         full = map(full, glance)) |>
-  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
-  # make long table
-        pivot_longer(cols = -c(data),
-                     names_to = "model",
-                     values_to = "glance") |> 
-  mutate(origSiteID = "Both")
-
-
-site <- biomass_div |> 
-  group_by(origSiteID) |>
-  nest() |>
-  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
-         main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
-         biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .))
-         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .)),
-         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
-         ) |>
-  mutate(main = map(main, glance),
-         biomain = map(biomain, glance),
-         full = map(full, glance)) |>
-  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
-  # make long table
-        pivot_longer(cols = -c(origSiteID, data),
-                     names_to = "model",
-                     values_to = "glance")
-site |> 
-  unnest(glance) |> 
-  select(origSiteID, model, r.squared, adj.r.squared, AIC) |> 
-  mutate(r.squared = round(r.squared, 2),
-         adj.r.squared = round(adj.r.squared, 2),
-         AIC = round(AIC, 2)) |>
-  gt()
-
-```
-
 We expected warming, nitrogen addition and clipping to operate through the same mechanisms, namely standing biomass to affect Shannon diversity (H1). Warming and nitrogen addition had the expected positive effect on standing biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b). The three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. Interestingly, warming also had a direct positive effect on diversity. Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity. However, warming and nitrogen addition had a direct negative effect on diversity.
 
 **Cutting - final standing biomass and diversity**
