@@ -119,9 +119,10 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
     tidylog::left_join(ellenberg, by = "species") |>
     pivot_longer(cols = c(plant_height_cm:sla_cm2_g, light:salinity),
                  names_to = "trait",
-                 values_to = "value") |>
+                 values_to = "value") |> 
 
-    select(siteID, blockID, turfID, warming, grazing, Nlevel, Namount_kg_ha_y, treatment, species, trait_trans, value_trans, origSiteID, destSiteID)
+    select(siteID, blockID, turfID, warming, grazing, Nlevel, Namount_kg_ha_y, treatment, species, trait_trans, value_trans, origSiteID, destSiteID) |> 
+    tidylog::distinct()
 
   #set seed for bootstrapping repeatability
   set.seed(2525)
