@@ -21,6 +21,4 @@ combined_plan <- c(
   figure_plan,
   si_figure_plan,
   manuscript_plan
-  # nutrient_plan,
-  # output_plan
 )
