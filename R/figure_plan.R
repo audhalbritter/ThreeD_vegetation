@@ -291,53 +291,6 @@ figure_plan <- list(
   ),
 
 
-  tar_target(
-    name = final_standingB_div_change_figure,
-    command = {
-
-        # Biomass vs. diversity analysis
-  fit = lm(log_ratio_diversity ~ log(final_bio) * origSiteID * warming, data = biomass_div)
-      
-  summary(fit)
-
-  pred = augment(fit)
-
-      biomass_div |>
-        ggplot(aes(x = log(final_bio), y = log_ratio_diversity)) +
-        geom_line(data = pred, 
-          aes(y = .fitted,
-            x = `log(final_bio)`,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
-        geom_point(data = biomass_div, aes(colour = warming,
-                                           shape = grazing,
-                                           fill = interaction(origSiteID, warming),
-                                           size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
-        scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-        scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("solid", "dashed"),
-                              name = "Origin") +
-        labs(x = bquote(Log(Standing~biomass)~g~m^-2),
-             y = "Change in Shannon diversity") +
-        theme_bw() +
-        theme(legend.position = "bottom",
-              legend.box = "vertical",
-              text = element_text(size = 12))
-    }
-  ),
-
-
   # Grazing effect on diversity dependent on biomass
   tar_target(
     name = grazing_div_figure,
