@@ -107,6 +107,11 @@ si_analysis_plan <- list(
   ),
 
   tar_target(
+    name = climate_stats,
+    command = make_climate_stats(climate_anova_table)
+  ),
+
+  tar_target(
     name = microclimate_stats,
     command = make_microclimate_stats(daily_temp)
   )
