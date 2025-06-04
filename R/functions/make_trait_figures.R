@@ -148,17 +148,17 @@ make_trait_figure_grazing <- function(traits, traits_stats, trait_prediction_cle
     filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
     group_by(origSiteID, status2, trait_trans, figure_names, Nitrogen_log, warming, grazing) |> 
     summarise(mean = mean(mean))
-    
-  prediction <- trait_prediction_clean |> 
+
+  prediction_h <- trait_prediction_clean |> 
     filter(trait_trans %in% c("plant_height_cm_log")) |>
     filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing) |> 
+    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing, Nitrogen_log) |> 
     summarise(fit = mean(fit))
 
-  prediction <- trait_prediction_clean |> 
+  prediction_t <- trait_prediction_clean |> 
     filter(trait_trans %in% c("temperature")) |>
     filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing) |> 
+    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing, Nitrogen_log) |> 
     summarise(fit = mean(fit))
     
   # figure text
@@ -190,7 +190,7 @@ height <- traits_wl |>
   geom_point(aes(shape = grazing,
                  color = warming,)) +
   
-  geom_line(data = trait_prediction,
+  geom_line(data = prediction_h,
     aes(y = fit, alpha = origSiteID),
     linewidth = 0.5
   ) +
@@ -242,7 +242,10 @@ height <- traits_wl |>
   # Points: Warming colors (only for NxW, but also visible for N as grey)
   geom_point(aes(shape = grazing)) +
   
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_line(data = prediction_t,
+    aes(y = fit, alpha = origSiteID),
+    linewidth = 0.5
+  ) +
   
   geom_text(
     data = traits_text |> 

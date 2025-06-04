@@ -100,8 +100,13 @@ tar_target(
   tar_target(
     name = small_traits_figure,
     command = make_trait_figure_small(traits, traits_stats, trait_prediction_clean, col_palette)
-  )
-  
+  ),
+
+    # grazing trait figure
+    tar_target(
+      name = grazing_traits_figure,
+      command = make_trait_figure_grazing(traits, traits_stats, trait_prediction_clean, col_palette)
+    )
   
 )
 
