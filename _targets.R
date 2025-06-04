@@ -1,7 +1,7 @@
 library("targets")
 library("tarchetypes")
 
-tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "janitor", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "wesanderson", "ggh4x", "gt", "ggpubr", "lavaan", "tidySEM", "quarto", "piecewiseSEM", "traitstrap"))
+tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "janitor", "vegan", "viridis", "lubridate", "MuMIn", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "wesanderson", "ggh4x", "gt", "ggpubr", "lavaan", "tidySEM", "quarto", "piecewiseSEM", "traitstrap", "data.table"))
 # sf, DBI, RSQLite, MuMin?
 
 # source other scripts

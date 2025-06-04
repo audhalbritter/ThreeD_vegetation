@@ -5,54 +5,107 @@ tranformation_plan <- list(
   # climate data
   tar_target(
     name = daily_temp,
-    command = climate_raw %>%
-      mutate(date = dmy(format(date_time, "%d.%b.%Y"))) |>
-      # daily temperature
-      group_by(date, destSiteID, destBlockID, destPlotID, origSiteID, origBlockID, warming, Nlevel, grazing, Namount_kg_ha_y) %>%
-      summarise(air_temperature = mean(air_temperature, na.rm = TRUE),
-                ground_temperature = mean(ground_temperature, na.rm = TRUE),
-                soil_temperature = mean(soil_temperature, na.rm = TRUE),
-                soilmoisture = mean(soilmoisture, na.rm = TRUE)) |>
-      pivot_longer(cols = c(air_temperature:soilmoisture), names_to = "variable", values_to = "value") |>
-      filter(!is.na(value)) |>
-      # prettify
-      mutate(warming = recode(warming, A = "Ambient", W = "Warming"),
-             grazing = recode(grazing, C = "Control", M = "Medium", I = "Intensive"),
-             grazing = factor(grazing, levels = c("Control", "Medium", "Intensive")),
-             origSiteID = recode(origSiteID, Joa = "Sub-alpine", Lia = "Alpine"),
-             variable = recode(variable, air_temperature = "air", ground_temperature = "ground", soil_temperature = "soil"))
+    command = {
 
-  ),
+      setDT(climate_raw)
+      climate_raw[, date := dmy(format(date_time, "%d.%b.%Y"))]
 
-  ## gridded climate data
+      daily_means <- climate_raw[
+        ,
+        .(
+          air_temperature = mean(air_temperature, na.rm = TRUE),
+          ground_temperature = mean(ground_temperature, na.rm = TRUE),
+          soil_temperature = mean(soil_temperature, na.rm = TRUE),
+          soilmoisture = mean(soilmoisture, na.rm = TRUE)
+        ),
+        by = .(date, destSiteID, destBlockID, destPlotID, 
+               origSiteID, origBlockID, warming, Nlevel, grazing, Namount_kg_ha_y)
+      ]
+
+      long_data <- melt(
+        daily_means,
+        measure.vars = c("air_temperature", "ground_temperature", "soil_temperature", "soilmoisture"),
+        variable.name = "variable",
+        value.name = "value"
+      )
+
+      long_data <- long_data[!is.na(value)]
+
+      long_data[, warming := fifelse(warming == "A", "Ambient", "Warming")]
+long_data[, grazing := fcase(
+  grazing == "C", "Control",
+  grazing == "M", "Medium",
+  grazing == "I", "Intensive"
+)]
+long_data[, grazing := factor(grazing, levels = c("Control", "Medium", "Intensive"))]
+long_data[, origSiteID := fcase(
+  origSiteID == "Joa", "Sub-alpine",
+  origSiteID == "Lia", "Alpine"
+)]
+long_data[, variable := fcase(
+  variable == "air_temperature", "air",
+  variable == "ground_temperature", "ground",
+  variable == "soil_temperature", "soil",
+  variable == "soilmoisture", "soilmoisture",
+  default = NA_character_
+)]
+
+  }
+),
+
+  # gridded climate data
   # monthly
   tar_target(
     name = monthly_climate,
-    command = gridded_climate_raw %>%
-      filter(variable %in% c("temperature", "precipitation")) |>
-      # monthly data
-      mutate(year = year(date),
-             date_month = dmy(paste0("15-",format(date, "%b.%Y")))) %>%
-      group_by(year, date_month, variable, siteID) %>%
-      summarise(sum = sum(value),
-                value = mean(value)) |>
-      mutate(value = ifelse(variable == "precipitation", sum, value)) %>%
-      select(-sum)
+    command = {
+
+      setDT(gridded_climate_raw)
+
+      clim_sub <- gridded_climate_raw[variable %in% c("temperature", "precipitation")]
+
+      clim_sub[, year := year(date)]
+      clim_sub[, date_month := dmy(paste0("15-", format(date, "%b.%Y")))]
+
+      monthly_summary <- clim_sub[
+        ,
+        .(sum = sum(value, na.rm = TRUE),
+          value = mean(value, na.rm = TRUE)),
+        by = .(year, date_month, variable, siteID)
+      ]
+
+      monthly_summary[variable == "precipitation", value := sum]
+
+      monthly_summary[, sum := NULL]
+
+    }
 
   ),
 
   # annual precipitation and summer temperature
   tar_target(
     name = annual_climate,
-    command = monthly_climate %>%
-      mutate(month = month(date_month)) |>
-      filter(variable == "temperature" & month %in% 6:9 | variable == "precipitation") |>
-      group_by(year, siteID, variable) %>%
-      summarise(se = sd(value)/sqrt(n()),
-                sum = sum(value),
-                value = mean(value)) |>
-      mutate(value = ifelse(variable == "precipitation", sum, value)) %>%
-      select(-sum)
+    command = {
+
+      setDT(monthly_climate)
+      monthly_climate[, month := month(date_month)]
+
+      clim_filtered <- monthly_climate[
+        (variable == "temperature" & month %in% 6:9) | variable == "precipitation"
+      ]
+
+      clim_summary <- clim_filtered[
+        ,
+        .(
+          se = sd(value, na.rm = TRUE) / sqrt(.N),
+          sum = sum(value, na.rm = TRUE),
+          value = mean(value, na.rm = TRUE)
+        ),
+        by = .(year, siteID, variable)
+      ]
+
+      clim_summary[variable == "precipitation", value := sum]
+      clim_summary[, sum := NULL]
+    }
 
   ),
 

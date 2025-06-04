@@ -116,12 +116,12 @@ download_plan <- list(
   # climate
   tar_target(
     name = climate_raw,
-    command = read_csv(climate_unzip)
+    command = fread(climate_unzip)
   ),
 
   tar_target(
     name = gridded_climate_raw,
-    command = read_csv(file = gridded_climate_download)
+    command = fread(file = gridded_climate_download)
   ),
 
   # biomass

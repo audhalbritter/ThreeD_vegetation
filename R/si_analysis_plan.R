@@ -28,13 +28,15 @@ si_analysis_plan <- list(
   ),
 
 
-  ## MICROCLIMATE
+  # MICROCLIMATE
   # run 3-way interaction model for climate
   tar_target(
     name = climate_model,
     command = {
 
-      average_summer_climate <- daily_temp |>
+      daily_temp2 <- as.data.frame(daily_temp)
+
+      average_summer_climate <- daily_temp2 |>
         mutate(month = month(date),
                year = year(date)) |>
         filter(month %in% c(5, 6, 7, 8, 9)) |>
@@ -113,7 +115,7 @@ si_analysis_plan <- list(
 
   tar_target(
     name = microclimate_stats,
-    command = make_microclimate_stats(daily_temp)
+    command = make_microclimate_stats(as.data.frame(daily_temp))
   )
 
   # tar_target(
