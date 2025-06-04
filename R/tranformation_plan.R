@@ -355,7 +355,15 @@ tranformation_plan <- list(
         mutate(species = str_replace(species, " aggr.", ""),
                species = case_when(species == "Gnaphalium supinum" ~ "Omalotheca supina",
                                    TRUE ~ species)) |>
-        mutate(across(c(light, temperature, moisture, reaction, nutrients, salinity), as.numeric))
+        mutate(across(c(light, temperature, moisture, reaction, nutrients, salinity), as.numeric)) |> 
+        group_by(species) |> 
+        tidylog::summarise(light = mean(light, na.rm = TRUE),
+                  temperature = mean(temperature, na.rm = TRUE),
+                  moisture = mean(moisture, na.rm = TRUE),
+                  reaction = mean(reaction, na.rm = TRUE),
+                  nutrients = mean(nutrients, na.rm = TRUE),
+                  salinity = mean(salinity, na.rm = TRUE)
+                )
 
     }
   )
