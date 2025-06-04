@@ -113,16 +113,16 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
            blockID = as.numeric(blockID)) |>
     # remove 27 accidental some observations with warm, grazing and N5
     filter(!is.na(treatment)) |>
+    select(- trait, -value) |> 
 
-    pivot_wider(names_from = trait, values_from = value) |>
+    pivot_wider(names_from = trait_trans, values_from = value_trans) |>
     # add ellenberg values
     tidylog::left_join(ellenberg, by = "species") |>
-    pivot_longer(cols = c(plant_height_cm:sla_cm2_g, light:salinity),
-                 names_to = "trait",
-                 values_to = "value") |> 
+    pivot_longer(cols = c(plant_height_cm_log:sla_cm2_g, light:salinity),
+                 names_to = "trait_trans",
+                 values_to = "value_trans") |> 
 
-    select(siteID, blockID, turfID, warming, grazing, Nlevel, Namount_kg_ha_y, treatment, species, trait_trans, value_trans, origSiteID, destSiteID) |> 
-    tidylog::distinct()
+    select(ID, siteID, blockID, turfID, warming, grazing, Nlevel, Namount_kg_ha_y, treatment, species, trait_trans, value_trans, origSiteID, destSiteID)
 
   #set seed for bootstrapping repeatability
   set.seed(2525)
