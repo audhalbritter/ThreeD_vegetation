@@ -27,7 +27,7 @@ library(ggpubr)
 
 ## Methods
 
-### Supplementary Figure 1: Temperature effects on the microclimate
+### Supplementary Figure S1: Temperature effects on the microclimate
 
 ```{r}
 #| label: fig-daily-climate
@@ -39,7 +39,7 @@ daily_climate_figure
 
 ```
 
-### Supplementary Figure 2: Plant productivity and consumption
+### Supplementary Figure S2: Plant productivity and consumption
 
 ```{r}
 #| label: fig-prod-consumption 
@@ -52,7 +52,7 @@ productivity_consumption_figure
 
 ```
 
-### Supplementary Table 1: Temperature effects on the microclimate
+### Supplementary Table S1: Temperature effects on the microclimate
 
 ```{r}
 #| label: tbl-climate-test
@@ -64,7 +64,7 @@ microclimate_stats
 
 ```
 
-### Supplementary Figure 3: Climate and global change drivers
+### Supplementary Figure S3: Climate and global change drivers
 
 ```{r}
 #| label: fig-climate
@@ -75,7 +75,7 @@ tar_load(climate_figure)
 climate_figure
 ```
 
-### Supplementary Table 2: Climate and global change drivers
+### Supplementary Table S2: Climate and global change drivers
 
 ```{r}
 #| label: tbl-climate
@@ -86,7 +86,7 @@ climate_stats
 
 ```
 
-### Supplementary Figure 4: Calculating standing biomass
+### Supplementary Figure S4: Calculating standing biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
@@ -99,7 +99,7 @@ tar_read(standing_biomass_back_fig, store = here::here(tar_config_get("store")))
 
 ```
 
-### Supplementary Table 3: Model output for estimated standing biomass
+### Supplementary Table S3: Model output for estimated standing biomass
 
 ```{r}
 #| label: tbl-standing-biomass-model-output
@@ -128,7 +128,7 @@ tidy(standing_biomass_model) |>
 
 ```
 
-### Supplementary Figure 5: Global change affects richness and evenness
+### Supplementary Figure S5: Global change affects richness and evenness
 
 ```{r}
 #| label: fig-div-index
@@ -142,9 +142,7 @@ tar_read(div_index_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-### 
-
-### Structural equation model
+### Structural equation model, Supplementary Figure S6-S10
 
 #### Stats for final cut diversity
 
@@ -253,6 +251,21 @@ graz_final_richness[[1]]
 tar_load(graz_final_evenness, store = here::here(tar_config_get("store")))
 
 graz_final_evenness[[1]]
+
+```
+
+### Supplementary Figure S11: Winner and loser traits in response to clipping
+
+```{r}
+#| label: fig-traits-grazing
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: Plant height and Ellenberg temperature indicator values for clipping responses. a) Mean plant height and temperature values are shown for plant species going extinct, increasing in cover, and colonizing under ambient (grey) and warm (pink) conditions at the sub-alpine site. b) Mean plant height, and temperature values are shown for plant species going extinct, decrease, or increase in cover in the alpine and sub-alpine site. The points show the raw data, and the lines show the prediction lines from the models where either there was a significant relashionship for nitrogen addition (one grey line) or for warming x nitrogen (grey and pink lines). The linetype indicates the status of the species (solid = extinction,dotted = decreasing, dashed = increasing) and the color shows the warming treatment.
+
+tar_read(grazing_traits_figure, store = here::here(tar_config_get("store")))
 
 ```
 
