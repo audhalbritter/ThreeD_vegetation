@@ -29,14 +29,17 @@ figure_plan <- list(
         distinct(origSiteID, term, significance) |>
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
-      bio <- make_vegetation_figure_v2(dat1 = biomass_origin_output |>
-                                  unnest(data),
-                                x_axis = Nitrogen_log,
-                                yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                colourpalette = col_palette,
-                                linetypepalette = c("solid", "dashed", "dotted"),
-                                shapepalette = c(21, 22, 24),
-                                dat2 = biomass_origin_prediction) +
+
+      bio <- make_vegetation_figure(dat1 = biomass_origin_output |>
+                                      unnest(data),
+                                   x_axis = Nitrogen_log,
+                                   yaxislabel = bquote(Standing~biomass~g~m^-2),
+                                   colourpalette = col_palette,
+                                   linetypepalette = c("solid", "dashed", "dotted"),
+                                   shapepalette = c(21, 22, 24),
+                                   facet_2 = NA,
+                                   # predictions
+                                   dat2 = biomass_origin_prediction) +
         labs(tag = "a)") +
         # add stats
         geom_text(data = biomass_origin_prediction |>
@@ -108,16 +111,18 @@ figure_plan <- list(
         distinct(origSiteID, term, significance) |>
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
-
-      div <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+        
+        div <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "diversity") |>
                                       unnest(data),
-                                    x_axis = Nitrogen_log,
-                                    yaxislabel = "Shannon diversity",
-                                    colourpalette = col_palette,
-                                    linetypepalette = c("solid", "dashed", "dotted"),
-                                    shapepalette = c(21, 22, 24),
-                                    dat2 = diversity_origin_prediction |>
+                                      x_axis = Nitrogen_log,
+                                      yaxislabel = "Shannon diversity",
+                                      colourpalette = col_palette,
+                                      linetypepalette = c("solid", "dashed", "dotted"),
+                                      shapepalette = c(21, 22, 24),
+                                      facet_2 = NA,
+                                      # predictions
+                                      dat2 = diversity_origin_prediction |>
                                       filter(diversity_index == "diversity")) +
         labs(tag = "b)") +
         # add stats
