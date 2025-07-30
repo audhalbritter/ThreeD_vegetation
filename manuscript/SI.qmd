@@ -44,7 +44,7 @@ daily_climate_figure
 ```{r}
 #| label: fig-prod-consumption 
 #| warning: false
-#| #| fig-height: 4
+#| fig-height: 4
 #| fig-cap: Annual productivity (mg m^-2^ y^-1^) and biomass consumption (mg m^-2^ y^-1) at the three study sites. Colors indicate grazed (yellow) and ungrazed (caged; gray) plots. Productivity and biomass consumption by grazers was assessed using three 30 x 30 cm cages (ungrazed) and according control plots (grazed). The cages were designed to exclude mammal herbivores, but not insects, with a mesh size of 1 cm. The plots were moved every 15.5 ± 0.447 days, and the biomass in each plot was harvested 2-3 cm above the ground, dried at 65°C for 72h and weighed. 
 
 tar_load(productivity_consumption_figure)
