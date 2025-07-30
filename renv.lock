@@ -134,20 +134,9 @@
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.6-1.1",
+      "Version": "1.7-3",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "grDevices",
-        "graphics",
-        "grid",
-        "lattice",
-        "methods",
-        "stats",
-        "utils"
-      ],
-      "Hash": "1a00d4828f33a9d690806e98bd17150c"
+      "Repository": "CRAN"
     },
     "MatrixModels": {
       "Package": "MatrixModels",
@@ -1089,14 +1078,9 @@
     },
     "digest": {
       "Package": "digest",
-      "Version": "0.6.33",
+      "Version": "0.6.37",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "utils"
-      ],
-      "Hash": "b18a9cf3c003977b0cc49d5e76ebe48d"
+      "Repository": "CRAN"
     },
     "distributional": {
       "Package": "distributional",
@@ -2201,20 +2185,9 @@
     },
     "mgcv": {
       "Package": "mgcv",
-      "Version": "1.9-0",
+      "Version": "1.9-3",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "Matrix",
-        "R",
-        "graphics",
-        "methods",
-        "nlme",
-        "splines",
-        "stats",
-        "utils"
-      ],
-      "Hash": "086028ca0460d0c368028d3bda58f31b"
+      "Repository": "CRAN"
     },
     "mi": {
       "Package": "mi",
@@ -2302,17 +2275,9 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-163",
+      "Version": "3.1-168",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "graphics",
-        "lattice",
-        "stats",
-        "utils"
-      ],
-      "Hash": "8d1938040a05566f4f7a14af4feadd6b"
+      "Repository": "CRAN"
     },
     "nloptr": {
       "Package": "nloptr",
