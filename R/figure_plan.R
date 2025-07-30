@@ -244,77 +244,31 @@ figure_plan <- list(
       (bio + bio2) / (div + div2) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
               plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+              plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
 
     }
   ),
 
 
-  tar_target(
-    name = div_origin_figure,
-    command = {
-
-
-
-    }
-  ),
-
-  # Biomass vs diversity figure
-  tar_target(
-    name = standingB_div_change_figure,
-    command = {
-
-      biomass_div |>
-        ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity)) +
-        geom_line(data = standingB_div_change_prediction, aes(y = .fitted,
-                                                              x = log_ratio_bio,
-                                          linetype = origSiteID),
-                  colour = "grey60", linewidth = 0.75) +
-        geom_point(data = biomass_div, aes(colour = warming,
-                                           shape = grazing,
-                                           fill = interaction(origSiteID, warming),
-                                           size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        # Fill colors: White for Alpine, specific colors for Sub-Alpine (warming levels)
-        scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
-        scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-        scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("dashed", "solid"),
-                              name = "Origin") +
-        labs(x = bquote(Log(Change~standing~biomass)~g~m^-2),
-             y = "Change in Shannon diversity") +
-        theme_bw() +
-        theme(legend.position = "bottom",
-              legend.box = "vertical",
-              text = element_text(size = 12))
-
-    }
-  ),
 
   tar_target(
     name = standingB_div_final_figure,
     command = {
 
-      final <- biomass_div |>
+      biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_line(data = standingB_div_final_prediction, aes(y = .fitted,
-                                                             x = `log(final_bio)`,
-                                                             linetype = origSiteID),
-                  colour = "grey60", linewidth = 0.75) +
+        geom_line(data = standingB_div_final_prediction, 
+          aes(y = .fitted,
+            x = `log(final_bio)`,
+            linetype = origSiteID,
+            colour = warming),
+            linewidth = 0.75) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
                                            fill = interaction(origSiteID, warming),
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("white", "grey30", "white", "#FD6467"),
+        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
                           name = "Origin",
                           #breaks = c("Alpine", "Sub-alpine"),
                           labels = c("Alpine", "Sub-Alpine", "", ""),
@@ -325,7 +279,7 @@ figure_plan <- list(
                           ))) +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("dashed", "solid"),
+        scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
              y = "Shannon diversity") +
@@ -381,7 +335,7 @@ figure_plan <- list(
                anova0 = map(.x = model0, .f = car::Anova),
                anova_tidy0 = map(.x = anova0, .f = tidy)
         ) |>
-        unnest(anova_tidy0) |>
+        unnest(anova_tidy1) |>
         select(origSiteID, term:p.value)
 
       dat2 |>
@@ -407,161 +361,6 @@ figure_plan <- list(
 
 
     }
-  ),
-
-  tar_target(
-    name = prep_win_los_data,
-    command = {
-
-      cover_wl |>
-        # remove duplicates
-        tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-        mutate(status = fct_relevel(status, "loser", "decrease", "stable", "increase", "winner")) |>
-        #filter(grazing == "Control") |>
-        group_by(origSiteID, status, warming, Nitrogen_log, Namount_kg_ha_y, Nlevel, turfID) |>
-        summarise(n = n()) |>
-        group_by(origSiteID, status, warming, Nitrogen_log, Namount_kg_ha_y, turfID) |>
-        summarise(n = mean(n)) |>
-        mutate(nitrogen = case_when(Namount_kg_ha_y == 0 ~ "none",
-                                    Namount_kg_ha_y > 20 ~ "high",
-                                    .default = "low"),
-               nitrogen = factor(nitrogen, levels = c("none", "low", "high")))
-
-
-    }),
-
-  tar_target(
-    name = win_lose_figure,
-    command = {
-
-      p0 <- prep_win_los_data |>
-        ggplot(aes(x = nitrogen, y = n, fill = warming)) +
-        geom_col(position = "dodge") +
-        scale_fill_manual(values = c("grey30", "#FD6467")) +
-        labs(x = "Nitrogen level", y = "Number of species") +
-        facet_grid(cols = vars(status),
-                   rows = vars(origSiteID)) +
-        theme_bw()
-
-      p1 <- prep_win_los_data |>
-        filter(status != "stable") |>
-        # make the number of species negative for losers and decrease
-        mutate(n = if_else(status %in% c("loser", "decrease"), n*-1, n),
-               status2 = if_else(status %in% c("loser", "winner"), "win/lose", "in-/decrease")) |>
-        ggplot(aes(x = nitrogen, y = n, fill = warming)) +
-        geom_col(position = "dodge") +
-        geom_hline(yintercept = 0, colour = "grey60") +
-        scale_fill_manual(values = c("grey30", "#FD6467")) +
-        labs(x = "Nitrogen level", y = "Number of species") +
-        facet_grid(cols = vars(status2),
-                   rows = vars(origSiteID)) +
-        theme_bw()
-
-
-      p2 <- prep_win_los_data |>
-        filter(status != "stable") |>
-        # make the number of species negative for losers and decrease
-        mutate(n = if_else(status %in% c("loser", "decrease"), n*-1, n),
-               status2 = if_else(status %in% c("loser", "winner"), "win/lose", "in-/decrease")) |>
-        ggplot(aes(x = nitrogen, y = n, fill = warming)) +
-        geom_col(position = "fill") +
-        geom_hline(yintercept = 0, colour = "grey60") +
-        scale_fill_manual(values = c("grey30", "#FD6467")) +
-        labs(x = "Nitrogen level", y = "Proportion of species") +
-        facet_grid(cols = vars(status2),
-                   rows = vars(origSiteID)) +
-        theme_bw()
-
-
-      p3 <- prep_win_los_data |>
-        ungroup() |>
-        filter(status != "stable",
-               !c(warming == "Warming" & nitrogen %in% c("low", "high"))) |>
-        mutate(nitrogen = if_else(warming == "Warming", "warming", nitrogen),
-               nitrogen = factor(nitrogen, levels = c("none", "low", "high", "warming"))) |>
-        # make the number of species negative for losers and decrease
-        mutate(n = if_else(status %in% c("loser", "decrease"), n*-1, n),
-               status2 = if_else(status %in% c("loser", "winner"), "win/lose", "in-/decrease")) |>
-        ggplot(aes(x = nitrogen, y = n, fill = nitrogen)) +
-        geom_col() +
-        geom_hline(yintercept = 0, colour = "grey60") +
-        scale_fill_manual(values = c("grey30", "grey30", "grey30", "#FD6467")) +
-        labs(x = "Nitrogen level", y = "Number of species") +
-        facet_grid(cols = vars(status2),
-                   rows = vars(origSiteID)) +
-        theme_bw()
-
-      p0 / (p1 + p2) / (p3 + plot_spacer()) + plot_layout(guides = "collect")
-
-    }
-  ),
-
-  tar_target(
-    name = win_lose_test,
-    command = {
-
-      prep_win_los_data |>
-        ungroup() |>
-        group_by(status, origSiteID) |>
-        nest() |>
-        mutate(fit = map(data, ~lm(n ~ warming + nitrogen, data = .)),
-               res = map(fit, tidy),
-               anova = map(fit, car::Anova),
-               anova_tidy = map(anova, tidy))
-
-    }
-  ),
-
-  tar_target(
-    name = win_lose2,
-    command = {
-
-      dd <- cover_wl |>
-        filter(!is.na(grazing_num)) |>
-        # remove duplicates
-        tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-        mutate(status = fct_relevel(status, "loser", "decrease", "stable", "increase", "winner")) |>
-        #filter(grazing == "Control") |>
-        group_by(origSiteID, status, warming, Nitrogen_log, Namount_kg_ha_y, Nlevel, turfID, grazing_num, grazing) |>
-        summarise(n = n()) |>
-        group_by(origSiteID, status, warming, Nitrogen_log, Namount_kg_ha_y, turfID, grazing_num, grazing) |>
-        summarise(n = mean(n)) |>
-        mutate(nitrogen = case_when(Namount_kg_ha_y == 0 ~ "none",
-                                    Namount_kg_ha_y > 20 ~ "high",
-                                    .default = "low"),
-               nitrogen = factor(nitrogen, levels = c("none", "low", "high")))
-
-      res <- dd |>
-        ungroup() |>
-        group_by(status, origSiteID) |>
-        nest() |>
-        mutate(fit = map(data, ~lm(n ~ warming * Nitrogen_log * grazing_num, data = .)),
-               res = map(fit, tidy),
-               anova = map(fit, car::Anova),
-               anova_tidy = map(anova, tidy))
-
-      res |>
-        unnest(anova_tidy) |>
-        filter(p.value <= 0.05)
-
-
-      dd |>
-        filter(status != "stable") |>
-        # make the number of species negative for losers and decrease
-        mutate(n = if_else(status %in% c("loser", "decrease"), n*-1, n),
-               status2 = if_else(status %in% c("loser", "winner"), "win/lose", "in-/decrease")) |>
-        ggplot(aes(x = as.factor(Namount_kg_ha_y), y = n, fill = warming)) +
-        geom_col(position = "dodge") +
-        geom_hline(yintercept = 0, colour = "grey60") +
-        scale_fill_manual(values = c("grey30", "#FD6467")) +
-        labs(x = "Nitrogen level", y = "Number of species") +
-        facet_grid(cols = vars(status2),
-                   rows = vars(origSiteID)) +
-        theme_bw()
-
-    }
   )
-
-
 
 )

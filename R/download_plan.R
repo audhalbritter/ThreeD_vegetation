@@ -92,7 +92,7 @@ download_plan <- list(
   tar_target(
     name = trait_download,
     command =  get_file(node = "fcbw4",
-                        file = "PFTC6_ThreeD_clean_leaf_traits_2022.csv",
+                        file = "PFTC6_clean_ElevationGradient_GlobalChangeExperiment_morphological_traits_2022.csv",
                         path = "data",
                         remote_path = "i. trait_data"),
     format = "file"
@@ -116,12 +116,12 @@ download_plan <- list(
   # climate
   tar_target(
     name = climate_raw,
-    command = read_csv(climate_unzip)
+    command = fread(climate_unzip)
   ),
 
   tar_target(
     name = gridded_climate_raw,
-    command = read_csv(file = gridded_climate_download)
+    command = fread(file = gridded_climate_download)
   ),
 
   # biomass

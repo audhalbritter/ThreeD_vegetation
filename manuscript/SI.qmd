@@ -10,7 +10,6 @@ editor:
     wrap: sentence
 ---
 
-
 ```{r}
 #| label: set-up
 #| echo: false
@@ -26,24 +25,81 @@ library(patchwork)
 library(ggpubr)
 ```
 
-
 ## Methods
 
-### Calculating standing biomass
+### Supplementary Figure S1: Temperature effects on the microclimate
 
-Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots
+```{r}
+#| label: fig-daily-climate
+#| warning: false
+#| fig-cap: a) Daily temperature and soil moisture values, measured over the period of the experiment in the alpine and sub-alpine sites and b) average summer temperature and soil moisture between May and September. Shown are air (30 cm), ground (0 cm), soil temperature (-5 cm), and soil moisture measured with Tomst loggers between August 2019 and October 2022. Colour indicates the ambient (grey) and warming (pink) treatment. Air, ground and soil temperature were higher and soil moisture was lower in the warming treatment, indicated by the star in each panel.
 
+tar_load(daily_climate_figure)
+daily_climate_figure
+
+```
+
+### Supplementary Figure S2: Plant productivity and consumption
+
+```{r}
+#| label: fig-prod-consumption 
+#| warning: false
+#| fig-height: 4
+#| fig-cap: Annual productivity (mg m^-2^ y^-1^) and biomass consumption (mg m^-2^ y^-1) at the three study sites. Colors indicate grazed (yellow) and ungrazed (caged; gray) plots. Productivity and biomass consumption by grazers was assessed using three 30 x 30 cm cages (ungrazed) and according control plots (grazed). The cages were designed to exclude mammal herbivores, but not insects, with a mesh size of 1 cm. The plots were moved every 15.5 ± 0.447 days, and the biomass in each plot was harvested 2-3 cm above the ground, dried at 65°C for 72h and weighed. 
+
+tar_load(productivity_consumption_figure)
+productivity_consumption_figure
+
+```
+
+### Supplementary Table S1: Temperature effects on the microclimate
+
+```{r}
+#| label: tbl-climate-test
+#| tbl-cap: Results from linear regression of the effects of warming on air, ground, and soil temperature and soilmoisture at the alpine and sub-alpine communities. Shown are estimates, standard error, t statistics and P value.
+
+
+tar_load(microclimate_stats)
+microclimate_stats
+
+```
+
+### Supplementary Figure S3: Climate and global change drivers
+
+```{r}
+#| label: fig-climate
+#| warning: false
+#| fig-cap: Global change impact on microclimate. Average summer (June - September) air, ground soil temperature and soil moisture between 2019 and 2022 with increasing nitrogen addition (kg N ha^-1^ y^-1^) at the alpine (upper row) and sub-alpine (lower row) site. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (gray) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant model terms (W = warming).
+
+tar_load(climate_figure)
+climate_figure
+```
+
+### Supplementary Table S2: Climate and global change drivers
+
+```{r}
+#| label: tbl-climate
+#| tbl-cap: Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on air, ground and soil temperature and soilmoisture at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold.
+
+tar_load(climate_stats)
+climate_stats
+
+```
+
+### Supplementary Figure S4: Calculating standing biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: Relationship between collected and estimated standing biomass in the control plots.
+#| fig-cap: Relationship between collected and estimated standing biomass in the control plots. Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots
+
 
 tar_read(standing_biomass_back_fig, store = here::here(tar_config_get("store")))
 
 ```
 
+### Supplementary Table S3: Model output for estimated standing biomass
 
 ```{r}
 #| label: tbl-standing-biomass-model-output
@@ -67,96 +123,28 @@ tidy(standing_biomass_model) |>
     style = list(
       cell_text(weight = "bold")
       ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`))
+    locations = cells_column_labels(columns = c(Term, Estimate, `Std. Error`, `t value`, `P value`))
     )
 
 ```
 
-### Biomass diversity relationship
-
-The relationship between biomass and Shannon diversity (i.e. log ratios) was negative (*P* = 0.087). This relationship was stronger in the sub-alpine site compared to the alpine site.
+### Supplementary Figure S5: Global change affects richness and evenness
 
 ```{r}
-#| label: fig-bio-div
+#| label: fig-div-index
 #| echo: false
 #| warning: false
-#| fig-height: 7.5
-#| fig-cap: Relationship of change in standing biomass and Shannon diversity.
+#| fig-width: 8
+#| fig-height: 13
+#| fig-cap: Species richness across (a), and separate by site (b), evenness across (c), and separately by site (d) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions). Letters in grey indicate almost significant model terms.
 
-tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
+tar_read(div_index_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
+### Structural equation model, Supplementary Figure S6-S10
 
-tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
-
-tidy(standingB_div_final_model) |>
-  mutate(term = case_match(term,
-                           "(Intercept)" ~ "Intercept",
-                           "log(final_bio)" ~ "Log(Biomass)",
-                           "origSiteIDSub-alpine" ~ "Origin",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xOrigin")) |>  
-  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
-  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
-
-```
-
-```{r}
-#| label: fig-bio
-#| echo: false
-#| warning: false
-#| fig-height: 7
-#| fig-cap: Relationship of standing biomass and Shannon diversity.
-
-tar_read(standingB_div_change_figure, store = here::here(tar_config_get("store")))
-
-```
-
-
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
-
-tar_load(standingB_div_change_model, store = here::here(tar_config_get("store")))
-
-tidy(standingB_div_change_model) |>
-  mutate(term = case_match(term,
-                           "(Intercept)" ~ "Intercept",
-                           "log_ratio_bio" ~ "Biomass",
-                           "origSiteIDSub-alpine" ~ "Origin",
-                           "log_ratio_bio:origSiteIDSub-alpine" ~ "BiomassxOrigin",
-                           )) |>  
-  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
-  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
-
-```
-
-
-### Structural equation model
-
-**Stats for final cut diversity**
-
+#### Stats for final cut diversity
 
 ```{r}
 #| label: tbl-cut-final-stats
@@ -164,7 +152,7 @@ tidy(standingB_div_change_model) |>
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: Stats from SEM
+#| tbl-cap: SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via standing biomass on Shannon diversity. Shown are the response, predictors, standard estimate, standard error, degrees of freedome and P value. Variables in bold have a significant P value.
 
 tar_load(cut_final_diversity, store = here::here(tar_config_get("store")))
 
@@ -192,15 +180,15 @@ cut_final_diversity[[2]] |>
 
 ```
 
-**Cutting - final richness/evenness and biomass**
+#### SEM for species richness and evenness
 
 ```{r}
 #| label: fig-cut-final-richness
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-height: 6
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness for a) the alpine and b) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
 tar_load(cut_final_richness, store = here::here(tar_config_get("store")))
 
@@ -213,8 +201,8 @@ cut_final_richness[[1]]
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-height: 6
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on evenness for a) the alpine and b) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
 tar_load(cut_final_evenness, store = here::here(tar_config_get("store")))
 
@@ -222,15 +210,15 @@ cut_final_evenness[[1]]
 
 ```
 
-**Grazing - final diversity/richness/evenness and biomass**
+#### SEMs for natural grazing
 
 ```{r}
 #| label: fig-graz-final-diversity
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on diversity a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-height: 6
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on diversity for a) the alpine and b) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
 tar_load(graz_final_diversity, store = here::here(tar_config_get("store")))
 
@@ -243,8 +231,8 @@ graz_final_diversity[[1]]
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on sepcies richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-height: 6
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on sepcies richness for a) the alpine and b) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
 tar_load(graz_final_richness, store = here::here(tar_config_get("store")))
 
@@ -257,8 +245,8 @@ graz_final_richness[[1]]
 #| echo: false
 #| message: false
 #| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-height: 6
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on evenness for a) the alpine and b) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
 tar_load(graz_final_evenness, store = here::here(tar_config_get("store")))
 
@@ -266,6 +254,20 @@ graz_final_evenness[[1]]
 
 ```
 
+### Supplementary Figure S11: Winner and loser traits in response to clipping
+
+```{r}
+#| label: fig-traits-grazing
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: Plant height and Ellenberg temperature indicator values for clipping responses. a) Mean plant height and temperature values are shown for plant species going extinct, increasing in cover, and colonizing under ambient (grey) and warm (pink) conditions at the sub-alpine site. b) Mean plant height, and temperature values are shown for plant species going extinct, decrease, or increase in cover in the alpine and sub-alpine site. The points show the raw data, and the lines show the prediction lines from the models where either there was a significant relashionship for nitrogen addition (one grey line) or for warming x nitrogen (grey and pink lines). The linetype indicates the status of the species (solid = extinction,dotted = decreasing, dashed = increasing) and the color shows the warming treatment.
+
+tar_read(grazing_traits_figure, store = here::here(tar_config_get("store")))
+
+```
 
 **Cutting - change in diversity/richness/evenness and biomass (log ratio)**
 
@@ -309,7 +311,6 @@ cut_change_evenness[[1]]
 
 ```
 
-
 **Grazing - change in diversity/richness/evenness and biomass (log ratio)**
 
 ```{r}
@@ -323,7 +324,6 @@ cut_change_evenness[[1]]
 tar_read(graz_change_figure, store = here::here(tar_config_get("store")))
 
 ```
-
 
 ```{r}
 #| label: fig-graz-change-richness
@@ -353,24 +353,60 @@ graz_change_evenness[[1]]
 
 ```
 
-### Winners and losers
+### Plant traits
 
 ```{r}
-#| label: tbl-winlos-sp
+#| label: fig-traits-large
 #| echo: false
 #| message: false
-#| tbl-cap: Species in each group and origin site.
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Traits etc.
 
-tar_load(cover_wl, store = here::here(tar_config_get("store")))
+tar_read(traits_figure, store = here::here(tar_config_get("store")))
 
-cover_wl |> 
-  group_by(origSiteID, status) |> 
-  filter(warming == "Warming",
-         status != "stable") |> 
-  count(species) |> 
-  arrange(origSiteID, status, -n) |> 
-  filter(n > 9) |> 
-  group_by(status) |> 
-  gt()
+```
+
+### Biomass diversity relationship
+
+```{r}
+#| label: fig-bio
+#| echo: false
+#| warning: false
+#| fig-height: 7
+#| fig-cap: Relationship of standing biomass and Shannon diversity.
+
+tar_read(standingB_div_change_figure, store = here::here(tar_config_get("store")))
+
+```
+
+```{r}
+#| label: tbl-bio-div2
+#| echo: false
+#| warning: false
+#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
+
+tar_load(standingB_div_change_model, store = here::here(tar_config_get("store")))
+
+tidy(standingB_div_change_model) |>
+  mutate(term = case_match(term,
+                           "(Intercept)" ~ "Intercept",
+                           "log_ratio_bio" ~ "Log ratio(Biomass)",
+                           "origSiteIDSub-alpine" ~ "Site",
+                           "warmingWarming" ~ "Warming",
+                           "log_ratio_bio:origSiteIDSub-alpine" ~ "Log ratio(Biomass)xSite",
+                           "log_ratio_bio:warmingWarming" ~ "Log ratio(Biomass)xWarming",
+                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
+                           "log_ratio_bio:origSiteIDSub-alpine:warmingWarming" ~ "Log ratio(Biomass)xSitexWarming")) |>  
+  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
+  gt() |> 
+  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
+  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = vars(Term, Estimate, `Std. Error`, `t value`, `P value`)))
 
 ```

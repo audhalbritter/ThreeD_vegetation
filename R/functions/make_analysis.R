@@ -1,6 +1,6 @@
 ### Analysis
 
-# run three way interaction model
+# run three way interaction model with site
 run_full_model_v2 <- function(dat,
                               group = NULL,
                               response,

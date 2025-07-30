@@ -289,7 +289,7 @@ make_climate_stats <- function(climate_anova_table){
            variable = factor(variable, levels = c("air", "ground", "soil", "soilmoisture"))) |>
     select(-names) |>
     pivot_wider(names_from = variable, values_from = c(sumsq, df, statistic, p.value)) |>
-    mutate(term = factor(term, levels = c("W", "G", "N", "N²", "WxG", "WxN", "WxN²", "GxN", "GxN²", "WxGxN", "WxGxN²", "Residuals"))) |>
+    mutate(term = factor(term, levels = c("W", "C", "N", "WxC", "WxN", "NxC", "WxNxC", "Residuals"))) |>
     arrange(origSiteID, term) |>
     select(Term = term, sumsq_air, df_air, statistic_air, p.value_air, sumsq_ground, df_ground,  statistic_ground, p.value_ground, sumsq_soil, df_soil, statistic_soil, p.value_soil, sumsq_soilmoisture, df_soilmoisture, statistic_soilmoisture, p.value_soilmoisture)
 

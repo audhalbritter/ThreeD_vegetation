@@ -314,70 +314,6 @@ analysis_plan <- list(
   ),
 
 
-  # tar_target(
-  #   name = diversity_model,
-  #   command = diversity_model_all_origin |>
-  #     group_by(diversity_index, origSiteID, mod) |>
-  #     arrange(origSiteID, diversity_index, mod, AIC) |>
-  #     # get delta AIC and keep all models within delta 2
-  #     mutate(delta_AIC = AIC - min(AIC)) |>
-  #     filter(delta_AIC <= 2) |>
-  #     # Keep linear model if there are 2 models
-  #     mutate(n = n()) |>
-  #     filter(n == 1 | n == 2 & names == "linear")
-  # ),
-
-  ## Figure 2
-  tar_target(
-    name = fig,
-    command = {
-
-      bind_rows(
-        Full = diversity_model_all |>
-          filter(diversity_index == "diversity") |>
-          ungroup(),
-        origin = diversity_model_all_origin |>
-          filter(diversity_index == "diversity") |>
-          ungroup(),
-        .id = "model"
-      ) |>
-        select(model, origSiteID, mod, adj.r.squared) |>
-        mutate(model = if_else(model == "origin", origSiteID, model)) |>
-        pivot_wider(names_from = mod, values_from = c(adj.r.squared)) |>
-        mutate(biomass = bio,
-               "main effects" = biomain - bio,
-               interactions = biointeraction - bio,
-               model = factor(model, levels = c("Full", "Sub-alpine", "Alpine"))) |>
-        pivot_longer(cols = c(biomass, "main effects", interactions), names_to = "term", values_to = "value") |>
-        ggplot(aes(x = model, y = value, fill = term)) +
-        geom_col() +
-        scale_fill_manual(name = "", values = c("darkgreen", "orange", "blue")) +
-        theme_bw()
-
-    }
-  ),
-
-  # Biomass vs. diversity analysis
-  tar_target(
-    name = standingB_div_final_model,
-    command = lm(final_diversity ~ log(final_bio) * origSiteID, data = biomass_div)
-  ),
-
-  tar_target(
-    name = standingB_div_final_prediction,
-    command = augment(standingB_div_final_model)
-  ),
-
-  tar_target(
-    name = standingB_div_change_model,
-    command = lm(log_ratio_diversity ~ log_ratio_bio * origSiteID, data = biomass_div)
-  ),
-
-  tar_target(
-    name = standingB_div_change_prediction,
-    command = augment(standingB_div_change_model)
-  ),
-
   # status: winners, losers, increasing, decreasing and stable species
   # mark status of species in cover data
   tar_target(
@@ -389,7 +325,7 @@ analysis_plan <- list(
   tar_target(
     name = trait_impute_all,
     command = make_trait_impute2(cover_wl |>
-                                   filter(year == "2022"),
+                                   filter(year == "2022" | year == 2019 & status == "extinction"),
                                  trait_raw,
                                  ellenberg)
   ),
@@ -408,10 +344,10 @@ analysis_plan <- list(
       dat <- cover_wl |>
         # remove duplicates
         tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-        mutate(status = fct_relevel(status, "loser", "decrease", "stable", "increase", "winner"))
+        mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
 
       dat |>
-        group_by(status) |>
+        group_by(status, status2) |>
         nest() |>
         mutate(trait_impute = map(data, ~ make_trait_impute2(.x, trait_raw, ellenberg)),
                trait_mean = map(trait_impute, ~ make_bootstrapping(.x)))
