@@ -1,5 +1,5 @@
 ---
-title: "Global change impacts alpine grasslands throught the same mechanisms"
+title: "Global change impacts alpine grasslands through the same mechanisms"
 author: 
   - name: Aud H. Halbritter
     orcid: 0000-0003-2597-6328
@@ -54,8 +54,8 @@ abstract: >
   Biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 
   Here we tested in alpine vegetation, if these drivers affect biodiversity through the same underlying mechanisms, namely standing biomass. 
   Over three years, we studied the combined effects of these global change drivers on standing biomass and diversity of an alpine and sub-alpine grassland by transplanting communities to lower elevation (warming), applying nitrogen, and grazing as well as mimicking grazing by clipping. 
-  We found that the three global change drivers affect standing biomass and diveresity, but the impact depended on the site and limiting resources.
-  The three global change drivers operated indeed on diversity through standing biomass, but only at the alpine site where the grassland both temperature and nutrient limited.
+  We found that the three global change drivers affect standing biomass and diversity, but the impact depended on the site and the limiting resources.
+  The three global change drivers operated indeed on diversity through standing biomass, but only at the alpine site where the grassland was both temperature and nutrient limited.
   Warming and nitrogen addition increased standing biomass resulting in a negative net effect on diversity. 
   Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity.
   The effect of grazing operated through standing biomass independent of site, however only in the alpine site under warming, grazing could mitigate negative impacts of the other drivers.
