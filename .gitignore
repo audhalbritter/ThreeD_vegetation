@@ -79,3 +79,5 @@ renv/library/
 # Ignore the renv local caches (renv stores package copies here)
 renv/python/    # if you're using reticulate/renv together
 renv/staging/
+
+settings.json
