@@ -1,7 +1,6 @@
 #### LOAD PACKAGES ####
 
 library(tidyverse)
-library(lubridate)
 library(stringi)
 library(readxl)
 library(writexl)
@@ -18,10 +17,8 @@ library(targets)
 library(DBI)
 library(RSQLite)
 library(patchwork)
-library(MuMIn)
 library(glue)
 library(wesanderson)
-library(lavaan)
 library(tidySEM)
 library(piecewiseSEM)
 library(gt)
