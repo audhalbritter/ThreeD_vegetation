@@ -170,34 +170,27 @@ figure_plan <- list(
 
       biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_line(data = standingB_div_final_prediction, 
-          aes(y = .fitted,
-            x = `log(final_bio)`,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
+        # geom_line(data = standingB_div_final_prediction, 
+        #   aes(y = .fitted,
+        #     x = `log(final_bio)`,
+        #     linetype = origSiteID,
+        #     colour = warming),
+        #     linewidth = 0.75) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
-                                           fill = interaction(origSiteID, warming),
+                                           fill = warming,
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
+        scale_fill_manual(values = col_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
              y = "Shannon diversity") +
+        facet_wrap(vars(origSiteID)) +
         theme_bw() +
-        theme(legend.position = "bottom",
+        theme(legend.position = "top",
               legend.box = "vertical",
               text = element_text(size = 12))
     }
