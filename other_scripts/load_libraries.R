@@ -25,6 +25,7 @@ library(gt)
 library(ggpubr)
 library(here)
 library(data.table)
+library(MetBrewer)
 
 
 # Stuff
