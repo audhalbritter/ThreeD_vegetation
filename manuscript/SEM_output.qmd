@@ -150,20 +150,3 @@ At the sub-alpine site, winner species in response to warming were taller. Loser
 tar_read(small_traits_figure, store = here::here(tar_config_get("store")))
 
 ```
-
-### Clipping can mediate the effect of warming on diversity
-
-The three global change drivers had interactive effects and were related to variable effects of clipping depending on the warming and nitrogen levels, with standing biomass as an important intermediary (@fig-grazing; @fig-1-biomass-diversity b). In particular, clipping did not affect diversity under ambient climate or nitrogen, however, under their combined effect, the clipping impact on diversity became increasingly positive, paralleling the trend of strongly increasing biomass under these combined treatments (@fig-grazing). In the sub-alpine community, there was no consistent variation in the effects of clipping in diversity depending on warming, nitrogen addition, or biomass (@fig-grazing).
-
-```{r}
-#| label: fig-grazing
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-width: 6
-#| fig-height: 6
-#| fig-cap: Grazing effect on diversity.
-
-tar_read(grazing_div_figure, store = here::here(tar_config_get("store")))
-
-```
