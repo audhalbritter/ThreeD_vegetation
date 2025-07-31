@@ -48,7 +48,7 @@ Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$
 #| message: false
 #| warning: false
 #| fig-width: 8
-#| fig-height: 13
+#| fig-height: 7.5
 #| fig-cap: Standing biomass (g m^-2^) (a) and Shannon diversity (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions).
 
 tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
@@ -61,7 +61,7 @@ Overall, the relationship between standing biomass and Shannon diversity was neg
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 7.5
+#| fig-height: 5
 #| fig-cap: Relationship of change in standing biomass and Shannon diversity. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing, diamond = natural grazing). Filled symbols are from the alpine site and open symbols from the sub-alpine site. The lines show the prediction line of the model for the alpine (solid) and sub-alpine site (dashed).
 
 tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
@@ -71,6 +71,7 @@ tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store"))
 ```{r}
 #| label: tbl-bio-div
 #| echo: false
+#| eval: false
 #| warning: false
 #| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
 
@@ -138,15 +139,64 @@ At the alpine site, the plant community had more winners (i.e. species that colo
 
 At the sub-alpine site, winner species in response to warming were taller. Loser species also responded to clipping at the sub-alpine site (Supplementary Figure S5). Loser species were smaller in response to clipping. Under ambient climate, loser species had lower temperature requirements when they were clipped, but were warmer adapted species under warming and clipping.
 
+### Warming
+
 ```{r}
-#| label: fig-traits
+#| label: fig-traits-warming
 #| echo: false
 #| message: false
 #| warning: false
 #| fig-width: 10
-#| fig-height: 6
-#| fig-cap: Plant height and Ellenberg temperature indicator values. a) Mean plant height and temperature values are shown for plant species going extinct, increasing in cover, and colonizing under ambient (grey) and warm (pink) conditions in the alpine and sub-alpine site. b) Mean plant height and temperature values are shown for plant species going extinct, decrease, or increase in cover in the alpine and sub-alpine site. The points show the raw data, and the lines show the prediction lines from the models where either there was a significant relashionship for nitrogen addition (one grey line) or for warming x nitrogen (grey and pink lines). The linetype indicates the status of the species (solid = extinction,dotted = decreasing, dashed = increasing) and the color shows the warming treatment.
+#| fig-height: 5
+#| fig-cap: Trait distributions for ambient and warmed plots at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values. The colours indicate the ambient (grey) and warming (pink) treatments.
 
-tar_read(small_traits_figure, store = here::here(tar_config_get("store")))
+tar_read(traits_warming_plot)
 
 ```
+
+### Nitrogen
+
+```{r}
+#| label: fig-traits-nitrogen
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: Trait distributions for different levels of nitrogen addition at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values. The colours indicate the different nitrogen levels (some gradient).
+
+tar_read(traits_nitrogen_plot)
+
+```
+
+### Clipping
+
+```{r}
+#| label: fig-clipping-nitrogen
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: Trait distributions for unclipped (control), medium and intensive clipped plots at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values. The colours indicate the control (grey), medium (...), and intensive (...) treatments.
+
+tar_read(traits_clipping_plot)
+
+```
+
+### Biomass
+
+```{r}
+#| label: fig-biomass-nitrogen
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: Trait distributions for plots with different standing biomass at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values. The colours indicate different levels of standing biomass (some gradient).
+
+tar_read(traits_biomass_plot)
+
+```
+
+###
