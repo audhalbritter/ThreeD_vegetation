@@ -132,22 +132,6 @@ The patterns were very similar for the other two diversity indices (Supplementar
 
 *(Maybe drop the grazing, since it does not show very similar patterns?):* At alpine site no indirect effects via biomass, at sub-alpine site warming has no direct effect on biomass (Supplementary Figures S8-10).
 
-*(We don't need this anymore?)* Because standing biomass affected diversity differently between the two sites and the warming treatment (@fig-bio-div), we also ran the SEMs separately for ambient and warm conditions at the two sites. At the alpine site, the drivers only operated through standing biomass under warming (@fig-cut-final-diversity-AW a and b). At the sub-alpine site, the drivers did not affect diversity through standing biomass under any of the warming treatments. Nitrogen addition had a direct effect on diversity under warming.
-
-```{r}
-#| label: fig-cut-final-diversity-AW
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through standing biomass on Shannon diversity a) for the alpine site under ambient conditions, b) the alpine site under warming, c) the sub-alpine site under ambient conditions, and d) for the sub-alpine site under warming. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
-
-tar_load(cut_final_diversity_AW, store = here::here(tar_config_get("store")))
-
-cut_final_diversity_AW[[1]]
-
-```
-
 ### Trait responses to global change of winners and losers
 
 At the alpine site, the plant community had more winners (i.e. species that colonized or increased in cover) and losers (i.e. species that go extinct or decrease in cover) in response to warming, nitrogen addition or both drivers compared to the sub-alpine site (@fig-traits). In response to warming loser species at the alpine site were shorter and had lower temperature requirements. Contrary, winner species in response to warming or nitrogen addition were taller and in response to warming also warm adapted.
