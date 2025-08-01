@@ -128,6 +128,129 @@ tidy(standing_biomass_model) |>
 
 ```
 
+### Supplementary Table S4: Model output for biomass and diversity models
+```{r}
+#| label: tbl-biomass-diversity-model-output
+#| echo: false
+#| warning: false
+#| tbl-cap: Model output for the relationship between estimated and collected standing biomass.
+
+tar_load(biomass_origin_anova_table, store = here::here(tar_config_get("store")))
+tar_load(diversity_origin_anova_table, store = here::here(tar_config_get("store")))
+
+# Combine the tables
+biomass_origin_anova_table |>
+  mutate(variable = "Standing biomass") |>
+  bind_rows(
+    diversity_origin_anova_table |>
+      mutate(variable = case_match(diversity_index,
+                                   "diversity" ~ "Shannon diversity",
+                                   "richness" ~ "Species richness",
+                                   "evenness" ~ "Evenness"))
+  ) |>
+  # Round values
+  mutate(
+    sumsq = round(sumsq, 2),
+    statistic = round(statistic, 2),
+    p.value = if_else(p.value < 0.001, "< 0.001", as.character(round(p.value, 3)))
+  ) |>
+  # Pivot to wide format to put Alpine and Sub-alpine side by side
+  select(variable, origSiteID, term, sumsq, df, statistic, p.value) |>
+  pivot_wider(
+    names_from = origSiteID,
+    values_from = c(sumsq, df, statistic, p.value),
+    names_glue = "{origSiteID}_{.value}"
+  ) |>
+  # Rename columns
+  rename(
+    "Term" = term,
+    "Alpine_Sum of squares" = Alpine_sumsq,
+    "Alpine_df" = Alpine_df,
+    "Alpine_F" = Alpine_statistic,
+    "Alpine_P" = Alpine_p.value,
+    "Sub-alpine_Sum of squares" = `Sub-alpine_sumsq`,
+    "Sub-alpine_df" = `Sub-alpine_df`,
+    "Sub-alpine_F" = `Sub-alpine_statistic`,
+    "Sub-alpine_P" = `Sub-alpine_p.value`
+  ) |>
+  # Reorder columns to put Alpine first
+  select(variable, Term, 
+         "Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P",
+         "Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P") |>
+  # Group by variable
+  group_by(variable) |>
+  gt() |>
+  # Add column spanners for Alpine and Sub-alpine
+  tab_spanner(
+    label = "Alpine",
+    columns = c("Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P")
+  ) |>
+  tab_spanner(
+    label = "Sub-alpine", 
+    columns = c("Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P")
+  ) |>
+  # Format numbers
+  fmt_number(columns = c("Alpine_Sum of squares", "Alpine_F", "Sub-alpine_Sum of squares", "Sub-alpine_F"), decimals = 2) |>
+  fmt_number(columns = c("Alpine_df", "Sub-alpine_df"), decimals = 0) |>
+  # Make term column always bold
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(columns = "Term")
+  ) |>
+  # Make Alpine significant values bold
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(
+      columns = c("Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P"),
+      rows = Alpine_P != "< 0.001" & as.numeric(Alpine_P) <= 0.05
+    )
+  ) |>
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(
+      columns = c("Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P"),
+      rows = Alpine_P == "< 0.001"
+    )
+  ) |>
+  # Make Sub-alpine significant values bold
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(
+      columns = c("Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P"),
+      rows = `Sub-alpine_P` != "< 0.001" & as.numeric(`Sub-alpine_P`) <= 0.05
+    )
+  ) |>
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_body(
+      columns = c("Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P"),
+      rows = `Sub-alpine_P` == "< 0.001"
+    )
+  ) |>
+  # Rename columns at the end to remove prefixes
+  cols_label(
+    "Alpine_Sum of squares" = "Sum of squares",
+    "Alpine_df" = "df",
+    "Alpine_F" = "F",
+    "Alpine_P" = "P",
+    "Sub-alpine_Sum of squares" = "Sum of squares",
+    "Sub-alpine_df" = "df",
+    "Sub-alpine_F" = "F",
+    "Sub-alpine_P" = "P"
+  ) |>
+  # Set column alignment
+  cols_align(
+    align = "left",
+    columns = "Term"
+  ) |>
+  cols_align(
+    align = "right",
+    columns = c("Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P",
+                "Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P")
+  )
+
+```
+
 ### Supplementary Figure S5: Global change affects richness and evenness
 
 ```{r}
@@ -135,7 +258,7 @@ tidy(standing_biomass_model) |>
 #| echo: false
 #| warning: false
 #| fig-width: 8
-#| fig-height: 13
+#| fig-height: 7
 #| fig-cap: Species richness across (a), and separate by site (b), evenness across (c), and separately by site (d) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions). Letters in grey indicate almost significant model terms.
 
 tar_read(div_index_figure, store = here::here(tar_config_get("store")))
