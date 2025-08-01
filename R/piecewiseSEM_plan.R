@@ -4,11 +4,6 @@ piecewiseSEM_plan <- list(
 
   ### colours
 
-  tar_target(
-    name = sem_colour,
-    command = wes_palette("FrenchDispatch")
-  ),
-
   # Final biomass and diversity indices
   # clipping and diversity
   tar_target(
@@ -17,33 +12,33 @@ piecewiseSEM_plan <- list(
 
       # final diversity across site
       dat1 <- prep_SEM_data(data = biomass_div,
-                            landuse = "cutting",
+                            landuse = "clipping",
                             diversity = final_diversity,
                             biomass = final_bio)
 
       # final diversity alpine
       mod3 <- run_SEM(data = dat1 |>
                         filter(origSiteID == "Alpine"),
-                      landuse = "cutting")
+                      landuse = "clipping")
 
       out3 <- summary(mod3)
 
       fig3 <- make_SEM_figure(sem_results = out3,
                               type = "final",
-                              landuse = "cutting",
-                              col = sem_colour)
+                              landuse = "clipping",
+                              col = treatment_palette)
 
       # final diversity sub-alpine
       mod4 <- run_SEM(data = dat1 |>
                         filter(origSiteID == "Sub-alpine"),
-                      landuse = "cutting")
+                      landuse = "clipping")
 
       out4 <- summary(mod4)
 
       fig4 <- make_SEM_figure(sem_results = out4,
                               type = "final",
-                              landuse = "cutting",
-                              col = sem_colour)
+                              landuse = "clipping",
+                              col = treatment_palette)
 
       figure <- (fig3 + fig4) +
         plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
