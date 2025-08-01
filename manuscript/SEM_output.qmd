@@ -20,7 +20,7 @@ library(ggpubr)
 
 # Results
 
-### Global change drivers affect standing biomass and diversity in complex ways
+### Global change drivers affect standing biomass and diversity differently between sites
 
 ```{r}
 #| label: mean-bio
@@ -40,7 +40,13 @@ div <- biomass_div |>
 
 ```
 
-Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) compared to the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition and clipping (@fig-1-biomass-diversity a). At both sites, warming and nitrogen addition increased standing biomass significantly, while clipping reduced standing biomass but more so with warming (WxC interaction). Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) compared to the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`) and was only affected by nitrogen addition. Diversity decreased with increasing nitrogen at both sites, in particular at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity c).
+<!--# Should I mention the main effects only first, since there are interactions in the alpine site -->
+
+Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) than the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition, and clipping (@fig-1-biomass-diversity). At both sites, warming (W) and nitrogen addition (N) significantly increased standing biomass, while clipping (C) reduced standing biomass. Standing biomass was co-limited by warming and nitrogen addition at the alpine site (WxN interaction; Supplementary Table S4). Clipping decreased standing biomass more with warming (WxC) and with nitrogen addition (NxC). At the sub-alpine site, standing biomass increased with warming and nitrogen addition, and decreased with clipping, but we found no interactive effects.
+
+Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) than the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`). At the alpine site, the combination of warming and nitrogen addition increased Shannon diversity when little nitrogen was added, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity; Supplementary Table S4). Clipping could mitigate the negative effects of warming and nitrogen addition on diversity at the higher levels of nitrogen addition (WxNxC). At the sub-alpine site, warming and nitrogen addition had a negative effect on diversity and again increasingly at higher nitrogen levels (\> 25 kg N ha^-1^ y^-1^ ). There was no effect of clipping or interactive effects at the sub-alpine site.
+
+We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplemenatry Figure S5). Species richness decreased with warming and nitrogen addition at both sites, but clipping had no effect. The same pattern was found for evenness at the alpine site, but clipping could mitigate the negative impacts of warming and nitrogen addition at higher nitrogen levels (WxNxC). At the sub-alpine site, evenness decreased with nitrogen addition, but warming and clipping had no effect.
 
 ```{r}
 #| label: fig-1-biomass-diversity
@@ -49,7 +55,7 @@ Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$
 #| warning: false
 #| fig-width: 8
 #| fig-height: 7.5
-#| fig-cap: Standing biomass (g m^-2^) (a) and Shannon diversity (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions).
+#| fig-cap: Standing biomass (g m^-2^) (a) and Shannon diversity (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = clipping, S = site, combined letters, e.g. WxC = interactions).
 
 tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
@@ -106,10 +112,6 @@ tidy(standingB_div_final_model) |>
           ))
 
 ```
-
-When testing the effect of the three global change drivers separately for each sites, we found that standing biomass was co-limited by warming and nitrogen addition at the alpine site, with an additive effect for the interaction of the two drivers (WxN interaction; @fig-1-biomass-diversity b). In addition, there were interactive effects, where clipping decreased standing biomass more with warming (WxC interaction) and with nitrogen addition (NxC interaction). Standing biomass increased with warming and nitrogen addition, and decreased with clipping at the sub-alpine site, but we found no interactive effects. At the alpine site, the combination of warming and nitrogen addition increased Shannon diversity when little nitrogen was added, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity d). In addition, clipping could mitigate the negative effects of warming and nitrogen addition on diversity at the higher levels of nitrogen addition (WxNxC interaction). At the sub-alpine site, warming and nitrogen addition had a negative effect on diversity and again increasingly at higher nitrogen levels. There was no effect of clipping or interactive effects at the sub-alpine site.
-
-We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplemenatry Figure S5). Species richness at the alpine site decreased with warming and nitrogen addition, but clipping had no effect. Evenness decreased with nitrogen addition in the sub-alpine site, but warming had no effect.
 
 ### Do global change drivers operate on diversity through the same mechanisms?
 
