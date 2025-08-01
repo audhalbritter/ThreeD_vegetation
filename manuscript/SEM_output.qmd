@@ -61,7 +61,7 @@ tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-Overall, the relationship between standing biomass and Shannon diversity was negative (F<sub>1, 142</sub> = 53.88, *P* ≤ 0.001) and differed between the two sites and under ambient and warm climate (@fig-bio-div; @tbl-bio-div). At the alpine site, diversity decreases with increasing biomass under warming, but not under ambient temperature. Contrary, in the sub-alpine site, there was a negative relationship between standing biomass and diversity under ambient conditions, however not with warming. This suggests that the these drivers affect diversity through biomass only under specific conditions and the relationship differ between the sites.
+To illustrate the relationship between standing biomass and Shannon diversity we plotted these variables including the three global change drivers (@fig-bio-div; @tbl-bio-div). We find that this relationship is only significant at the sub-alpine site (alpine: F<sub>1, 70</sub> = 1.43, *P* = 0.236, sub-alpine: F<sub>1, 70</sub> = 8.38, *P* = 0.005).
 
 ```{r}
 #| label: fig-bio-div
@@ -83,32 +83,23 @@ tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store"))
 
 tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
 
-tidy(standingB_div_final_model) |>
-  mutate(term = case_match(term,
-                           "(Intercept)" ~ "Intercept",
-                           "log(final_bio)" ~ "Log(Biomass)",
-                           "origSiteIDSub-alpine" ~ "Site",
-                           "warmingWarming" ~ "Warming",
-                           "log(final_bio):origSiteIDSub-alpine" ~ "Log(Biomass)xSite",
-                           "log(final_bio):warmingWarming" ~ "Log(Biomass)xWarming",
-                           "origSiteIDSub-alpine:warmingWarming" ~ "SitexWarming",
-                           "log(final_bio):origSiteIDSub-alpine:warmingWarming" ~ "Log(Biomass)xSitexWarming")) |>  
-  select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
+standingB_div_final_result |> 
+  select("Term" = term, "Sum of squares" = sumsq, df, `F` = statistic, `P` = p.value) |>
   gt() |> 
-  gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 
-  gt::fmt_number(columns = c(`P value`), decimals = 3) |> 
+  gt::fmt_number(columns = c("Sum of squares", F), decimals = 2) |> 
+  gt::fmt_number(columns = c(P), decimals = 3) |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
       ),
-    locations = cells_column_labels(columns = c(Term, Estimate, `Std. Error`, `t value`, `P value`))) |> 
+    locations = cells_column_labels(columns = c(Term, "Sum of squares", df, F, P))) |> 
     tab_style(
           style = list(
             cell_text(weight = "bold")
           ),
           locations = cells_body(
-            columns = c(Term, Estimate, `Std. Error`, `t value`, `P value`),
-            rows = `P value` <= 0.05
+            columns = c(Term, "Sum of squares", df, F, P),
+            rows = P <= 0.05
           ))
 
 ```
