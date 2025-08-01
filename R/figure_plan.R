@@ -157,7 +157,8 @@ figure_plan <- list(
       (bio + div) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
               plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0),
+              legend.background = element_rect(fill = "transparent"))
 
     }
   ),
