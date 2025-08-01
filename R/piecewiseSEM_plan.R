@@ -26,7 +26,8 @@ piecewiseSEM_plan <- list(
       fig3 <- make_SEM_figure(sem_results = out3,
                               type = "final",
                               landuse = "clipping",
-                              col = treatment_palette)
+                              col = treatment_palette,
+                              diversity_type = "diversity")
 
       # final diversity sub-alpine
       mod4 <- run_SEM(data = dat1 |>
@@ -38,7 +39,8 @@ piecewiseSEM_plan <- list(
       fig4 <- make_SEM_figure(sem_results = out4,
                               type = "final",
                               landuse = "clipping",
-                              col = treatment_palette)
+                              col = treatment_palette,
+                              diversity_type = "diversity")
 
       figure <- (fig3 + fig4) +
         plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
