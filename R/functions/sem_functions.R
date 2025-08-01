@@ -32,52 +32,6 @@ prep_SEM_data <- function(data, landuse, diversity, biomass){
 
 
 # run SEM
-run_direct_SEM <- function(data, landuse, diversity, biomass){
-
-  if(landuse == "clipping"){
-
-    model <- psem(
-      lm(diversity ~ biomass + warming + nitrogen + clipping, data)
-    )
-
-  } else if (landuse == "grazing"){
-
-    model <- psem(
-      lm(diversity ~ biomass + warming + nitrogen + grazing, data)
-    )
-
-  } else if (!landuse %in% c("clipping", "grazing")){
-    print("Warning, unknonw landuse variable")
-  }
-
-}
-
-
-# run SEM
-run_site_SEM <- function(data, landuse){
-
-    if(landuse == "clipping"){
-
-      model <- psem(
-        lm(diversity ~ biomass + warming + nitrogen + clipping + site, data),
-        lm(biomass ~ warming + nitrogen + clipping + site, data)
-      )
-
-  } else if (landuse == "grazing"){
-
-    model <- psem(
-      lm(diversity ~ biomass + warming + nitrogen + grazing + site, data),
-      lm(biomass ~ warming + nitrogen + grazing + site, data)
-    )
-
-  } else if (!landuse %in% c("clipping", "grazing")){
-    print("Warning, unknonw landuse variable")
-  }
-
-}
-
-
-# run SEM
 run_SEM <- function(data, landuse, change){
 
   if(landuse == "clipping"){
@@ -102,7 +56,7 @@ run_SEM <- function(data, landuse, change){
 
 
 # make SEM figure
-make_SEM_figure <- function(sem_results, type, landuse, col){
+make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "diversity"){
 
   # path and estimates
   paths <- tibble(from = sem_results$coefficients$Predictor,
@@ -118,7 +72,10 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
                              TRUE ~ col[1]),                   # default color
            size = case_when(P.Value <= 0.05 ~ 1.5,
                             P.Value > 0.05 & P.Value <= 0.09 ~ 1,
-                            TRUE ~ 0.5))
+                            TRUE ~ 0.5),
+           # Replace "diversity" with the actual diversity type for display
+           to = case_when(to == "diversity" ~ diversity_type,
+                          TRUE ~ to))
 
   if(type == "final"){
 
@@ -127,7 +84,7 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
     if(landuse == "clipping"){
 
       layout = matrix(c('warming', '', '', '',
-                        '', 'biomass', '','diversity',
+                        '', 'biomass', '', diversity_type,
                         'nitrogen','', '', '',
                         '', 'clipping', '', ''),
                       nrow = 4, byrow = TRUE)
@@ -135,7 +92,7 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
     } else if (landuse == "grazing"){
 
       layout = matrix(c('warming', '', '', '',
-                        '', 'biomass', '','diversity',
+                        '', 'biomass', '', diversity_type,
                         'nitrogen','', '', '',
                         '', 'grazing', '', ''),
                       nrow = 4, byrow = TRUE)
@@ -150,12 +107,12 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
       mutate(from = case_when(from == "biomass" ~ "Δbiomass",
                               .default = from),
              to = case_when(to == "biomass" ~ "Δbiomass",
-                            to == "diversity" ~ "Δdiversity",
+                            to == "diversity" ~ paste0("Δ", diversity_type),
                             TRUE ~ from))
     if(landuse == "clipping"){
 
       layout = matrix(c('warming', '', '', '',
-                        '', 'Δbiomass', '','Δdiversity',
+                        '', 'Δbiomass', '', paste0('Δ', diversity_type),
                         'nitrogen','', '', '',
                         '', 'clipping', '', ''),
                       nrow = 4, byrow = TRUE)
@@ -163,7 +120,7 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
     } else if (landuse == "grazing"){
 
       layout = matrix(c('warming', '', '', '',
-                        '', 'Δbiomass', '','Δdiversity',
+                        '', 'Δbiomass', '', paste0('Δ', diversity_type),
                         'nitrogen','', '', '',
                         '', 'grazing', '', ''),
                       nrow = 4, byrow = TRUE)
@@ -174,102 +131,13 @@ make_SEM_figure <- function(sem_results, type, landuse, col){
 
   }
 
-  # Create nodes with colors
-  nodes <- tibble(
-    name = c("warming", "nitrogen", "biomass", "diversity", "clipping", "grazing", "Δbiomass", "Δdiversity"),
-    label_color = case_when(
-      name %in% c("biomass", "diversity", "Δbiomass", "Δdiversity") ~ col[1],  # color 1 (grey)
-      name == "warming" ~ col[2],                                              # color 2 (red)
-      name %in% c("clipping", "grazing") ~ col[3],                            # color 3 (yellow)
-      name == "nitrogen" ~ col[4],                                            # color 4 (green)
-      TRUE ~ "black"                                                          # default
-    )
-  )
+  # Create nodes with colors - dynamically add the diversity type
+  all_nodes <- c("warming", "nitrogen", "biomass", diversity_type, "clipping", "grazing", "Δbiomass", paste0("Δ", diversity_type))
   
-  # Plot SEM with tidySEM
-  plot_model <- prepare_graph(edges = paths, nodes = nodes, layout = layout)
-  plot(plot_model)
-
-}
-
-
-make_SEM_site_figure <- function(sem_results, type, landuse, col){
-
-  # path and estimates
-  paths <- tibble(from = sem_results$coefficients$Predictor,
-         to = sem_results$coefficients$Response,
-         label = round(sem_results$coefficients$Std.Estimate, 3),
-         P.Value = sem_results$coefficients$P.Value) |>
-    mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
-           colour = case_when(from == "warming" ~ col[2],      # color 2 (red)
-                             from == "nitrogen" ~ col[4],      # color 4 (green)
-                             from == "clipping" ~ col[3],      # color 3 (yellow)
-                             from == "grazing" ~ col[3],       # color 3 (yellow)
-                             from == "biomass" ~ col[1],       # color 1 (grey)
-                             TRUE ~ col[1]),                   # default color
-           size = case_when(P.Value <= 0.05 ~ 1.5,
-                            P.Value > 0.05 & P.Value <= 0.09 ~ 1,
-                            TRUE ~ 0.5))
-
-  if(type == "final"){
-
-    paths <- paths
-
-    if(landuse == "clipping"){
-
-      layout = matrix(c('nitrogen', '', '', '',
-                        '', 'biomass', '','diversity',
-                        'warming','', '', 'site',
-                        '', 'clipping', '', ''),
-                      nrow = 4, byrow = TRUE)
-
-    } else if (landuse == "grazing"){
-
-      layout = matrix(c('nitrogen', '', '', '',
-                        '', 'biomass', '', 'diversity',
-                        'warming','', '', 'site',
-                        '', 'grazing', '', ''),
-                      nrow = 4, byrow = TRUE)
-
-    } else if (!landuse %in% c("clipping", "grazing")){
-      print("Warning, unknown landuse variable")
-    }
-
-  } else if (type == "change"){
-
-    paths <- paths |>
-      mutate(from = case_when(from == "biomass" ~ "Δbiomass",
-                              .default = from),
-             to = case_when(to == "biomass" ~ "Δbiomass",
-                            to == "diversity" ~ "Δdiversity",
-                            TRUE ~ from))
-    if(landuse == "clipping"){
-
-      layout = matrix(c('nitrogen', '', '', '',
-                        '', 'Δbiomass', '','Δdiversity',
-                        'warming','', '', 'site',
-                        '', 'clipping', '', ''),
-                      nrow = 4, byrow = TRUE)
-
-    } else if (landuse == "grazing"){
-
-      layout = matrix(c('nitrogen', '', '', '',
-                        '', 'Δbiomass', '', 'Δdiversity',
-                        'warming','', '', 'site',
-                        '', 'grazing', '', ''),
-                      nrow = 4, byrow = TRUE)
-
-    } else if (!landuse %in% c("clipping", "grazing")){
-      print("Warning, unknown landuse variable")
-    }
-
-  }
-
-  # Create nodes with colors
   nodes <- tibble(
-    name = c("warming", "nitrogen", "biomass", "diversity", "clipping", "grazing", "site", "Δbiomass", "Δdiversity"),
+    name = all_nodes,
     label_color = case_when(
-      name %in% c("biomass", "diversity", "Δbiomass", "Δdiversity") ~ col[1],  # color 1 (grey)
+      name %in% c("biomass", diversity_type, "Δbiomass", paste0("Δ", diversity_type)) ~ col[1],  # color 1 (grey)
       name == "warming" ~ col[2],                                              # color 2 (red)
       name %in% c("clipping", "grazing") ~ col[3],                            # color 3 (yellow)
       name == "nitrogen" ~ col[4],                                            # color 4 (green)
