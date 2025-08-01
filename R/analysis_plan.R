@@ -187,27 +187,27 @@ analysis_plan <- list(
   tar_target(
     name = trait_mean_all,
     command = make_bootstrapping(trait_impute_all)
-  ),
+  )
 
   # traits for different stages
-  tar_target(
-    name = trait_mean_status,
-    command = {
+  # tar_target(
+  #   name = trait_mean_status,
+  #   command = {
 
-      dat <- cover_wl |>
-        # remove duplicates
-        tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-        mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
+  #     dat <- cover_wl |>
+  #       # remove duplicates
+  #       tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
+  #       mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
 
-      dat |>
-        group_by(status, status2) |>
-        nest() |>
-        mutate(trait_impute = map(data, ~ make_trait_impute2(.x, trait_raw, ellenberg)),
-               trait_mean = map(trait_impute, ~ make_bootstrapping(.x)))
+  #     dat |>
+  #       group_by(status, status2) |>
+  #       nest() |>
+  #       mutate(trait_impute = map(data, ~ make_trait_impute2(.x, trait_raw, ellenberg)),
+  #              trait_mean = map(trait_impute, ~ make_bootstrapping(.x)))
 
 
-    }
-  )
+  #   }
+  # )
 
 )
 
