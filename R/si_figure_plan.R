@@ -209,7 +209,7 @@ si_figure_plan <- list(
       group_by(origSiteID) |>
       nest() |>
       mutate(
-        model = map(data, ~lm(final_diversity ~ log(final_bio) + warming + Nitrogen_log + grazing_num, data = .x))
+        model = map(data, ~lm(final_diversity ~ log(final_bio), data = .x))
       )
   ),
 
