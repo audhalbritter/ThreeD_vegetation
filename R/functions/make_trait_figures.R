@@ -281,3 +281,84 @@ height <- traits_wl |>
 
   height / temp + plot_layout(guides = "collect")
 }
+
+
+
+# Ridgeline plot function for trait distributions
+make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL) {
+  
+  # Check if ggridges package is available
+  if (!requireNamespace("ggridges", quietly = TRUE)) {
+    stop("Package 'ggridges' is required for ridgeline plots. Please install it with: install.packages('ggridges')")
+  }
+  
+  # Validate input
+  if (!group_var %in% names(data)) {
+    stop(paste("Variable", group_var, "not found in data"))
+  }
+  
+  # Check if grouping variable is numeric
+  is_numeric <- is.numeric(data[[group_var]])
+  
+  # Prepare data based on variable type
+  if (is_numeric) {
+    # For numeric variables, create bins
+    plot_data <- data |>
+      mutate(
+        !!paste0(group_var, "_binned") := cut(!!sym(group_var), 
+                                              breaks = n_bins, 
+                                              include.lowest = TRUE,
+                                              dig.lab = 3)
+      ) |>
+      rename(group_binned = !!paste0(group_var, "_binned"))
+    
+    # Use binned variable for plotting
+    y_var <- "group_binned"
+    fill_var <- "group_binned"
+    
+  } else {
+    # For factor variables, use as is
+    plot_data <- data
+    y_var <- group_var
+    fill_var <- group_var
+  }
+  
+  # Create the ridgeline plot
+  plot <- plot_data |>
+    ggplot(aes(x = mean, 
+               y = !!sym(y_var), 
+               fill = !!sym(fill_var),
+               color = !!sym(fill_var))) +
+    ggridges::geom_density_ridges(
+      alpha = 0.5,
+      scale = 2,
+      rel_min_height = 0.01,
+      quantile_lines = TRUE,
+      quantiles = 2
+    ) +
+    labs(
+      x = "Trait mean",
+      y = ifelse(!is.null(y_axis_label), y_axis_label, 
+                 ifelse(is_numeric, paste(group_var, "(binned)"), group_var))
+    ) +
+    facet_grid(origSiteID ~ figure_names, 
+               scales = "free_x", 
+               labeller = labeller(figure_names = label_parsed)) +
+    theme_bw() +
+    theme(
+      legend.position = "bottom",
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      strip.text = element_text(size = 10),
+      plot.title = element_text(hjust = 0.5)
+    )
+  
+  # Add custom colors if provided
+  if (!is.null(custom_colors)) {
+    plot <- plot + 
+      scale_fill_manual(values = custom_colors) +
+      scale_color_manual(values = custom_colors)
+  }
+  
+  return(plot)
+}
+

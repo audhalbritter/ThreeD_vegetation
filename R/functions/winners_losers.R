@@ -197,7 +197,7 @@ make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
                              abundance_col = "cover",
                              treatment_col = c("treatment"),
                              treatment_level = c("origSiteID"),
-                             other_col = c("destSiteID", "warming", "grazing", "grazing_num",  "Namount_kg_ha_y", "Nitrogen_log"),
+                             other_col = c("destSiteID", "warming", "grazing", "grazing_num",  "Namount_kg_ha_y", "Nitrogen_log", "Nlevel"),
                              min_n_in_sample = 2)
 
   trait_impute

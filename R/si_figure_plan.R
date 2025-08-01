@@ -7,6 +7,13 @@ si_figure_plan <- list(
     command = c("grey30", "#FD6467")
   ),
 
+  # Gauguin colour palette
+  tar_target(
+    name = treatment_palette,
+    # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green
+    command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"))
+  ),
+
   #c("#FD6467", "#5B1A18", "#D67236")
 
   tar_target(
@@ -197,22 +204,54 @@ si_figure_plan <- list(
   # Biomass vs. diversity analysis
   tar_target(
     name = standingB_div_final_model,
-    command = lm(final_diversity ~ log(final_bio) * origSiteID * warming, data = biomass_div)
+    command = biomass_div |>
+      group_by(origSiteID) |>
+      nest() |>
+      mutate(
+        model = map(data, ~lm(final_diversity ~ log(final_bio), data = .x))
+      )
   ),
 
   tar_target(
     name = standingB_div_final_prediction,
-    command = augment(standingB_div_final_model)
+    command = standingB_div_final_model |>
+      mutate(
+        predictions = map2(model, data, ~augment(.x, newdata = .y))
+      ) |>
+      select(origSiteID, predictions) |>
+      unnest(predictions) 
   ),
 
   tar_target(
+    name = standingB_div_final_result,
+    command = standingB_div_final_model |>
+      mutate(
+        result = map(model, tidy),
+        anova = map(model, car::Anova),
+        anova_tidy = map(anova, tidy)) |>
+      select(origSiteID, anova_tidy) |>
+      unnest(anova_tidy)
+  ),
+
+### unsure if this model is needed. if yes, the need to make it the same as the final model!!!
+  tar_target(
     name = standingB_div_change_model,
-    command = lm(log_ratio_diversity ~ log_ratio_bio * origSiteID * warming, data = biomass_div)
+    command = biomass_div |>
+      group_by(origSiteID) |>
+      nest() |>
+      mutate(
+        model = map(data, ~lm(log_ratio_diversity ~ log_ratio_bio * warming, data = .x))
+      )
   ),
 
   tar_target(
     name = standingB_div_change_prediction,
-    command = augment(standingB_div_change_model)
+    command = standingB_div_change_model |>
+      mutate(
+        predictions = map2(model, data, ~augment(.x, newdata = .y))
+      ) |>
+      select(origSiteID, predictions) |>
+      unnest(predictions)
   ),
 
   # Biomass vs diversity figure
@@ -222,33 +261,25 @@ si_figure_plan <- list(
 
       biomass_div |>
         ggplot(aes(x = log_ratio_bio, y = log_ratio_diversity)) +
-        geom_line(data = standingB_div_change_prediction, 
-          aes(y = .fitted,
-            x = log_ratio_bio,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
+        # geom_line(data = standingB_div_change_prediction, 
+        #   aes(y = .fitted,
+        #     x = log_ratio_bio,
+        #     linetype = origSiteID,
+        #     colour = warming),
+        #     linewidth = 0.75) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
-                                           fill = interaction(origSiteID, warming),
+                                           fill = warming,
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
-        # Fill colors: White for Alpine, specific colors for Sub-Alpine (warming levels)
-        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
+        scale_fill_manual(values = col_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("dashed", "solid"),
                               name = "Origin") +
         labs(x = bquote(Log(Change~standing~biomass)~g~m^-2),
              y = "Change in Shannon diversity") +
+        facet_wrap(vars(origSiteID)) +
         theme_bw() +
         theme(legend.position = "bottom",
               legend.box = "vertical",
@@ -264,46 +295,6 @@ si_figure_plan <- list(
     name = div_index_figure,
     command = {
 
-      ### Richness across site
-      rich_text <- diversity_anova_table |>
-        filter(diversity_index == "richness") |>
-        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
-                                        p.value >= 0.07 ~ "non-sign",
-                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
-                                        TRUE ~ "sign")) |>
-        # BY HAND CODE!!!
-        filter(significance %in% c("sign", "marginal")) |>
-        distinct(term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
-
-      rich <- make_vegetation_figure_v2(dat1 = diversity_output |>
-                                  filter(diversity_index == "richness") |>
-                                  unnest(data),
-                                x_axis = Nitrogen_log,
-                                yaxislabel = "Species richness",
-                                colourpalette = col_palette,
-                                linetypepalette = c("solid", "dashed", "dotted"),
-                                shapepalette = c(21, 22, 24),
-                                dat2 = diversity_prediction |>
-                                  filter(diversity_index == "richness")) +
-        labs(tag = "a) Across sites") +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "richness") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(rich_text |>
-                               slice(1)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -1.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "richness") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(rich_text |>
-                               slice(2)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -3, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50)
-
       ### richness by origin
       rich_text2 <- diversity_origin_anova_table |>
         filter(diversity_index == "richness") |>
@@ -317,19 +308,31 @@ si_figure_plan <- list(
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
 
-      rich2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+      # rich2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+      #                                 filter(diversity_index == "richness") |>
+      #                                 unnest(data),
+      #                               x_axis = Nitrogen_log,
+      #                               yaxislabel = "Species richness",
+      #                               colourpalette = col_palette,
+      #                               linetypepalette = c("solid", "dashed", "dotted"),
+      #                               shapepalette = c(21, 22, 24),
+      #                               dat2 = diversity_origin_prediction |>
+      #                                 filter(diversity_index == "richness")) +
+        rich <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "richness") |>
                                       unnest(data),
-                                    x_axis = Nitrogen_log,
-                                    yaxislabel = "Species richness",
-                                    colourpalette = col_palette,
-                                    linetypepalette = c("solid", "dashed", "dotted"),
-                                    shapepalette = c(21, 22, 24),
-                                    dat2 = diversity_origin_prediction |>
+                                      x_axis = Nitrogen_log,
+                                      yaxislabel = "Species richness",
+                                      colourpalette = col_palette,
+                                      linetypepalette = c("solid", "dashed", "dotted"),
+                                      shapepalette = c(21, 22, 24),
+                                      facet_2 = NA,
+                                      # predictions
+                                      dat2 = diversity_origin_prediction |>
                                       filter(diversity_index == "richness")) +
-        labs(tag = "b) Separate by site") +
+        labs(tag = "a)") +
         # add stats
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "richness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(rich_text2 |>
@@ -338,7 +341,7 @@ si_figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -1.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "richness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(rich_text2 |>
@@ -347,7 +350,7 @@ si_figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.3, vjust = -3, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "richness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(rich_text2 |>
@@ -357,54 +360,6 @@ si_figure_plan <- list(
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
                   size = 3, colour = "grey60", nudge_x = 50)
       
-
-      ### evenness across site
-      even_text <- diversity_anova_table |>
-        filter(diversity_index == "evenness") |>
-        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
-                                        p.value >= 0.07 ~ "non-sign",
-                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
-                                        TRUE ~ "sign")) |>
-        # BY HAND CODE!!!
-        filter(significance %in% c("sign", "marginal")) |>
-        distinct(term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
-
-      even <- make_vegetation_figure_v2(dat1 = diversity_output |>
-                                  filter(diversity_index == "evenness") |>
-                                  unnest(data),
-                                x_axis = Nitrogen_log,
-                                yaxislabel = "Evenness",
-                                colourpalette = col_palette,
-                                linetypepalette = c("solid", "dashed", "dotted"),
-                                shapepalette = c(21, 22, 24),
-                                dat2 = diversity_prediction |>
-                                  filter(diversity_index == "evenness")) +
-        labs(tag = "c) Across sites") +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "evenness") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(even_text |>
-                               slice(1)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.3, vjust = -1.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "evenness") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(even_text |>
-                               slice(2)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -3, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "evenness") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(even_text |>
-                              slice(3)),
-                    aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
-                    size = 3, colour = text_colour, nudge_x = 50)
 
       ### evenness by origin
       even_text2 <- diversity_origin_anova_table |>
@@ -419,19 +374,31 @@ si_figure_plan <- list(
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
 
-      even2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+      # even2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+      #                                 filter(diversity_index == "evenness") |>
+      #                                 unnest(data),
+      #                               x_axis = Nitrogen_log,
+      #                               yaxislabel = "Evenness",
+      #                               colourpalette = col_palette,
+      #                               linetypepalette = c("solid", "dashed", "dotted"),
+      #                               shapepalette = c(21, 22, 24),
+      #                               dat2 = diversity_origin_prediction |>
+      #                                 filter(diversity_index == "evenness")) +
+      even <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "evenness") |>
                                       unnest(data),
-                                    x_axis = Nitrogen_log,
-                                    yaxislabel = "Evenness",
-                                    colourpalette = col_palette,
-                                    linetypepalette = c("solid", "dashed", "dotted"),
-                                    shapepalette = c(21, 22, 24),
-                                    dat2 = diversity_origin_prediction |>
+                                      x_axis = Nitrogen_log,
+                                      yaxislabel = "Evenness",
+                                      colourpalette = col_palette,
+                                      linetypepalette = c("solid", "dashed", "dotted"),
+                                      shapepalette = c(21, 22, 24),
+                                      facet_2 = NA,
+                                      # predictions
+                                      dat2 = diversity_origin_prediction |>
                                       filter(diversity_index == "evenness")) +
-        labs(tag = "d) Separate by site") +
+        labs(tag = "b)") +
         # add stats
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "evenness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(even_text2 |>
@@ -440,7 +407,7 @@ si_figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -1.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "evenness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(even_text2 |>
@@ -449,7 +416,7 @@ si_figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.3, vjust = -3, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "evenness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(even_text2 |>
@@ -458,7 +425,7 @@ si_figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
                   size = 3, colour = "grey60", nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "evenness") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(even_text2 |>
@@ -468,10 +435,10 @@ si_figure_plan <- list(
                     aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -6.2, label = term),
                     size = 3, colour = text_colour, nudge_x = 50)
 
-      (rich + rich2) / (even + even2) + plot_layout(guides = "collect") &
+      (rich + even) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
               plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
     }
   ),
