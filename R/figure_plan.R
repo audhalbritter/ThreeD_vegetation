@@ -171,18 +171,15 @@ figure_plan <- list(
 
       biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        # geom_line(data = standingB_div_final_prediction, 
-        #   aes(y = .fitted,
-        #     x = `log(final_bio)`,
-        #     linetype = origSiteID,
-        #     colour = warming),
-        #     linewidth = 0.75) +
+        geom_line(data = standingB_div_final_prediction |>
+                          mutate(biomass_log = log(final_bio)), 
+                        aes(y = .fitted,
+                            x = biomass_log)) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            shape = grazing,
-                                           fill = warming,
+                                           stroke = 0.8,
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = col_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
