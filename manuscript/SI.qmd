@@ -133,7 +133,7 @@ tidy(standing_biomass_model) |>
 #| label: tbl-biomass-diversity-model-output
 #| echo: false
 #| warning: false
-#| tbl-cap: Model output for the relationship between estimated and collected standing biomass.
+#| tbl-cap: Model output for the relationship between the global change drivers and standing biomass or the diversity indices. Shown are sum of squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold.
 
 tar_load(biomass_origin_anova_table, store = here::here(tar_config_get("store")))
 tar_load(diversity_origin_anova_table, store = here::here(tar_config_get("store")))
