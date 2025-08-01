@@ -5,14 +5,13 @@ si_figure_plan <- list(
     name = col_palette,
     #command = wes_palette("GrandBudapest1")[c(1, 2)]
     command = c("grey30", "#FD6467")
-    #treatment_palette[1,2]
   ),
 
   # Gauguin colour palette
   tar_target(
     name = treatment_palette,
     # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green
-    command = c("grey30", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"))
+    command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"))
   ),
 
   #c("#FD6467", "#5B1A18", "#D67236")

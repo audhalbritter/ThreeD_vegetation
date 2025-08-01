@@ -34,7 +34,7 @@ figure_plan <- list(
                                       unnest(data),
                                    x_axis = Nitrogen_log,
                                    yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                   colourpalette = col_palette,
+                                   colourpalette = treatment_palette[c(1, 2)],
                                    linetypepalette = c("solid", "dashed", "dotted"),
                                    shapepalette = c(21, 22, 24),
                                    facet_2 = NA,
@@ -117,7 +117,7 @@ figure_plan <- list(
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Shannon diversity",
-                                      colourpalette = col_palette,
+                                      colourpalette = treatment_palette[c(1, 2)],
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,
@@ -179,7 +179,7 @@ figure_plan <- list(
                                            shape = grazing,
                                            stroke = 0.8,
                                            size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
+        scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
