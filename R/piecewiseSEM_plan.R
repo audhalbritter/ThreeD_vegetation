@@ -41,13 +41,11 @@ piecewiseSEM_plan <- list(
                               col = treatment_palette)
 
       figure <- (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine site', 'b) Sub-alpine site'))) &
+        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
       out <- bind_rows(
-        #Across = out1$coefficients,
-        #Site = out2$coefficients,
         Alpine = out3$coefficients,
         "Sub-alpine" = out4$coefficients,
         .id = "Type"
