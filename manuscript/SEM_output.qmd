@@ -67,7 +67,7 @@ To illustrate the relationship between standing biomass and Shannon diversity we
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 5
+#| fig-height: 10
 #| fig-cap: Relationship of change in standing biomass and Shannon diversity. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing, diamond = natural grazing). Filled symbols are from the alpine site and open symbols from the sub-alpine site. The lines show the prediction line of the model for the alpine (solid) and sub-alpine site (dashed).
 
 tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
@@ -126,11 +126,11 @@ The patterns were very similar for the other two diversity indices (Supplementar
 
 *(Maybe drop the grazing, since it does not show very similar patterns?):* At alpine site no indirect effects via biomass, at sub-alpine site warming has no direct effect on biomass (Supplementary Figures S8-10).
 
-### Trait responses to global change of winners and losers
+### Trait responses to global change and increase in standing biomass
 
-At the alpine site, the plant community had more winners (i.e. species that colonized or increased in cover) and losers (i.e. species that go extinct or decrease in cover) in response to warming, nitrogen addition or both drivers compared to the sub-alpine site (@fig-traits). In response to warming loser species at the alpine site were shorter and had lower temperature requirements. Contrary, winner species in response to warming or nitrogen addition were taller and in response to warming also warm adapted.
+At the alpine site, all traits except moisture responded to warming. The light requirement and reaction (pH) value decreased with warming, while plant height, nutrient, salinity and temperature increased with warming. Reaction decreased with increasing nitrogen addition. The traits showed similar response to increase in standing biomass as to warming, but moisture also increased and salinity was not significant. No trait in the alpine responded to grazing.
 
-At the sub-alpine site, winner species in response to warming were taller. Loser species also responded to clipping at the sub-alpine site (Supplementary Figure S5). Loser species were smaller in response to clipping. Under ambient climate, loser species had lower temperature requirements when they were clipped, but were warmer adapted species under warming and clipping.
+At the sub-alpine site, less traits responded to the global change drivers and biomass. Plant height and moisture increased with warming. Light, reaction (pH), and salinity decreased and temperature increased with nitrogen addition. Plant height decreased with grazing intensity. Light, pH and temperature decreased with increasing standing biomass, while moisture and plant height increased.
 
 ### Warming
 
