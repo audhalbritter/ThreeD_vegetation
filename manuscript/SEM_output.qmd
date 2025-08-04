@@ -116,7 +116,7 @@ To test if warming, nitrogen addition and clipping to operate on Shannon diversi
 #| fig-height: 5
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on Shannon diversity a) for the alpine and b) sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_final_diversity, store = here::here(tar_config_get("store")))
+tar_load(cut_final_diversity)
 
 cut_final_diversity[[1]]
 
@@ -189,6 +189,20 @@ tar_read(traits_clipping_plot)
 #| fig-cap: Trait distributions for plots with different standing biomass at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values. The colours indicate different levels of standing biomass (some gradient).
 
 tar_read(traits_biomass_plot)
+
+```
+
+To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
+
+```{r}
+#| label: tbl-trait-stats
+#| echo: false
+#| warning: false
+#| tbl-cap: Statistical results for trait responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (light, temperature, nutrients, moisture, salinity, reaction) at the alpine and sub-alpine sites. Significant effects (P ≤ 0.05) are shown in bold.
+
+tar_load(trait_stats_table)
+
+trait_stats_table
 
 ```
 
