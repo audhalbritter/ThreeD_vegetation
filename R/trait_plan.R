@@ -113,8 +113,8 @@ trait_plan <- list(
     tar_target(
       name = traits_warming_plot,
       command = make_trait_ridgeline_plot(trait_mean_all |> 
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity")) |>
-                                            mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
+                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+                                            grazing != "Natural"), 
                                             group_var = "warming",
                                             custom_colors = treatment_palette[c(1, 2)],
                                             y_axis_label = "")
@@ -123,7 +123,8 @@ trait_plan <- list(
     tar_target(
       name = traits_nitrogen_plot,
       command = make_trait_ridgeline_plot(trait_mean_all |> 
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity")) |>
+                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+                                            grazing != "Natural") |>
                                             mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                             group_var = "Namount_kg_ha_y2",
                                             custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
@@ -135,8 +136,7 @@ trait_plan <- list(
       name = traits_clipping_plot,
       command = make_trait_ridgeline_plot(trait_mean_all |> 
                                             filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
-                                            grazing != "Natural") |>
-                                            mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
+                                            grazing != "Natural"), 
                                             group_var = "grazing",
                                             custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
                                             y_axis_label = "Clipping")
@@ -148,7 +148,6 @@ trait_plan <- list(
       command = make_trait_ridgeline_plot(trait_mean_all |>
                                             filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
                                             grazing != "Natural") |>
-                                            mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)) |>
                                             tidylog::left_join(standing_biomass_back |> 
                                             filter(year == 2022,
                                             grazing != "Natural") |>
@@ -158,7 +157,15 @@ trait_plan <- list(
                                             group_var = "biomass_log",
                                             custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
                                             y_axis_label = "Log(Standing biomass)")
-    )
+    ),
+
+  # Trait statistical analysis
+  tar_target(
+    name = trait_statistical_analysis,
+    command = {
+      test_treatment_effects(data = trait_mean_all, biomass_data = standing_biomass_back)
+    }
+  )
 
 )
 
