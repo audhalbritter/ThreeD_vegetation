@@ -176,10 +176,13 @@ figure_plan <- list(
                         aes(y = .fitted,
                             x = biomass_log)) +
         geom_point(data = biomass_div, aes(colour = warming,
+                                           fill = warming,
+                                           alpha = 0.5,
                                            shape = grazing,
                                            stroke = 0.8,
                                            size = Namount_kg_ha_y)) +
         scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
+        scale_fill_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
