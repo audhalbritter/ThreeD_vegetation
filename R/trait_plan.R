@@ -165,6 +165,11 @@ trait_plan <- list(
     command = {
       test_treatment_effects(data = trait_mean_all, biomass_data = standing_biomass_back)
     }
+  ),
+
+  tar_target(
+    name = trait_stats_table,
+    command = make_trait_stats(trait_statistical_analysis)
   )
 
 )
