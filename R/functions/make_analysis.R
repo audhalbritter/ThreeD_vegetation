@@ -140,7 +140,7 @@ traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients
   
   # Test warming effects for each trait
   results_warming <- trait_data |>
-    group_by(trait_trans, origSiteID, figure_names) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
     nest() |>
     mutate(
       # Run linear model
@@ -158,7 +158,7 @@ traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients
 
   # Test nitrogen effects for each trait
   results_nitrogen <- trait_data |>
-    group_by(trait_trans, origSiteID, figure_names) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
     nest() |>
     mutate(
       # Run linear model
@@ -174,7 +174,7 @@ traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients
 
   # Test grazing effects for each trait (excluding Natural)
   results_grazing <- trait_data |>
-    group_by(trait_trans, origSiteID, figure_names) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
     nest() |>
     mutate(
       # Run linear model
@@ -197,7 +197,7 @@ traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients
         select(-year),
       by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")
     ) |>
-    group_by(trait_trans, origSiteID, figure_names) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
     nest() |>
     mutate(
       # Run linear model
