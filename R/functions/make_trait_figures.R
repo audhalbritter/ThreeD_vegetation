@@ -362,3 +362,58 @@ make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_b
   return(plot)
 }
 
+# Add significance stars to trait distribution plots
+add_significance_stars <- function(plot, trait_stats, treatment_type) {
+  
+  # Extract significance data for the specific treatment
+  sig_data <- trait_stats |>
+    unnest(anova_tidy) |>
+    filter(treatment == treatment_type) |>
+    # Get the main effect term (not intercept)
+    filter(term != "(Intercept)") |>
+    # Create significance labels
+    mutate(
+      significance = case_when(
+        p.value <= 0.001 ~ "***",
+        p.value <= 0.01 ~ "**", 
+        p.value <= 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    ) |>
+    select(trait_trans, origSiteID, significance)
+  
+  # Create annotation data frame that matches the facet structure
+  # We need to match trait_trans to figure_names format
+  annotation_data <- sig_data |>
+    # Convert trait_trans to figure_names format
+    mutate(
+      figure_names = case_when(
+        trait_trans == "plant_height_cm_log" ~ "Plant~height~(cm)",
+        trait_trans == "temperature" ~ "Temperature",
+        trait_trans == "light" ~ "Light",
+        trait_trans == "moisture" ~ "Moisture",
+        trait_trans == "nutrients" ~ "Nutrients",
+        trait_trans == "reaction" ~ "Reaction",
+        trait_trans == "salinity" ~ "Salinity",
+        TRUE ~ trait_trans
+      ),
+      # Add positioning variables
+      x = Inf,
+      y = Inf
+    )
+  
+  # Add significance stars to the plot
+  plot_with_stars <- plot +
+    geom_text(
+      data = annotation_data,
+      aes(x = x, y = y, label = significance),
+      hjust = 1.2,
+      vjust = 1.2,
+      size = 6,
+      fontface = "bold",
+      inherit.aes = FALSE
+    )
+  
+  return(plot_with_stars)
+}
+

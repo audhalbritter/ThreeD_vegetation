@@ -112,51 +112,63 @@ trait_plan <- list(
     # warming
     tar_target(
       name = traits_warming_plot,
-      command = make_trait_ridgeline_plot(trait_mean_all |> 
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
-                                            grazing != "Natural"), 
-                                            group_var = "warming",
-                                            custom_colors = treatment_palette[c(1, 2)],
-                                            y_axis_label = "")
+      command = {
+        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+                                                grazing != "Natural"), 
+                                                group_var = "warming",
+                                                custom_colors = treatment_palette[c(1, 2)],
+                                                y_axis_label = "")
+        add_significance_stars(base_plot, trait_statistical_analysis, "warming")
+      }
     ),
 
     tar_target(
       name = traits_nitrogen_plot,
-      command = make_trait_ridgeline_plot(trait_mean_all |> 
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
-                                            grazing != "Natural") |>
-                                            mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
-                                            group_var = "Namount_kg_ha_y2",
-                                            custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
-                                            y_axis_label = "Nitrogen")
+      command = {
+        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+                                                grazing != "Natural") |>
+                                                mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
+                                                group_var = "Namount_kg_ha_y2",
+                                                custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
+                                                y_axis_label = "Nitrogen")
+        add_significance_stars(base_plot, trait_statistical_analysis, "nitrogen")
+      }
     ),
 
     # clipping
     tar_target(
       name = traits_clipping_plot,
-      command = make_trait_ridgeline_plot(trait_mean_all |> 
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
-                                            grazing != "Natural"), 
-                                            group_var = "grazing",
-                                            custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
-                                            y_axis_label = "Clipping")
+      command = {
+        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
+                                                grazing != "Natural"), 
+                                                group_var = "grazing",
+                                                custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
+                                                y_axis_label = "Clipping")
+        add_significance_stars(base_plot, trait_statistical_analysis, "grazing")
+      }
     ),
 
     # biomass
     tar_target(
       name = traits_biomass_plot,
-      command = make_trait_ridgeline_plot(trait_mean_all |>
-                                            filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
-                                            grazing != "Natural") |>
-                                            tidylog::left_join(standing_biomass_back |> 
-                                            filter(year == 2022,
-                                            grazing != "Natural") |>
-                                            mutate(biomass_log = log(standing_biomass)) |>
-                                            select(-year),
-                                            by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
-                                            group_var = "biomass_log",
-                                            custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
-                                            y_axis_label = "Log(Standing biomass)")
+      command = {
+        base_plot <- make_trait_ridgeline_plot(trait_mean_all |>
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
+                                                grazing != "Natural") |>
+                                                tidylog::left_join(standing_biomass_back |> 
+                                                filter(year == 2022,
+                                                grazing != "Natural") |>
+                                                mutate(biomass_log = log(standing_biomass)) |>
+                                                select(-year),
+                                                by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
+                                                group_var = "biomass_log",
+                                                custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
+                                                y_axis_label = "Log(Standing biomass)")
+        add_significance_stars(base_plot, trait_statistical_analysis, "biomass")
+      }
     ),
 
   # Trait statistical analysis
