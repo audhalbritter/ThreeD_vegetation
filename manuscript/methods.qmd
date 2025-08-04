@@ -63,7 +63,9 @@ cons <- consumption |>
 
 ```
 
-Three semi-natural, species rich, perennial grassland sites (469, 920, and 1290 m a.s.l.) were established along an elevational gradient in Western Norway (@fig-concept c; 7.17°E, 60.88°N). Effectively, the experimental design has only two sites (alpine and sub-alpine), because the lowland site received only transplanted communities (warming treatment crossed with grazing and nitrogen, see below). The sites were 400 m apart in elevation, corresponding to a temperature difference of approximately 3°C in summer air, ground and soil temperature over the duration of the experiment (air temperature; alpine: `r ta$mean[1]` ± `r ta$se[1]` °C; sub-alpine `r ta$mean[2]` ± `r ta$se[2]` °C; lowland: `r ta$mean[3]` ± `r ta$se[3]` °C, *in situ* measurement between May - September in 2019-2022; Supplementry Figure S1). Annual precipitation was similar at the two lowest sites and approximately 800 mm higher at the highest site (alpine: 2089 mm; sub-alpine 1256 mm; lowland: 1292 mm; modeled climate data from the period of 2008 - 2021 by Norwegian Meteorological Institute, met.no). The sites were located on calcareous bedrock with loamy sand and grazed by sheep, goats and deer at the lowland and sub-alpine sites, and mainly sheep and reindeer at the alpine site. Annual plant productivity is similar at the lowland and sub-alpine site (`r prod$mean[1]` ± `r prod$se[1]` g m^-2^ y^-1^, `r prod$mean[2]` ± `r prod$se[2]` g m^-2^ y^-1^, respectively) and about four times lower at the alpine site (`r prod$mean[3]` ± `r prod$se[3]` g m^-2^ y^-1^) (Supplementary Figure S2a). Grazing pressure is 3 - 5 time higher in the sub-alpine site (`r cons$mean[2]` ± `r cons$se[2]` g m2 y-1, 1) compared to the lowland (`r cons$mean[1]` ± `r cons$se[1]` g m2 y-1) and alpine site (`r cons$mean[3]` ± `r cons$se[3]` g m2 y-1; Supplementary Figure S2b). Other factors such as land-use history, vegetation type, slope and exposure were kept as constant as possible. To simulate the natural grazing regime at each site, and to avoid accumulation of biomass, the biomass within the fence was removed at the end of each field season.
+Three semi-natural, species rich, perennial grassland sites (469, 920, and 1290 m a.s.l.) were established along an elevational gradient in Western Norway (@fig-methods; 7.17°E, 60.88°N). Effectively, the experimental design has only two sites (alpine and sub-alpine), because the lowland site received only transplanted communities (warming treatment crossed with grazing and nitrogen, see below). The sites were 400 m apart in elevation, corresponding to a temperature difference of approximately 3°C in summer air, ground and soil temperature over the duration of the experiment (air temperature; alpine: `r ta$mean[1]` ± `r ta$se[1]` °C; sub-alpine `r ta$mean[2]` ± `r ta$se[2]` °C; lowland: `r ta$mean[3]` ± `r ta$se[3]` °C, *in situ* measurement between May - September in 2019-2022; Supplementry Figure S1). Annual precipitation was similar at the two lowest sites and approximately 800 mm higher at the highest site (alpine: 2089 mm; sub-alpine 1256 mm; lowland: 1292 mm; modeled climate data from the period of 2008 - 2021 by Norwegian Meteorological Institute, met.no). The sites were located on calcareous bedrock with loamy sand and grazed by sheep, goats and deer at the lowland and sub-alpine sites, and mainly sheep and reindeer at the alpine site. Annual plant productivity is similar at the lowland and sub-alpine site (`r prod$mean[1]` ± `r prod$se[1]` g m^-2^ y^-1^, `r prod$mean[2]` ± `r prod$se[2]` g m^-2^ y^-1^, respectively) and about four times lower at the alpine site (`r prod$mean[3]` ± `r prod$se[3]` g m^-2^ y^-1^) (Supplementary Figure S2a). Grazing pressure is 3 - 5 time higher in the sub-alpine site (`r cons$mean[2]` ± `r cons$se[2]` g m2 y-1, 1) compared to the lowland (`r cons$mean[1]` ± `r cons$se[1]` g m2 y-1) and alpine site (`r cons$mean[3]` ± `r cons$se[3]` g m2 y-1; Supplementary Figure S2b). Other factors such as land-use history, vegetation type, slope and exposure were kept as constant as possible. To simulate the natural grazing regime at each site, and to avoid accumulation of biomass, the biomass within the fence was removed at the end of each field season.
+
+![Experimental desgin and map of location. A fully factorial experiment to assess warming, nitrogen addition, clipping andgrazing replicated in two sites, an alpine and a sub-alpine plant community. Warmed communities were transplanted from the alpine to the sub-alpine or from the sub-alpine to the boreal site, in fully factorial combinations with nitrogen addition, clipping grazing treatments. The treatments are ambient (gray), warming (pink), nitrogen deposition (gray to green under ambient temperature and pink to brown under warmed conditions, crossed with four levels of clipping and grazing (yellow); none (C), intermediate clipping (one scissor), intensive clipping (two scissors) and natural grazing (sheep). The arrows indicate the direction of transplant (warming treatment). Inset shows location of the study sites in Western Norway.](figures/methods.jpg){#fig-methods width="800"}
 
 In summer 2019, ten experimental blocks containing six 50 x 50 cm plots were established at each site (@fig-concept c) and fenced in early spring 2020. In addition, two plots per block were located outside the fence (n = 160). Each plot received a combination of warming, nitrogen addition and grazing treatments in two steps. First, each block was randomly assigned a nitrogen level, to avoid nitrogen contamination between the plots within the blocks. Second, the warming and grazing treatments were randomized within each block, with the exception of the naturally grazed plots, that were located outside the fenced area (for more details see ThreeD data paper pre-print).
 
@@ -91,80 +93,15 @@ Plant height was collected at peak growing season in 2022 for the species making
 
 Standing biomass was estimated in all plots pre-treatment (2019) and after 3 years of treatment (2022) by multiplying the sum of vascular plant cover for all species with vegetation height. The data was then back-transformed to weight per area (kg m^-2^) by using the standing biomass collected in the unclipped and ungrazed control plots in 2022 (n = 40). We first run a linear regression for all unclipped and ungrazed control plots with collected standing biomass as response and vascular plant cover x height and the interaction of warming and log transformed nitrogen addition as predictors. We compared the AIC's from models with all combinations of these predictors to find the most parsimonious model. The model with the lowest AIC contained vascular plant cover x height and log transformed nitrogen addition (R^2^ = 0.87). The regression coefficients from this model was then used to back transform the vascular plant cover x height in all plots to estimated standing biomass (kg m^-2^; hereafter standing biomass; Supplementary Figure S4, Table S3). Separate models were run for 2019 and 2022.
 
-To test if warming, nitrogen addition and clipping affect standing biomass after three years of treatment in 2022, we used a fixed effects linear model with a normal error distribution. The model contained standing biomass as response and origin site of the plant community and a three-way interaction of warming, nitrogen addition and clipping as predictors. The experimental design did not allow running a mixed-effects model, because there is no replication at the plot level. Clipping was transformed to a numerical scale with 0 (control), 2 (intermediate) or 4 (intensive) cuts per growing season. The nitrogen levels we chose ranged from low to very high levels and they were unevenly distributed on a linear scale. We did not expect linear responses along this nitrogen gradient and therefore used three models that differed in the nitrogen addition treatment term, reflecting separate assumptions for the response to nitrogen addition: a) a linear term as a null model (N), b) a logarithmic term (log(N)) to account for the uneven distribution of the nitrogen levels, and c) a quadratic term (N^2^) allowing for a concave/convex relationship. To find the most parsimonious model, we compared the AIC values of all three models and chose the one with the lowest AIC values. If the models differed in 𝚫AIC ≤ 2, we chose the simplest model. We preferred the logarithmic before the linear model, because it reflects a more realistic assumption than the null model. The most parsimonious model for standing biomass was the logarithmic model.
+To test if warming, nitrogen addition and clipping affect standing biomass after three years of treatment in 2022, we used a fixed effects linear model with a normal error distribution. The model contained standing biomass as response and a three-way interaction of warming, nitrogen addition and clipping as predictors. The analysis was ran separately for each of the sites. The experimental design did not allow running a mixed-effects model, because there is no replication at the plot level. Clipping was transformed to a numerical scale with 0 (control), 2 (intermediate) or 4 (intensive) cuts per growing season. The nitrogen levels we chose ranged from low to very high levels and they were unevenly distributed on a linear scale. We did not expect linear responses along this nitrogen gradient and therefore used three models that differed in the nitrogen addition treatment term, reflecting separate assumptions for the response to nitrogen addition: a) a linear term as a null model (N), b) a logarithmic term (log(N)) to account for the uneven distribution of the nitrogen levels, and c) a quadratic term (N^2^) allowing for a concave/convex relationship. To find the most parsimonious model, we compared the AIC values of all three models and chose the one with the lowest AIC values. If the models differed in 𝚫AIC ≤ 2, we chose the simplest model. We preferred the logarithmic before the linear model, because it reflects a more realistic assumption than the null model. The most parsimonious model for standing biomass was the logarithmic model.
 
 <!--# Do we want to run all analysis for grazing as well? -->
 
 To test if warming, nitrogen addition and clipping affect plant diversity at the end of the experiment (2022), we calculated the following diversity indices: species richness (n; number of species), Shannon diversity $H' = -\Sigma_{i} p_{i} * ln(p_{i})$, where $p_{i}$ is the proportional abundance of species i) and species evenness $\frac{H'}{log(n)}$ using the vegan package [@oksanen2022vegan]. The most parsimonious model for all three diversity indices was the linear model.
 
-<!--# How to explain this? -->
-
-We ran the analysis for standing biomass and diversity indices (described above) first across both sites including site as a co-variate and then separately for the alpine and sub-alpine site. We used this approach, because the two sites differed strongly in their productivity and diversity and how they respond to the three global change drivers and we were interested to understand if different drivers play different roles at the two sites.
-
 <!--# From here we ran all analysis for final biomass/diversity and change in biomass/diversity (log ratio). Do we want to keep both of these analysis? They are similar, but some differences... -->
 
 To test the relationship between standing biomass and Shannon diversity, we run a fixed effects linear model with a normal error distribution. Diversity was the response and the interaction of standing biomass and site the predictors. (We also ran it with warming as predictor... should we describe both models or just one of them...?). (Justify, why we ignore the other drivers here?).
-
-To test if the three global change drivers affect Shannon diversity through the same mechanisms, i.e. standing biomass, we first tested how important it was to include the interactions of the three global change drivers were in the model. For this we compared three linear models with Shannon diversity as response and including the following predictors: 1) only the main effects, warming, nitrogen addition and clipping, 2) the main effects and their interactions of these drivers, and 3) the main effects and standing biomass (log transformed). We ran these models separately for each site and compared them using AIC values (@tbl-var-explained). At the alpine site, adding standing biomass or the interactions between the drivers improved the model equally well, by ca. 2.5 AIC units. However at the sub-alpine site, the best model was the main effects model only. For consistency, we decided to drop the interactions of the global change drivers from further.
-
-```{r}
-#| label: tbl-var-explained
-#| echo: false
-#| tbl-cap: Model comparisions and AIC values.
-
-tar_load(biomass_div, store = here::here(tar_config_get("store")))
-
-all <- biomass_div |> 
-  nest() |>
-  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
-         main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
-         biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .)),
-         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .))
-         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
-         ) |>
-  mutate(main = map(main, glance),
-         biomain = map(biomain, glance),
-         full = map(full, glance)) |>
-  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
-  # make long table
-        pivot_longer(cols = -c(data),
-                     names_to = "model",
-                     values_to = "glance") |> 
-  mutate(origSiteID = "Both")
-
-
-site <- biomass_div |> 
-  group_by(origSiteID) |>
-  nest() |>
-  mutate(#bio = map(data, ~lm(final_diversity ~ final_bio, data = .)),
-         main = map(data, ~lm(final_diversity ~ warming + grazing_num + Namount_kg_ha_y, data = .)),
-         biomain = map(data, ~lm(final_diversity ~ final_bio + warming + grazing_num + Namount_kg_ha_y, data = .)),
-         #interaction = map(data, ~lm(final_diversity ~ warming:grazing_num + warming:Namount_kg_ha_y + grazing_num:Namount_kg_ha_y + warming:grazing_num:Namount_kg_ha_y, data = .))
-         full = map(data, ~lm(final_diversity ~ warming * grazing_num * Namount_kg_ha_y, data = .)),
-         #biofull = map(data, ~lm(final_diversity ~ final_bio + warming * grazing_num * Namount_kg_ha_y, data = .))
-         ) |>
-  mutate(main = map(main, glance),
-         biomain = map(biomain, glance),
-         full = map(full, glance)) |>
-  rename("main effects" = main, "main effects + biomass" = biomain, "main effects + interactions" = full) |> 
-  # make long table
-        pivot_longer(cols = -c(origSiteID, data),
-                     names_to = "model",
-                     values_to = "glance")
-site |> 
-  unnest(glance) |> 
-  select(origSiteID, model, r.squared, adj.r.squared, AIC) |> 
-  mutate(r.squared = round(r.squared, 2),
-         adj.r.squared = round(adj.r.squared, 2),
-         AIC = round(AIC, 2)) |>
-  gt() |>
-  cols_label(model = "Model",
-             r.squared = html("R&sup2;"), 
-             adj.r.squared = html("adj. R&sup2;"))
-
-
-```
 
 To test if warming, nitrogen addition and clipping affect plant diversity directly and/or indirectly via standing biomass (H1), we ran separate structural equation models (SEM) for each site (see models below). Nitrogen addition was log transformed and grazing was coded as a numeric variable representing the number of times the plot was clipped (see above). We ran separate SEMs for Shannon diversity, species richness, and evenness. We also repeated the SEMs described above for natural grazing (grazing and exclosure) instead of the clipping treatment. All SEMs were run using the piecewiseSEM package [@lefcheck2016piecewisesem].
 

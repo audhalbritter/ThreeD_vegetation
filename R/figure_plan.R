@@ -2,65 +2,13 @@
 
 figure_plan <- list(
 
-  ### Figure 1
+  ### Figure 3
   # standing biomass and drivers
   tar_target(
     name = bio_div_figure,
     command = {
 
-      ### Figure 1a BIOMASS
-      biomass_text <- biomass_anova_table |>
-        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
-                                        p.value >= 0.07 ~ "non-sign",
-                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
-                                        TRUE ~ "sign")) |>
-        # BY HAND CODE!!!
-        filter(significance %in% c("sign", "marginal")) |>
-        distinct(term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
-
-      bio <- make_vegetation_figure_v2(dat1 = biomass_output |>
-                                                 unnest(data),
-                                               x_axis = Nitrogen_log,
-                                               yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                               colourpalette = col_palette,
-                                               linetypepalette = c("solid", "dashed", "dotted"),
-                                               shapepalette = c(21, 22, 24),
-                                               dat2 = biomass_prediction) +
-        labs(tag = "a) Across sites") +
-        # add stats
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(biomass_text |>
-                               slice(1)),
-                  aes(x = -Inf, y = Inf, hjust = -0.2, vjust = 1.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(biomass_text |>
-                                slice(2)),
-                  aes(x = -Inf, y = Inf, hjust = -0.2, vjust = 3, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(biomass_text |>
-                               slice(3)),
-                  aes(x = -Inf, y = Inf, hjust = -0.3, vjust = 4.6, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(biomass_text |>
-                               slice(4)),
-                  aes(x = -Inf, y = Inf, hjust = -0.2, vjust = 6.2, label = term),
-                  size = 3, colour = text_colour) +
-        geom_text(data = biomass_prediction |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(biomass_text |>
-                               slice(5)),
-                  aes(x = -Inf, y = Inf, hjust = -0.1, vjust = 7.8, label = term),
-                  size = 3, colour = text_colour)
-
-      ### Figure 1b Biomass by origin
+      ### Figure 3a Biomass by origin
       biomass_text2 <- biomass_origin_anova_table |>
         mutate(significance = case_when(term == "Residuals" ~ "non-sign",
                                         p.value >= 0.07 ~ "non-sign",
@@ -81,15 +29,18 @@ figure_plan <- list(
         distinct(origSiteID, term, significance) |>
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
-      bio2 <- make_vegetation_figure_v2(dat1 = biomass_origin_output |>
-                                  unnest(data),
-                                x_axis = Nitrogen_log,
-                                yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                colourpalette = col_palette,
-                                linetypepalette = c("solid", "dashed", "dotted"),
-                                shapepalette = c(21, 22, 24),
-                                dat2 = biomass_origin_prediction) +
-        labs(tag = "b) Separate by sites") +
+
+      bio <- make_vegetation_figure(dat1 = biomass_origin_output |>
+                                      unnest(data),
+                                   x_axis = Nitrogen_log,
+                                   yaxislabel = bquote(Standing~biomass~g~m^-2),
+                                   colourpalette = treatment_palette[c(1, 2)],
+                                   linetypepalette = c("solid", "dashed", "dotted"),
+                                   shapepalette = c(21, 22, 24),
+                                   facet_2 = NA,
+                                   # predictions
+                                   dat2 = biomass_origin_prediction) +
+        labs(tag = "a)") +
         # add stats
         geom_text(data = biomass_origin_prediction |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
@@ -148,47 +99,7 @@ figure_plan <- list(
                   aes(x = -Inf, y = Inf, hjust = -0.1, vjust = 9.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50)
 
-      ### Figure 1b DIVERSITY
-      div_text <- diversity_anova_table |>
-        filter(diversity_index == "diversity") |>
-        mutate(significance = case_when(term == "Residuals" ~ "non-sign",
-                                        p.value >= 0.07 ~ "non-sign",
-                                        p.value >= 0.05 & p.value <= 0.07 ~ "marginal",
-                                        TRUE ~ "sign")) |>
-        # BY HAND CODE!!!
-        filter(significance %in% c("sign", "marginal")) |>
-        distinct(term, significance) |>
-        mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
-
-      div <- make_vegetation_figure_v2(dat1 = diversity_output |>
-                                  filter(diversity_index == "diversity") |>
-                                  unnest(data),
-                                x_axis = Nitrogen_log,
-                                yaxislabel = "Shannon diversity",
-                                colourpalette = col_palette,
-                                linetypepalette = c("solid", "dashed", "dotted"),
-                                shapepalette = c(21, 22, 24),
-                                dat2 = diversity_prediction |>
-                                  filter(diversity_index == "diversity")) +
-        labs(tag = "c) Across sites") +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "diversity") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(div_text |>
-                               slice(1)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.3, vjust = -1.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50) +
-        # add stats
-        geom_text(data = diversity_prediction |>
-                    filter(diversity_index == "diversity") |>
-                    distinct(origSiteID, warming, Nitrogen_log, grazing) |>
-                    crossing(div_text |>
-                               slice(2)),
-                  aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -3, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50)
-
-      ### Figure 1d DIVERSITY BY ORIGIN
+      ### Figure 3b DIVERSITY BY ORIGIN
       div_text2 <- diversity_origin_anova_table |>
         filter(diversity_index == "diversity") |>
         mutate(significance = case_when(term == "Residuals" ~ "non-sign",
@@ -200,20 +111,22 @@ figure_plan <- list(
         distinct(origSiteID, term, significance) |>
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
-
-      div2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
+        
+        div <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "diversity") |>
                                       unnest(data),
-                                    x_axis = Nitrogen_log,
-                                    yaxislabel = "Shannon diversity",
-                                    colourpalette = col_palette,
-                                    linetypepalette = c("solid", "dashed", "dotted"),
-                                    shapepalette = c(21, 22, 24),
-                                    dat2 = diversity_origin_prediction |>
+                                      x_axis = Nitrogen_log,
+                                      yaxislabel = "Shannon diversity",
+                                      colourpalette = treatment_palette[c(1, 2)],
+                                      linetypepalette = c("solid", "dashed", "dotted"),
+                                      shapepalette = c(21, 22, 24),
+                                      facet_2 = NA,
+                                      # predictions
+                                      dat2 = diversity_origin_prediction |>
                                       filter(diversity_index == "diversity")) +
-        labs(tag = "d) Separate by site") +
+        labs(tag = "b)") +
         # add stats
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "diversity") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(div_text2 |>
@@ -222,7 +135,7 @@ figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.2, vjust = -1.4, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "diversity") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(div_text2 |>
@@ -231,7 +144,7 @@ figure_plan <- list(
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.3, vjust = -3, label = term),
                   size = 3, colour = text_colour, nudge_x = 50) +
-        geom_text(data = diversity_prediction |>
+        geom_text(data = diversity_origin_prediction |>
                     filter(diversity_index == "diversity") |>
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(div_text2 |>
@@ -241,10 +154,11 @@ figure_plan <- list(
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
                   size = 3, colour = text_colour, nudge_x = 50)
 
-      (bio + bio2) / (div + div2) + plot_layout(guides = "collect") &
+      (bio + div) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
               plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 10, hjust = 0, vjust = 0))
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0),
+              legend.background = element_rect(fill = "transparent"))
 
     }
   ),
@@ -255,39 +169,105 @@ figure_plan <- list(
     name = standingB_div_final_figure,
     command = {
 
-      biomass_div |>
+      bio_div <- biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_line(data = standingB_div_final_prediction, 
-          aes(y = .fitted,
-            x = `log(final_bio)`,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
+        geom_line(data = standingB_div_final_prediction |>
+                          mutate(biomass_log = log(final_bio)), 
+                        aes(y = .fitted,
+                            x = biomass_log)) +
         geom_point(data = biomass_div, aes(colour = warming,
+                                           fill = warming,
                                            shape = grazing,
-                                           fill = interaction(origSiteID, warming),
-                                           size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
+                                           stroke = 0.8,
+                                           size = Namount_kg_ha_y),
+                                           alpha = 0.5) +
+        scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
+        scale_fill_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
-             y = "Shannon diversity") +
+             y = "Shannon diversity",
+             tag = "a)") +
+        facet_wrap(vars(origSiteID)) +
         theme_bw() +
-        theme(legend.position = "bottom",
+        theme(legend.position = "top",
               legend.box = "vertical",
               text = element_text(size = 12))
-    }
+
+      warm <- biomass_div |> 
+        ggplot(aes(x = warming, y = final_diversity)) +
+        geom_violin(aes(colour = warming,
+                       fill = warming),
+                       draw_quantiles = c(0.5),
+                       alpha = 0.5) +
+        scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
+        scale_fill_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
+        labs(x = "",
+             y = "Shannon diversity",
+             tag = "b)") +
+        facet_wrap(vars(origSiteID)) +
+        theme_bw() +
+        theme(legend.position = "none",
+        text = element_text(size = 12))
+
+      nitrogen <- biomass_div |> 
+        mutate(Nitrogen_log_rounded = round(Nitrogen_log, 1)) |>
+        ggplot(aes(x = as.factor(Nitrogen_log_rounded), y = final_diversity)) +
+        geom_violin(aes(colour = as.factor(Nitrogen_log_rounded),
+                       fill = as.factor(Nitrogen_log_rounded)),
+                       draw_quantiles = c(0.5),
+                       alpha = 0.5) +
+        scale_colour_manual(values = met.brewer(name="VanGogh3", n=7, type="discrete"), name = "Nitrogen") +
+        scale_fill_manual(values = met.brewer(name="VanGogh3", n=7, type="discrete"), name = "Nitrogen") +
+        labs(x = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+             y = "Shannon diversity",
+             tag = "d)") +
+        facet_wrap(vars(origSiteID)) +
+        theme_bw() +
+        theme(legend.position = "none",
+        text = element_text(size = 12))
+
+      grazing <- biomass_div |> 
+        filter(grazing != "Natural") |>
+        ggplot(aes(x = grazing, y = final_diversity)) +
+        geom_violin(aes(colour = grazing,
+                       fill = grazing),
+                       draw_quantiles = c(0.5),
+                       alpha = 0.5) +
+        scale_colour_manual(values = met.brewer(name="Manet", n=3, type="discrete"), name = "Clipping") +
+        scale_fill_manual(values = met.brewer(name="Manet", n=3, type="discrete"), name = "Clipping") +
+        labs(x = "",
+             y = "Shannon diversity",
+             tag = "c)") +
+        facet_wrap(vars(origSiteID)) +
+        theme_bw() +
+        theme(legend.position = "none",
+        text = element_text(size = 12))
+
+      biomass <- biomass_div |> 
+        mutate(biomass_binned = cut(final_bio, breaks = 5, include.lowest = TRUE, dig.lab = 3)) |>
+        ggplot(aes(x = biomass_binned, y = final_diversity)) +
+        geom_violin(aes(colour = biomass_binned,
+                       fill = biomass_binned),
+                       draw_quantiles = c(0.5),
+                       alpha = 0.5) +
+        scale_colour_manual(values = met.brewer(name="VanGogh3", n=5, type="discrete"), name = "Biomass") +
+        scale_fill_manual(values = met.brewer(name="VanGogh3", n=5, type="discrete"), name = "Biomass") +
+        labs(x = bquote(Standing~biomass~g~m^-2),
+             y = "Shannon diversity",
+             tag = "e)") +
+        facet_wrap(vars(origSiteID)) +
+        theme_bw() +
+                theme(legend.position = "none",
+               text = element_text(size = 12))
+
+      # Combine all plots using patchwork
+      bio_div / (warm + grazing) / (nitrogen + biomass) +
+        plot_layout(heights = c(2, 1, 1))
+
+      }
   ),
 
 

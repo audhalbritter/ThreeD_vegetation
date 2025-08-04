@@ -47,8 +47,8 @@ author:
         country: Norway
         
 format:
-  html: 
-    self-contained: false
+    html:
+      self-contained: true
 editor: visual
 abstract: >
   Biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes. 

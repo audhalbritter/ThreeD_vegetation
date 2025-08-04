@@ -369,3 +369,99 @@ make_climate_stats <- function(climate_anova_table){
     )
 
 }
+
+make_trait_stats <- function(trait_statistical_analysis){
+
+  # Unnest the anova_tidy results and format
+  trait_stats <- trait_statistical_analysis |>
+    unnest(anova_tidy) |>
+    mutate(
+      sumsq = round(sumsq, 2),
+      statistic = round(statistic, 2),
+      p.value = round(p.value, 3),
+      p.value = if_else(p.value < 0.001, "<0.001", as.character(p.value)),
+      # Rename terms to be more readable
+      term = case_when(
+        term == "biomass_log" ~ "Log(Standing biomass)",
+        term == "grazing_num" ~ "Clipping",
+        term == "Nitrogen_log" ~ "Log(Nitrogen addition)",
+        term == "warmingWarming" ~ "Warming",
+        TRUE ~ term
+      )
+    ) |>
+    select(trait_trans, trait_fancy, origSiteID, treatment, term, sumsq, df, statistic, p.value) |>
+    # Pivot to wide format with origSiteID as columns
+    pivot_wider(
+      names_from = origSiteID, 
+      values_from = c(sumsq, df, statistic, p.value),
+      names_glue = "{origSiteID}_{.value}"
+    ) |>
+    ungroup() |>
+    # Reorder columns to group by site
+    select(
+      treatment, trait_fancy, Term = term,
+      # Alpine columns
+      Alpine_sumsq, Alpine_df, Alpine_statistic, Alpine_p.value,
+      # Sub-alpine columns  
+      `Sub-alpine_sumsq`, `Sub-alpine_df`, `Sub-alpine_statistic`, `Sub-alpine_p.value`
+    )
+
+  # Create gt table
+  trait_stats |>
+    gt() |>
+    # Add spanners for each site
+    tab_spanner(label = "Alpine", columns = c(4:7)) |>
+    tab_spanner(label = "Sub-alpine", columns = c(8:11)) |>
+    # Label columns consistently
+    cols_label(
+      trait_fancy = "Trait",
+      # Alpine
+      Alpine_sumsq = "Sum of Squares",
+      Alpine_df = "df", 
+      Alpine_statistic = "F",
+      Alpine_p.value = "P",
+      # Sub-alpine
+      `Sub-alpine_sumsq` = "Sum of Squares",
+      `Sub-alpine_df` = "df",
+      `Sub-alpine_statistic` = "F", 
+      `Sub-alpine_p.value` = "P"
+    ) |>
+    # Add row groups by treatment (reordered)
+    tab_row_group(
+      label = "Warming",
+      rows = treatment == "warming"
+    ) |>
+    tab_row_group(
+      label = "Nitrogen",
+      rows = treatment == "nitrogen"
+    ) |>
+    tab_row_group(
+      label = "Clipping", 
+      rows = treatment == "grazing"
+    ) |>
+    tab_row_group(
+      label = "Biomass",
+      rows = treatment == "biomass"
+    ) |>
+    # Set the order of row groups
+    row_group_order(groups = c("Warming", "Nitrogen", "Clipping", "Biomass")) |>
+    # Bold significant p-values for each site
+    tab_style(
+      style = list(cell_text(weight = "bold")),
+      locations = cells_body(
+        columns = c(Alpine_sumsq, Alpine_df, Alpine_statistic, Alpine_p.value),
+        rows = Alpine_p.value <= 0.05
+      )
+    ) |>
+    tab_style(
+      style = list(cell_text(weight = "bold")),
+      locations = cells_body(
+        columns = c(`Sub-alpine_sumsq`, `Sub-alpine_df`, `Sub-alpine_statistic`, `Sub-alpine_p.value`),
+        rows = `Sub-alpine_p.value` <= 0.05
+      )
+    ) |>
+    # Apply consistent styling
+    table_style(font_size = 11) |>
+    # Hide trait_trans and treatment columns since they're in row groups
+    cols_hide(c(treatment))
+}

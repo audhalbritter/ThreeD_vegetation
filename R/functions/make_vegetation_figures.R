@@ -1,114 +1,5 @@
 ### make vegetation figures
 
-make_vegetation_figure_v2 <- function(dat1,
-                                   x_axis,
-                                   yaxislabel,
-                                   colourpalette, linetypepalette, shapepalette,
-                                   # predictions
-                                   dat2){
-
-  dat2 <- dat2 |>
-    rename(.x_axis = {{x_axis}})
-
-  dat1 |>
-    rename(.x_axis = {{x_axis}}) |>
-    ggplot(aes(x = .x_axis,
-               y = .response,
-               color = warming,
-               linetype = grazing,
-               shape = grazing)) +
-    # zero line
-    #geom_hline(yintercept = 0, colour = "lightgrey") +
-    # CI from prediction
-    geom_ribbon(data = dat2, aes(y = prediction,
-                                 ymin = lwr,
-                                 ymax = upr,
-                                 fill = warming),
-                alpha = 0.1,
-                linetype = 0) +
-    geom_point(aes(colour = warming), size = 2) +
-    #geom_point(aes(fill = interaction(origSiteID, warming)), size = 2) +
-    # prediction line
-    geom_line(data = dat2, aes(y = prediction), linewidth = 0.5) +
-    labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
-         y = yaxislabel) +
-    # scales
-    scale_colour_manual(name = "Warming", values = colourpalette) +
-    scale_fill_manual(name = "Warming", values = colourpalette) +
-    # scale_colour_manual(name = "Warming",
-    #                     values = c("Ambient" = "grey30", "Warming" = "#FD6467",
-    #                                "Alpine.Ambient" = "grey30", "Alpine.Warming" = "#FD6467",
-    #                                "Sub-alpine.Ambient" = "grey30", "Sub-alpine.Warming" = "#FD6467")) +
-    # scale_fill_manual(values = c("Ambient" = "grey30", "Warming" = "#FD6467",
-    #                              "Alpine.Ambient" = "grey30", "Alpine.Warming" = "#FD6467",
-    #                              "Sub-alpine.Ambient" = "white", "Sub-alpine.Warming" = "white"),
-    #                   name = "Origin",
-    #                   breaks = c("Alpine.Ambient", "Sub-alpine.Ambient"),
-    #                   labels = c("Alpine", "Sub-Alpine")) +
-    scale_linetype_manual(name = "Cutting", values = linetypepalette) +
-    scale_shape_manual(name = "Cutting", values = shapepalette) +
-    # change labels to real values
-    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(100)), labels = c(1, 5, 25, 100)) +
-    # facet
-    facet_wrap(vars(origSiteID), scales = "free", ncol = 1) +
-    theme_bw() +
-    theme(legend.position = "top",
-          legend.box ="vertical",
-          text = element_text(size = 12))
-
-}
-
-
-
-make_vegetation_origin_figure <- function(dat1,
-                                   x_axis,
-                                   yaxislabel,
-                                   colourpalette, linetypepalette, shapepalette,
-                                   # predictions
-                                   dat2){
-
-  dat2 <- dat2 |>
-    rename(.x_axis = {{x_axis}})
-
-  plot <- dat1 |>
-    rename(.x_axis = {{x_axis}}) |>
-    ggplot(aes(x = .x_axis,
-               y = .response,
-               color = warming,
-               linetype = grazing,
-               shape = grazing)) +
-    # zero line
-    #geom_hline(yintercept = 0, colour = "lightgrey") +
-    # CI from prediction
-    geom_ribbon(data = dat2, aes(y = prediction, ymin = lwr,
-                                 ymax = upr,
-                                 fill = warming),
-                alpha = 0.1,
-                linetype = 0) +
-    geom_point(size = 2) +
-    # prediction line
-    geom_line(data = dat2, aes(y = prediction), linewidth = 0.5) +
-    labs(x = bquote(log(Nitrogen)~kg~ha^-1~y^-1),
-         y = yaxislabel) +
-    # scales
-    scale_colour_manual(name = "Warming", values = colourpalette) +
-    scale_fill_manual(name = "Warming", values = colourpalette) +
-    scale_linetype_manual(name = "Cutting", values = linetypepalette) +
-    scale_shape_manual(name = "Cutting", values = shapepalette) +
-    # change labels to real values
-    scale_x_continuous(breaks = c(log(1), log(5), log(25), log(100)), labels = c(1, 5, 25, 100)) +
-    # facet
-    facet_wrap(vars(origSiteID), scales = "free", ncol = 1) +
-    theme_bw() +
-    theme(legend.position = "top",
-          legend.box ="vertical",
-          text = element_text(size = 12))
-
-}
-
-
-
-
 make_vegetation_figure <- function(dat1,
                                    x_axis,
                                    yaxislabel,
@@ -143,8 +34,8 @@ plot <- dat1 |>
     # scales
     scale_colour_manual(name = "Warming", values = colourpalette) +
     scale_fill_manual(name = "Warming", values = colourpalette) +
-    scale_linetype_manual(name = "Grazing", values = linetypepalette) +
-    scale_shape_manual(name = "Grazing", values = shapepalette) +
+    scale_linetype_manual(name = "Clipping", values = linetypepalette) +
+    scale_shape_manual(name = "Clipping", values = shapepalette) +
     # change labels to real values
     #scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
     scale_x_continuous(breaks = c(log(1), log(5), log(25), log(100)), labels = c(1, 5, 25, 100)) +
