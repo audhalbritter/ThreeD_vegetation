@@ -67,40 +67,10 @@ To illustrate the relationship between standing biomass and Shannon diversity we
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 10
+#| fig-height: 5
 #| fig-cap: Relationship of change in standing biomass and Shannon diversity. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing, diamond = natural grazing). Filled symbols are from the alpine site and open symbols from the sub-alpine site. The lines show the prediction line of the model for the alpine (solid) and sub-alpine site (dashed).
 
-tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
-
-```
-
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| eval: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
-
-tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
-
-standingB_div_final_result |> 
-  select("Term" = term, "Sum of squares" = sumsq, df, `F` = statistic, `P` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c("Sum of squares", F), decimals = 2) |> 
-  gt::fmt_number(columns = c(P), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = c(Term, "Sum of squares", df, F, P))) |> 
-    tab_style(
-          style = list(
-            cell_text(weight = "bold")
-          ),
-          locations = cells_body(
-            columns = c(Term, "Sum of squares", df, F, P),
-            rows = P <= 0.05
-          ))
+tar_read(standingB_div_final_figure)
 
 ```
 
