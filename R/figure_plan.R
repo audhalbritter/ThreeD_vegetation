@@ -170,8 +170,9 @@ figure_plan <- list(
     command = {
 
       biomass_div |>
+        filter(grazing != "Natural") |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_point(data = biomass_div, aes(colour = warming,
+        geom_point(aes(colour = warming,
                                            fill = warming,
                                            shape = grazing,
                                            stroke = 0.8,
@@ -179,7 +180,7 @@ figure_plan <- list(
                                            alpha = 0.5) +
         scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
         scale_fill_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
-        scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
+        scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
