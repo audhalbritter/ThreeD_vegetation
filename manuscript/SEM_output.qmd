@@ -143,6 +143,25 @@ At the sub-alpine site, less traits responded to the global change drivers and b
 #| fig-height: 10
 #| fig-cap: Principal Component Analysis (PCA) of trait data showing the distribution of plots in trait space. Panels show a) affinity traits (plant height, temperature, light, moisture, nutrients, reaction) for alpine site, b) affinity traits for sub-alpine site, c) morphological traits (plant height, dry mass, leaf area, leaf thickness, SLA, LDMC) for alpine site, and d) morphological traits for sub-alpine site. Colors indicate warming treatment (grey = ambient, pink = warming), shapes indicate clipping treatment (circle = control, square = medium, triangle = intensive), and point size indicates nitrogen addition level. Arrows show trait loadings on the first two principal components.
 
+tar_load(affinity_pca_plot)
+
+affinity_pca_plot
+
+```
+
+### 
+
+#### 
+
+```{r}
+#| label: fig-trait-pca2
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 12
+#| fig-height: 10
+#| fig-cap: Principal Component Analysis (PCA) of trait data showing the distribution of plots in trait space. Panels show a) affinity traits (plant height, temperature, light, moisture, nutrients, reaction) for alpine site, b) affinity traits for sub-alpine site, c) morphological traits (plant height, dry mass, leaf area, leaf thickness, SLA, LDMC) for alpine site, and d) morphological traits for sub-alpine site. Colors indicate warming treatment (grey = ambient, pink = warming), shapes indicate clipping treatment (circle = control, square = medium, triangle = intensive), and point size indicates nitrogen addition level. Arrows show trait loadings on the first two principal components.
+
 tar_load(trait_pca_plot, store = here::here(tar_config_get("store")))
 
 trait_pca_plot
@@ -161,11 +180,27 @@ trait_pca_plot
 #| fig-height: 10
 #| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on affinity PCA scores a) for the alpine and b) sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
 
-tar_load(cut_affinity, store = here::here(tar_config_get("store")))
+tar_load(cut_affinity)
 
 cut_affinity[[1]]
 
 ```
+
+```{r}
+#| label: fig-cut-affinity2
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on affinity PCA scores a) for the alpine and b) sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+
+tar_load(cut_affinity2)
+
+cut_affinity2[[1]]
+
+```
+
+#### 
 
 #### Trait SEM
 
