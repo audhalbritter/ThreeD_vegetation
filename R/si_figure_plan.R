@@ -10,8 +10,8 @@ si_figure_plan <- list(
   # Gauguin colour palette
   tar_target(
     name = treatment_palette,
-    # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green
-    command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"))
+    # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green, 5 = blue
+    command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"), "deepskyblue")
   ),
 
   #c("#FD6467", "#5B1A18", "#D67236")
