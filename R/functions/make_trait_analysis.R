@@ -3,7 +3,7 @@
 make_trait_impute <- function(cover_total, trait_raw, ellenberg){
 
   #prepare community data
-  comm <- cover_total |>
+  comm <- cover_total |> 
     filter(year == 2022) |>
 
     # make new variable for 3 treatments (AC0 is the control)
@@ -34,10 +34,15 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
                                species == "Salix herbaceae" ~ "Salix herbacea",
                                species == "Trientalis europea" ~ "Trientalis europaea",
                                species == "Oxytropa laponica" ~ "Oxytropis lapponica",
-                               TRUE ~ species))
+                               TRUE ~ species)) |> 
+    # make grazing numeric
+    mutate(grazing_num = case_when(grazing == "Control" ~ 0,
+                                   grazing == "Medium" ~ 2,
+                                   grazing == "Intensive" ~ 4,
+                                   grazing == "Natural" ~ 2))
 
   #prepare trait data
-  trait <- trait_raw |>
+  trait <- trait_raw |> 
     tidylog::filter(siteID != "Hogsete",
                     !(siteID == "Vikesland" & gradient == "gradient") | is.na(gradient)) |>
     select(-gradient) |>
@@ -110,8 +115,12 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
            blockID = as.numeric(blockID)) |>
 
     # make grazing numeric
-    mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
-           grazing_num = as.numeric(grazing_num)) |>
+    mutate(grazing_num = case_when(grazing == "Control" ~ 0,
+                                   grazing == "Medium" ~ 2,
+                                   grazing == "Intensive" ~ 4,
+                                   grazing == "Natural" ~ 2)) |>
+    # mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
+    #        grazing_num = as.numeric(grazing_num)) |>
 
     # remove 27 accidental some observations with warm, grazing and N5
     filter(!is.na(treatment)) |>
