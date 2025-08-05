@@ -48,7 +48,7 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
 
   trait_pca[[1]] |>
     ggplot(aes(x = PC1, y = PC2, colour = warming, fill = warming, shape = grazing, size = Nitrogen_log)) +
-    geom_point() +
+    geom_point(alpha = 0.5) +
     geom_segment(data = trait_pca[[2]],
                  aes(x = 0, y = 0, xend = PC1, yend = PC2),
                  arrow = arrow(length = unit(0.2, "cm")),
@@ -73,7 +73,7 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
     coord_equal() +
     scale_fill_manual(name = "Warming", values = color_warm) +
     scale_colour_manual(name = "Warming", values = color_warm) +
-    scale_shape_manual(name = "Clipping", values = c(17, 2, 16, 1)) +
+    scale_shape_manual(name = "Clipping", values = c(21, 22, 24)) +
     labs(title = title,
          x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
          y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
