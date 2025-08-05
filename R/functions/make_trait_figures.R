@@ -1,4 +1,45 @@
-# Make trait figures
+# Make trait figures  
+
+# Trait pca
+make_trait_pca <- function(trait_mean_all){
+
+  set.seed(32)
+
+  # make wide trait table
+  cwm_wide <- trait_mean_all |>
+    select(trait_trans, turfID, blockID, origSiteID, warming, grazing, grazing_num, Namount_kg_ha_y, Nitrogen_log, mean) |>
+    pivot_wider(names_from = "trait_trans", values_from = "mean") |>
+    ungroup()
+
+  pca_output <- cwm_wide |>
+    select(-(turfID:Nitrogen_log)) |>
+    rda(scale = TRUE, center = TRUE)
+
+  pca_sites <- bind_cols(
+    cwm_wide |>
+      select(turfID:Nitrogen_log),
+    fortify(pca_output, display = "sites")
+  )
+
+  # arrows
+  pca_traits <- fortify(pca_output, display = "species") |>
+    mutate(trait_trans = label) |>
+    fancy_trait_name_dictionary()
+
+  # permutation test
+  raw <- cwm_wide |> select(-(turfID:Nitrogen_log))
+  # meta data
+  meta <- cwm_wide|> select(turfID:Nitrogen_log) |>
+    mutate(origSiteID = factor(origSiteID))
+
+  # adonis test
+  #adonis_result <- adonis2(raw ~ warming * Nitrogen_log * grazing_num + origSiteID, data = meta, permutations = 999, method = "euclidean", by = "terms")
+
+  outputList <- list(pca_sites, pca_traits, pca_output)
+
+}
+
+
 
 make_trait_figure <- function(traits, traits_stats, trait_prediction, col_palette){
 
