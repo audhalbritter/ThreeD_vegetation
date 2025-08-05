@@ -1,6 +1,8 @@
 # Make trait figures  
 
-# Trait pca
+### TRAIT PCA ###
+
+# Make pca
 make_trait_pca <- function(trait_mean_all){
 
   set.seed(32)
@@ -36,6 +38,46 @@ make_trait_pca <- function(trait_mean_all){
   #adonis_result <- adonis2(raw ~ warming * Nitrogen_log * grazing_num + origSiteID, data = meta, permutations = 999, method = "euclidean", by = "terms")
 
   outputList <- list(pca_sites, pca_traits, pca_output)
+
+}
+
+# Make pca plot
+make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
+
+  e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
+
+  trait_pca[[1]] |>
+    ggplot(aes(x = PC1, y = PC2, colour = warming, fill = warming, shape = grazing, size = Nitrogen_log)) +
+    geom_point() +
+    geom_segment(data = trait_pca[[2]],
+                 aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                 arrow = arrow(length = unit(0.2, "cm")),
+                 inherit.aes = FALSE, colour = "grey60") +
+    geom_text(data = trait_pca[[2]] |>
+                mutate(figure_names = case_match(figure_names,
+                                                 "Plant~height~(cm)" ~ "Height~(cm)",
+                                                 "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                 "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                 "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                 .default = figure_names)),
+                      #  PC2 = case_when(label == "leaf_area_cm2_log" ~ -0.2,
+                      #                  label == "leaf~dry~mass~(g)" ~ -0.1,
+                      #                  label == "sla_cm2_g" ~ -1.1,
+                      #                  TRUE ~ PC2),
+                      #  PC1 = case_when(label == "leaf_thickness_mm_log" ~ 0.7,
+                      #                  TRUE ~ PC1)),
+              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+              size = 3,
+              inherit.aes = FALSE,
+              show.legend = FALSE, parse = TRUE) +
+    coord_equal() +
+    scale_fill_manual(name = "Warming", values = color_warm) +
+    scale_colour_manual(name = "Warming", values = color_warm) +
+    scale_shape_manual(name = "Clipping", values = c(17, 2, 16, 1)) +
+    labs(title = title,
+         x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+         y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+    theme_bw()
 
 }
 
