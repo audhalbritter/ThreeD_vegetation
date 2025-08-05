@@ -3477,6 +3477,43 @@
       "Maintainer": "Constantin Ahlmann-Eltze <artjom31415@googlemail.com>",
       "Repository": "CRAN"
     },
+    "ggvegan": {
+      "Package": "ggvegan",
+      "Version": "0.1.999",
+      "Source": "GitHub",
+      "Type": "Package",
+      "Title": "'ggplot2' Plots for the 'vegan' Package",
+      "Date": "2023-07-07",
+      "Depends": [
+        "R (>= 4.1.0)",
+        "vegan (>= 2.3.0)"
+      ],
+      "Imports": [
+        "dplyr",
+        "tibble",
+        "vctrs",
+        "ggplot2",
+        "grid",
+        "tidyr",
+        "ggrepel"
+      ],
+      "Authors@R": "c(person(\"Gavin L.\", \"Simpson\", role = c(\"aut\", \"cre\"), email = \"ucfagls@gmail.com\"), person(\"Jari\", \"Oksanen\", role = \"aut\"), person(\"Didzis\", \"Elferts\", role = \"ctb\"))",
+      "Description": "Functions to produce ggplot2-based plots of objects produced by functions in the vegan package.",
+      "License": "GPL-2",
+      "ByteCompile": "true",
+      "Roxygen": "list(markdown = TRUE)",
+      "RoxygenNote": "7.3.2",
+      "Encoding": "UTF-8",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "ggvegan",
+      "RemoteUsername": "gavinsimpson",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "3056a43fb92e9ec8d4d136c56aebd845faf8b75f",
+      "NeedsCompilation": "no",
+      "Author": "Gavin L. Simpson [aut, cre], Jari Oksanen [aut], Didzis Elferts [ctb]",
+      "Maintainer": "Gavin L. Simpson <ucfagls@gmail.com>"
+    },
     "globals": {
       "Package": "globals",
       "Version": "0.18.0",
