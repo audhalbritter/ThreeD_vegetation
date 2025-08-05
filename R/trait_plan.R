@@ -2,32 +2,25 @@
 
 trait_plan <- list(
 
-  # status: winners, losers, increasing, decreasing and stable species
-  # mark status of species in cover data
-  tar_target(
-    name = cover_wl,
-    command = get_winners_and_losers(cover_total)
-  ),
-
   # impute traits for whole community (trait_fill)
   tar_target(
-    name = trait_impute_all,
-    command = make_trait_impute2(cover_wl |>
-                                   filter(year == "2022" | year == 2019 & status == "extinction"),
+    name = trait_impute,
+    command = make_trait_impute(cover_total,
                                  trait_raw,
                                  ellenberg)
   ),
 
   # bootstrap
   tar_target(
-    name = trait_mean_all,
-    command = make_bootstrapping(trait_impute_all)
+    name = trait_mean,
+    command = make_bootstrapping(trait_impute) |>
+        filter(trait_trans != "salinity")
   ),
 
   # make trait pca's
   tar_target(
     name = affinity_alpine_pca,
-    command = make_trait_pca(trait_mean_all |> 
+    command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Alpine") |>
                             filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"))
@@ -36,7 +29,7 @@ trait_plan <- list(
 
     tar_target(
     name = affinity_subalpine_pca,
-    command = make_trait_pca(trait_mean_all |> 
+    command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Sub-alpine") |>
                             filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"))
@@ -45,7 +38,7 @@ trait_plan <- list(
 
   tar_target(
     name = trait_alpine_pca,
-    command = make_trait_pca(trait_mean_all |> 
+    command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Alpine") |>
                             filter(trait_trans %in% c("plant_height_cm_log", "dry_mass_g_log", "leaf_area_cm2_log", "leaf_thickness_mm_log", "sla_cm2_g", "ldmc"))
@@ -54,7 +47,7 @@ trait_plan <- list(
 
   tar_target(
     name = trait_subalpine_pca,
-    command = make_trait_pca(trait_mean_all |> 
+    command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Sub-alpine") |>
                             filter(trait_trans %in% c("plant_height_cm_log", "dry_mass_g_log", "leaf_area_cm2_log", "leaf_thickness_mm_log", "sla_cm2_g", "ldmc"))
@@ -87,8 +80,8 @@ trait_plan <- list(
     tar_target(
       name = traits_warming_plot,
       command = {
-        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+        base_plot <- make_trait_ridgeline_plot(trait_mean |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural"), 
                                                 group_var = "warming",
                                                 custom_colors = treatment_palette[c(1, 2)],
@@ -100,8 +93,8 @@ trait_plan <- list(
     tar_target(
       name = traits_nitrogen_plot,
       command = {
-        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity"),
+        base_plot <- make_trait_ridgeline_plot(trait_mean |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural") |>
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
@@ -115,8 +108,8 @@ trait_plan <- list(
     tar_target(
       name = traits_clipping_plot,
       command = {
-        base_plot <- make_trait_ridgeline_plot(trait_mean_all |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
+        base_plot <- make_trait_ridgeline_plot(trait_mean |> 
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural"), 
                                                 group_var = "grazing",
                                                 custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
@@ -129,8 +122,8 @@ trait_plan <- list(
     tar_target(
       name = traits_biomass_plot,
       command = {
-        base_plot <- make_trait_ridgeline_plot(trait_mean_all |>
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "salinity"),
+        base_plot <- make_trait_ridgeline_plot(trait_mean |>
+                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural") |>
                                                 tidylog::left_join(standing_biomass_back |> 
                                                 filter(year == 2022,
@@ -149,7 +142,7 @@ trait_plan <- list(
   tar_target(
     name = trait_statistical_analysis,
     command = {
-      test_treatment_effects(data = trait_mean_all, biomass_data = standing_biomass_back)
+      test_treatment_effects(data = trait_mean, biomass_data = standing_biomass_back)
     }
   ),
 
