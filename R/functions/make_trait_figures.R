@@ -9,7 +9,7 @@ make_trait_pca <- function(trait_mean){
 
   # make wide trait table
   cwm_wide <- trait_mean |>
-    select(trait_trans, turfID, blockID, origSiteID, warming, grazing, grazing_num, Namount_kg_ha_y, Nitrogen_log, mean) |>
+    select(trait_trans, turfID, blockID, origSiteID, warming, grazing, grazing_num, Nlevel,Namount_kg_ha_y, Nitrogen_log, mean) |>
     pivot_wider(names_from = "trait_trans", values_from = "mean") |>
     ungroup()
 
