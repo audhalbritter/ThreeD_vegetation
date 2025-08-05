@@ -131,7 +131,7 @@ make_CN_prediction <- function(model) {
 
 # Test treatment effects on traits
 test_treatment_effects <- function(data, biomass_data, 
-traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "salinity")) {
+traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction")) {
   
   # Filter data for specified traits
   trait_data <- data |>
