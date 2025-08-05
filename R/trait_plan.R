@@ -19,6 +19,14 @@ trait_plan <- list(
 
   # make trait pca's
   tar_target(
+    name = affinity_pca,
+    command = make_trait_pca(trait_mean |> 
+                            filter(grazing != "Natural") |>
+                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"))
+    )
+  ),
+
+  tar_target(
     name = affinity_alpine_pca,
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
@@ -54,6 +62,11 @@ trait_plan <- list(
     )
   ),
 
+  tar_target(
+    name = affinity_pca_plot,
+    command = make_pca_plot_sites(affinity_pca, title = "Affinity", color_warm = treatment_palette[c(1, 2)])
+  ),
+
   # make trait pca plots
   tar_target(
     name = trait_pca_plot,
@@ -85,7 +98,12 @@ trait_plan <- list(
                                                 grazing != "Natural"), 
                                                 group_var = "warming",
                                                 custom_colors = treatment_palette[c(1, 2)],
-                                                y_axis_label = "")
+                                                y_axis_label = "",
+                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
+                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
+                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                               "Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "warming")
       }
     ),
@@ -99,7 +117,12 @@ trait_plan <- list(
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
                                                 custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
-                                                y_axis_label = "Nitrogen")
+                                                y_axis_label = "Nitrogen",
+                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
+                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
+                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                               "Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "nitrogen")
       }
     ),
@@ -113,7 +136,12 @@ trait_plan <- list(
                                                 grazing != "Natural"), 
                                                 group_var = "grazing",
                                                 custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
-                                                y_axis_label = "Clipping")
+                                                y_axis_label = "Clipping",
+                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
+                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
+                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                               "Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "grazing")
       }
     ),
@@ -133,7 +161,12 @@ trait_plan <- list(
                                                 by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
                                                 group_var = "biomass_log",
                                                 custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
-                                                y_axis_label = "Log(Standing biomass)")
+                                                y_axis_label = "Log(Standing biomass)",
+                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
+                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
+                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                               "Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "biomass")
       }
     ),
