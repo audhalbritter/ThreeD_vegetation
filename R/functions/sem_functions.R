@@ -63,16 +63,21 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
                   to = sem_results$coefficients$Response,
                   label = round(sem_results$coefficients$Std.Estimate, 3),
                   P.Value = sem_results$coefficients$P.Value) |>
-    mutate(linetype = if_else(P.Value <= 0.05, 1, 2),
-           colour = case_when(from == "warming" ~ col[2],      # color 2 (red)
-                             from == "nitrogen" ~ col[4],      # color 4 (green)
-                             from == "clipping" ~ col[3],      # color 3 (yellow)
-                             from == "grazing" ~ col[3],       # color 3 (yellow)
-                             from == "biomass" ~ col[1],       # color 1 (grey)
-                             TRUE ~ col[1]),                   # default color
-           size = case_when(P.Value <= 0.05 ~ 1.5,
-                            P.Value > 0.05 & P.Value <= 0.09 ~ 1,
-                            TRUE ~ 0.5),
+    mutate(
+           # Line type: solid (1) for positive, dashed (2) for negative
+           linetype = if_else(label >= 0, 1, 2),
+           # Color: treatment colors for significant, grey for non-significant
+           colour = case_when(
+             P.Value > 0.05 ~ "grey60",
+             from == "warming" ~ col[2],      # color 2 (red)
+             from == "nitrogen" ~ col[4],      # color 4 (green)
+             from == "clipping" ~ col[3],      # color 3 (yellow)
+             from == "grazing" ~ col[3],       # color 3 (yellow)
+             from == "biomass" ~ col[1],       # color 1 (grey)
+             TRUE ~ col[1]                    # default color
+           ),
+           # Size: scale with absolute value of standardized estimate
+           size = abs(label) * 3,             # multiply by 3 to make differences more visible
            # Replace "diversity" with the actual diversity type for display
            to = case_when(to == "diversity" ~ diversity_type,
                           TRUE ~ to))
