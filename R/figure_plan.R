@@ -169,12 +169,8 @@ figure_plan <- list(
     name = standingB_div_final_figure,
     command = {
 
-      bio_div <- biomass_div |>
+      biomass_div |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
-        geom_line(data = standingB_div_final_prediction |>
-                          mutate(biomass_log = log(final_bio)), 
-                        aes(y = .fitted,
-                            x = biomass_log)) +
         geom_point(data = biomass_div, aes(colour = warming,
                                            fill = warming,
                                            shape = grazing,
@@ -188,84 +184,12 @@ figure_plan <- list(
         scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),
-             y = "Shannon diversity",
-             tag = "a)") +
+             y = "Shannon diversity") +
         facet_wrap(vars(origSiteID)) +
         theme_bw() +
         theme(legend.position = "top",
               legend.box = "vertical",
               text = element_text(size = 12))
-
-      warm <- biomass_div |> 
-        ggplot(aes(x = warming, y = final_diversity)) +
-        geom_violin(aes(colour = warming,
-                       fill = warming),
-                       draw_quantiles = c(0.5),
-                       alpha = 0.5) +
-        scale_colour_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
-        scale_fill_manual(values = treatment_palette[c(1, 2)], name = "Warming") +
-        labs(x = "",
-             y = "Shannon diversity",
-             tag = "b)") +
-        facet_wrap(vars(origSiteID)) +
-        theme_bw() +
-        theme(legend.position = "none",
-        text = element_text(size = 12))
-
-      nitrogen <- biomass_div |> 
-        mutate(Nitrogen_log_rounded = round(Nitrogen_log, 1)) |>
-        ggplot(aes(x = as.factor(Nitrogen_log_rounded), y = final_diversity)) +
-        geom_violin(aes(colour = as.factor(Nitrogen_log_rounded),
-                       fill = as.factor(Nitrogen_log_rounded)),
-                       draw_quantiles = c(0.5),
-                       alpha = 0.5) +
-        scale_colour_manual(values = met.brewer(name="VanGogh3", n=7, type="discrete"), name = "Nitrogen") +
-        scale_fill_manual(values = met.brewer(name="VanGogh3", n=7, type="discrete"), name = "Nitrogen") +
-        labs(x = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
-             y = "Shannon diversity",
-             tag = "d)") +
-        facet_wrap(vars(origSiteID)) +
-        theme_bw() +
-        theme(legend.position = "none",
-        text = element_text(size = 12))
-
-      grazing <- biomass_div |> 
-        filter(grazing != "Natural") |>
-        ggplot(aes(x = grazing, y = final_diversity)) +
-        geom_violin(aes(colour = grazing,
-                       fill = grazing),
-                       draw_quantiles = c(0.5),
-                       alpha = 0.5) +
-        scale_colour_manual(values = met.brewer(name="Manet", n=3, type="discrete"), name = "Clipping") +
-        scale_fill_manual(values = met.brewer(name="Manet", n=3, type="discrete"), name = "Clipping") +
-        labs(x = "",
-             y = "Shannon diversity",
-             tag = "c)") +
-        facet_wrap(vars(origSiteID)) +
-        theme_bw() +
-        theme(legend.position = "none",
-        text = element_text(size = 12))
-
-      biomass <- biomass_div |> 
-        mutate(biomass_binned = cut(final_bio, breaks = 5, include.lowest = TRUE, dig.lab = 3)) |>
-        ggplot(aes(x = biomass_binned, y = final_diversity)) +
-        geom_violin(aes(colour = biomass_binned,
-                       fill = biomass_binned),
-                       draw_quantiles = c(0.5),
-                       alpha = 0.5) +
-        scale_colour_manual(values = met.brewer(name="VanGogh3", n=5, type="discrete"), name = "Biomass") +
-        scale_fill_manual(values = met.brewer(name="VanGogh3", n=5, type="discrete"), name = "Biomass") +
-        labs(x = bquote(Standing~biomass~g~m^-2),
-             y = "Shannon diversity",
-             tag = "e)") +
-        facet_wrap(vars(origSiteID)) +
-        theme_bw() +
-                theme(legend.position = "none",
-               text = element_text(size = 12))
-
-      # Combine all plots using patchwork
-      bio_div / (warm + grazing) / (nitrogen + biomass) +
-        plot_layout(heights = c(2, 1, 1))
 
       }
   ),
