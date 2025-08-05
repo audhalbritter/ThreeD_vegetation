@@ -81,9 +81,75 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
 
 }
 
+# Make pca plot
+make_pca_plot_sites <- function(trait_pca, title = NULL, color_warm = NULL){
+
+  e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
+
+  # Create site_graz interaction and ensure correct order
+  plot_data <- trait_pca[[1]] |>
+    mutate(site_graz = paste(origSiteID, grazing, sep = "."),
+           site_graz = factor(site_graz, 
+                            levels = c("Alpine.Control", "Alpine.Medium", "Alpine.Intensive",
+                                     "Sub-alpine.Control", "Sub-alpine.Medium", "Sub-alpine.Intensive")))
+
+  # Create the plot
+  # Split data for filled and unfilled points
+  alpine_data <- plot_data |> filter(!str_detect(site_graz, "Sub-alpine"))
+  subalpine_data <- plot_data |> filter(str_detect(site_graz, "Sub-alpine"))
+  
+  # Create base plot
+  ggplot() +
+    # Add filled points for Alpine
+    geom_point(data = alpine_data,
+               aes(x = PC1, y = PC2, colour = warming, fill = warming, 
+                   shape = site_graz, size = Nitrogen_log),
+               alpha = 0.5) +
+    # Add unfilled points for Sub-alpine
+    geom_point(data = subalpine_data,
+               aes(x = PC1, y = PC2, colour = warming, 
+                   shape = site_graz, size = Nitrogen_log),
+               fill = "white",
+               alpha = 0.5) +
+    # Add arrows for trait loadings
+    geom_segment(data = trait_pca[[2]],
+                 aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                 arrow = arrow(length = unit(0.2, "cm")),
+                 inherit.aes = FALSE, colour = "grey60") +
+    # Add trait labels
+    geom_text(data = trait_pca[[2]] |>
+                mutate(figure_names = case_match(figure_names,
+                                                 "Plant~height~(cm)" ~ "Height~(cm)",
+                                                 "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                 "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                 "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                 .default = figure_names)),
+              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+              size = 3,
+              inherit.aes = FALSE,
+              show.legend = FALSE, parse = TRUE) +
+    # Scales and theme
+    coord_equal() +
+    scale_fill_manual(name = "Warming", values = color_warm) +
+    scale_colour_manual(name = "Warming", values = color_warm) +
+    scale_shape_manual(name = "Site & Clipping", 
+                      values = c("Alpine.Control" = 16,
+                                "Alpine.Medium" = 15, 
+                                "Alpine.Intensive" = 17,
+                                "Sub-alpine.Control" = 21,
+                                "Sub-alpine.Medium" = 22, 
+                                "Sub-alpine.Intensive" = 24)) +
+    labs(title = title,
+         x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+         y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+    theme_bw() +
+    guides(size = guide_legend(title = "Nitrogen (kg/ha/y)"))
+
+}
+
 
 # Ridgeline plot function for trait distributions
-make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL) {
+make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL, figure_names_order = NULL) {
   
   # Check if ggridges package is available
   if (!requireNamespace("ggridges", quietly = TRUE)) {
@@ -119,6 +185,12 @@ make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_b
     plot_data <- data
     y_var <- group_var
     fill_var <- group_var
+  }
+  
+  # Apply custom figure_names order if provided
+  if (!is.null(figure_names_order) && "figure_names" %in% names(plot_data)) {
+    plot_data <- plot_data |>
+      mutate(figure_names = factor(figure_names, levels = figure_names_order))
   }
   
   # Create the ridgeline plot
