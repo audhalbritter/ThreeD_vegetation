@@ -3,7 +3,7 @@ library("tarchetypes")
 
 #install.packages("httpgd_2.0.4.tar.gz", repos = NULL, type = "source")
 
-tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "janitor", "vegan", "viridis", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "ggh4x", "gt", "ggpubr", "tidySEM", "quarto", "piecewiseSEM", "traitstrap", "data.table", "MetBrewer"))
+tar_option_set(packages = c("sf", "dataDownloader", "tidyverse", "readxl", "janitor", "vegan", "ggvegan", "viridis", "performance", "broom", "DBI", "RSQLite", "dataDocumentation", "patchwork", "ggh4x", "gt", "ggpubr", "tidySEM", "quarto", "piecewiseSEM", "traitstrap", "data.table", "MetBrewer"))
 # sf, DBI, RSQLite, MuMin?
 
 # source other scripts
