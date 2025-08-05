@@ -40,14 +40,14 @@ plot <- dat1 |>
     #scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
     scale_x_continuous(breaks = c(log(1), log(5), log(25), log(100)), labels = c(1, 5, 25, 100)) +
     # facet
-    facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
+    facet_grid(origSiteID ~ .data[[facet_2]], scales = "free_x") +
     theme_bw() +
     theme(legend.position = "top",
           legend.box ="vertical",
           text = element_text(size = 12))
 
   if(is.na(facet_2)){
-    plot + facet_grid(origSiteID ~ "", scales = "free")
+    plot + facet_grid(origSiteID ~ "", scales = "free_x")
   } else {
     plot
   }
