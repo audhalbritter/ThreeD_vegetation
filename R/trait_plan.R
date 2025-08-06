@@ -64,7 +64,7 @@ trait_plan <- list(
 
   tar_target(
     name = affinity_pca_plot,
-    command = make_pca_plot_sites(affinity_pca, title = "Affinity", color_warm = treatment_palette[c(1, 2)])
+    command = make_pca_plot_sites(affinity_pca, title = "Affinity", color_warm = treatment_palette[c(3, 1)])
   ),
 
   # make trait pca plots
@@ -72,13 +72,13 @@ trait_plan <- list(
     name = trait_pca_plot,
     command = {
       # Create individual plots with tags
-      p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = treatment_palette[c(1, 2)]) + 
+              p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = treatment_palette[c(3, 1)]) + 
         labs(tag = "a)")
-      p2 <- make_pca_plot(affinity_subalpine_pca, title = "Affinity: sub-alpine", color_warm = treatment_palette[c(1, 2)]) + 
+              p2 <- make_pca_plot(affinity_subalpine_pca, title = "Affinity: sub-alpine", color_warm = treatment_palette[c(3, 1)]) + 
         labs(tag = "b)")
-      p3 <- make_pca_plot(trait_alpine_pca, title = "Traits: alpine", color_warm = treatment_palette[c(1, 2)]) + 
+              p3 <- make_pca_plot(trait_alpine_pca, title = "Traits: alpine", color_warm = treatment_palette[c(3, 1)]) + 
         labs(tag = "c)")
-      p4 <- make_pca_plot(trait_subalpine_pca, title = "Traits: sub-alpine", color_warm = treatment_palette[c(1, 2)]) + 
+              p4 <- make_pca_plot(trait_subalpine_pca, title = "Traits: sub-alpine", color_warm = treatment_palette[c(3, 1)]) + 
         labs(tag = "d)")
       
       # Combine with patchwork
@@ -97,7 +97,7 @@ trait_plan <- list(
                                                 filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural"), 
                                                 group_var = "warming",
-                                                custom_colors = treatment_palette[c(1, 2)],
+                                                custom_colors = treatment_palette[c(3, 1)],
                                                 y_axis_label = "",
                                                 figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
                                                "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
@@ -135,7 +135,7 @@ trait_plan <- list(
                                                 filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction"),
                                                 grazing != "Natural"), 
                                                 group_var = "grazing",
-                                                custom_colors = met.brewer(name="Manet", n=3, type="discrete"),
+                                                custom_colors = grazing_palette,
                                                 y_axis_label = "Clipping",
                                                 figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
                                                "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
@@ -160,7 +160,7 @@ trait_plan <- list(
                                                 select(-year),
                                                 by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
                                                 group_var = "biomass_log",
-                                                custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
+                                                custom_colors = biomass_palette,
                                                 y_axis_label = "Log(Standing biomass)",
                                                 figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
                                                "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 

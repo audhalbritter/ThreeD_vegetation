@@ -32,8 +32,8 @@ make_climate_figure <- function(dat1,
     # scales
     scale_colour_manual(name = "Warming", values = colourpalette) +
     scale_fill_manual(name = "Warming", values = colourpalette) +
-    scale_linetype_manual(name = "Grazing", values = linetypepalette) +
-    scale_shape_manual(name = "Grazing", values = shapepalette) +
+    scale_linetype_manual(name = "Clipping", values = linetypepalette) +
+    scale_shape_manual(name = "Clipping", values = shapepalette) +
     # change labels to real values
     scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
     # facet
@@ -120,7 +120,7 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     # geom_point(size = 2, shape = 16) +
     # geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2) +
     scale_fill_manual(name = "", values = col_palette) +
-    annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
+    annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[1]) +
     labs(x = "", y = "",
          tag = "b)") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +
