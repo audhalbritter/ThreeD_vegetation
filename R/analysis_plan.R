@@ -123,10 +123,15 @@ analysis_plan <- list(
   tar_target(
     name = diversity_origin_model,
     command = diversity_model_all_origin |>
-      group_by(origSiteID,diversity_index) |>
+      group_by(origSiteID,diversity_index) |> 
       #filter(mod == "interaction")
       # select parsimonious model (by HAND!!!)
       filter(names == "linear")
+      # Use quadratic model for Sub-alpine diversity, linear for everything else
+      # filter(case_when(
+      #   origSiteID == "Sub-alpine" & diversity_index == "diversity" ~ names == "quadratic",
+      #   TRUE ~ names == "linear"
+      # ))
   ),
 
   tar_target(
