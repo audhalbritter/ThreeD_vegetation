@@ -149,6 +149,8 @@ biomass_origin_anova_table |>
                                    "richness" ~ "Species richness",
                                    "evenness" ~ "Evenness"))
   ) |>
+  # Sort variables in desired order
+  mutate(variable = factor(variable, levels = c("Standing biomass", "Shannon diversity", "Species richness", "Evenness"))) |>
   # Round values
   mutate(
     sumsq = round(sumsq, 2),
@@ -178,6 +180,8 @@ biomass_origin_anova_table |>
   select(variable, Term, 
          "Alpine_Sum of squares", "Alpine_df", "Alpine_F", "Alpine_P",
          "Sub-alpine_Sum of squares", "Sub-alpine_df", "Sub-alpine_F", "Sub-alpine_P") |>
+  # Sort by variable in desired order
+  arrange(variable) |>
   # Group by variable
   group_by(variable) |>
   gt() |>
@@ -260,15 +264,15 @@ biomass_origin_anova_table |>
 #| warning: false
 #| fig-width: 8
 #| fig-height: 7
-#| fig-cap: Species richness across (a), and separate by site (b), evenness across (c), and separately by site (d) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = cutting, S = site, combined letters, e.g. WxC = interactions). Letters in grey indicate almost significant model terms.
+#| fig-cap: Species richness (a) and evenness (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, triangle = intensive clipping). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = clipping, S = site, combined letters, e.g. WxC = interactions). Letters in grey indicate almost significant model terms (0.05 > *P* < 0.07).
 
 tar_read(div_index_figure)
 
 ```
 
-### Structural equation model, Supplementary Figure S6-S10
+### Structural equation models
 
-#### Stats for final cut diversity
+#### Supplementary Table S5: Stats for final cut diversity
 
 ```{r}
 #| label: tbl-cut-final-stats
@@ -307,12 +311,12 @@ cut_final_diversity[[2]] |>
 #### SEM for species richness and evenness
 
 ```{r}
-#| label: fig-cut-final-richness
+#| label: fig-cut-final-rich-even
 #| echo: false
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness for a) the alpine and b) the sub-alpine site and evenness for c) the alpine and d) the sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness and evenness for the a) and c) alpine and b) and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. The linetype and colours shows the strength and direction of the effect (solid coloured = positive and significant, dashed coloured = negative and significant, and dot-dashed grey = negative and non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, dark green = nitrogen, yellow = clipping, light green = biomass, grey = diversity."
 
 tar_load(cut_final_richness_evenness)
 
