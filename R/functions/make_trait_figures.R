@@ -271,6 +271,24 @@ add_significance_stars <- function(plot, trait_stats, treatment_type) {
       y = Inf
     )
   
+  # Extract factor levels from the original plot to preserve facet ordering
+  # Get the data from the plot's layers to find the factor levels
+  plot_data <- ggplot_build(plot)$data[[1]]  # Get data from the first layer
+  if ("PANEL" %in% names(plot_data)) {
+    # Extract the facet levels from the plot
+    facet_levels <- levels(plot_data$PANEL)
+    # Convert panel names back to figure_names (this assumes the facet structure)
+    # We need to get the actual figure_names levels from the original data
+    original_data <- plot$data
+    if ("figure_names" %in% names(original_data)) {
+      figure_names_levels <- levels(original_data$figure_names)
+      if (!is.null(figure_names_levels)) {
+        annotation_data <- annotation_data |>
+          mutate(figure_names = factor(figure_names, levels = figure_names_levels))
+      }
+    }
+  }
+  
   # Add significance stars to the plot
   plot_with_stars <- plot +
     geom_text(

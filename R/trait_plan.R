@@ -99,9 +99,7 @@ trait_plan <- list(
                                                 group_var = "warming",
                                                 custom_colors = warming_palette,
                                                 y_axis_label = "",
-                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
-                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
-                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                                figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
                                                "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "warming")
@@ -116,11 +114,9 @@ trait_plan <- list(
                                                 grazing != "Natural") |>
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
-                                                custom_colors = met.brewer(name="VanGogh3", n=7, type="discrete"),
+                                                custom_colors = nitrogen_palette,
                                                 y_axis_label = "Nitrogen",
-                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
-                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
-                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                                figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
                                                "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "nitrogen")
@@ -137,9 +133,7 @@ trait_plan <- list(
                                                 group_var = "grazing",
                                                 custom_colors = grazing_palette,
                                                 y_axis_label = "Clipping",
-                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
-                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
-                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                                figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
                                                "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "grazing")
@@ -160,11 +154,9 @@ trait_plan <- list(
                                                 select(-year),
                                                 by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
                                                 group_var = "biomass_log",
-                                                custom_colors = biomass_palette,
+                                                custom_colors = met.brewer(name="VanGogh3", n=5, type="discrete"),
                                                 y_axis_label = "Log(Standing biomass)",
-                                                figure_names_order = c("Plant~height~(cm)", "Leaf~dry~mass~(g)", 
-                                               "Leaf~area~(cm^2)", "Leaf~thickness~(mm)", 
-                                               "SLA~(cm^2*g^{-1})", "LDMC~(gg^{-1})", 
+                                                figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
                                                "Reaction", "Moisture"))
         add_significance_stars(base_plot, trait_statistical_analysis, "biomass")
