@@ -120,7 +120,7 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     # geom_point(size = 2, shape = 16) +
     # geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2) +
     scale_fill_manual(name = "", values = col_palette) +
-    annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[1]) +
+    annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
     labs(x = "", y = "",
          tag = "b)") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +

@@ -8,22 +8,21 @@ si_figure_plan <- list(
   # ),
 
   # Gauguin colour palette
-  # tar_target(
-  #   name = treatment_palette,
-  #     # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green, 5 = blue
-  #     #c("#FD6467", "#5B1A18", "#D67236")
-  #   command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"), "steelblue3")
-  # ),
 # Egypt
-# Isfahan2
 # Java
 # Morgenstern
 # Veronese
+
   tar_target(
     name = treatment_palette,
-    # colours for treatments: 1 = red (warming), 2 = yellow (clipping), 3 = light green (control), 4 = green (nitrogen), 5 = blue (biomass)
-      #c("#67322e" "#99610a" "#6e948c" "#2c6b67" "#122c43")
-    command = c(MetBrewer::met.brewer(name="Veronese", n=5, type="discrete"))
+    # colours for treatments: 1 = grey (control), 2 = red (warming), 3 = yellow (clipping), 4 = light green (...), 5 = green (nitrogen), 6 = blue (biomass)
+      #c("grey40", "#67322e" "#99610a" "#6e948c" "#2c6b67" "#122c43")
+    command = c("grey60", MetBrewer::met.brewer(name="Veronese", n=5, type="discrete"))
+  ),
+
+  tar_target(
+    name = warming_palette,
+    command = treatment_palette[c(1, 2)]
   ),
 
   tar_target(
@@ -45,7 +44,7 @@ si_figure_plan <- list(
   ### CLIMATE
   tar_target(
     name = daily_climate_figure,
-    command = make_daily_climate_figure(daily_temp, col_palette = treatment_palette[c(3, 1)])
+    command = make_daily_climate_figure(daily_temp, col_palette = warming_palette)
   ),
 
   # climate figure
@@ -68,7 +67,7 @@ si_figure_plan <- list(
                                     filter(variable != "soilmoisture"),
                                   x_axis = Nitrogen_log,
                                   yaxislabel = "Temperature in °C",
-                                  colourpalette = treatment_palette[c(3, 1)],
+                                  colourpalette = warming_palette,
                                   linetypepalette = c("solid", "dashed", "dotted"),
                                   shapepalette = c(16, 0, 2),
                                   facet_2 = "variable",
@@ -88,7 +87,7 @@ si_figure_plan <- list(
                                         filter(variable == "soilmoisture"),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Soilmoisture in %",
-                                      colourpalette = treatment_palette[c(3, 1)],
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(16, 0, 2),
                                       facet_2 = "variable",
@@ -212,7 +211,7 @@ si_figure_plan <- list(
         geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
         annotate("text", x = 2000, y = 5,
                  label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
-        scale_colour_manual(values = treatment_palette[c(3, 1)], name = "Warming") +
+        scale_colour_manual(values = warming_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
         guides(linetype = FALSE) +
         labs(x = "Cover x height",
@@ -292,8 +291,8 @@ si_figure_plan <- list(
                                            shape = grazing,
                                            fill = warming,
                                            size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = treatment_palette[c(3, 1)], name = "Warming") +
-        scale_fill_manual(values = treatment_palette[c(3, 1)], name = "Warming") +
+        scale_colour_manual(values = warming_palette, name = "Warming") +
+        scale_fill_manual(values = warming_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("dashed", "solid"),
@@ -333,7 +332,7 @@ si_figure_plan <- list(
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Species richness",
-                                      colourpalette = treatment_palette[c(3, 1)],
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,
@@ -389,7 +388,7 @@ si_figure_plan <- list(
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Evenness",
-                                      colourpalette = treatment_palette[c(3, 1)],
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,

@@ -34,7 +34,7 @@ figure_plan <- list(
                                       unnest(data),
                                    x_axis = Nitrogen_log,
                                    yaxislabel = bquote(Standing~biomass~g~m^-2),
-                                   colourpalette = treatment_palette[c(3, 1)],
+                                   colourpalette = warming_palette,
                                    linetypepalette = c("solid", "dashed", "dotted"),
                                    shapepalette = c(21, 22, 24),
                                    facet_2 = NA,
@@ -117,7 +117,7 @@ figure_plan <- list(
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Shannon diversity",
-                                      colourpalette = treatment_palette[c(3, 1)],
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,
@@ -178,8 +178,8 @@ figure_plan <- list(
                                            stroke = 0.8,
                                            size = Namount_kg_ha_y),
                                            alpha = 0.5) +
-        scale_colour_manual(values = treatment_palette[c(3, 1)], name = "Warming") +
-        scale_fill_manual(values = treatment_palette[c(3, 1)], name = "Warming") +
+              scale_colour_manual(values = warming_palette, name = "Warming") +
+      scale_fill_manual(values = warming_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("solid", "dashed"),
@@ -251,8 +251,8 @@ figure_plan <- list(
   #       geom_smooth(method = "lm", formula = "y ~ x", alpha = 0.1, linewidth = 0.5,
   #                   mapping = aes(colour = warming, fill = warming, linetype = grazing)) +
   #       #stat_cor(label.x = 0.2, label.y = 0.99) +
-  #       scale_colour_manual(name = "Warming", values = treatment_palette[c(3, 1)]) +
-  #       scale_fill_manual(name = "Warming", values = treatment_palette[c(3, 1)]) +
+  #       scale_colour_manual(name = "Warming", values = warming_palette) +
+#       scale_fill_manual(name = "Warming", values = warming_palette) +
   #       scale_shape_manual(name = "Grazing", values = c(0, 2)) +
   #       scale_size(name = "log(Nitrogen)", range = c(1, 3)) +
   #       scale_linetype_manual(name = "Grazing", values = c("dashed", "dotted"),
