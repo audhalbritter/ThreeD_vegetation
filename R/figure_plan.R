@@ -78,7 +78,7 @@ figure_plan <- list(
                     distinct(origSiteID, warming, Nitrogen_log, grazing) |>
                     left_join(biomass_text3 |>
                                 group_by(origSiteID) |>
-                                slice(4),
+                                slice(1),
                               by = c("origSiteID")),
                   aes(x = -Inf, y = Inf, hjust = -0.1, vjust = 6.2, label = term),
                   size = 3, colour = "grey50", nudge_x = 50) +

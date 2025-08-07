@@ -26,14 +26,13 @@ si_figure_plan <- list(
   ),
 
   tar_target(
-    name = biomass_palette,
-    # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green, 5 = blue
-    command = c(MetBrewer::met.brewer(name="Hokusai2", n=5, type="discrete"))
+    name = nitrogen_palette,
+    command = c(MetBrewer::met.brewer(name="Hokusai2", n=7, type="continuous"))
   ),
 
     tar_target(
     name = grazing_palette,
-    command = c(treatment_palette[c(1, 3)], "goldenrod4")
+    command = c(treatment_palette[c(1, 3)], "tan4")
   ),
 
   tar_target(
