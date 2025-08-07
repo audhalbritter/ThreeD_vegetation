@@ -1,0 +1,61 @@
+---
+title: "Supplementary Information - Change Analysis"
+format:
+    html:
+      self-contained: true
+execute:
+  echo: false
+---
+
+```{r}
+#| label: set-up
+#| echo: false
+#| message: false
+library(targets)
+library(tarchetypes)
+```
+
+### Cutting - change in diversity/richness/evenness and biomass (log ratio)
+
+```{r}
+#| label: fig-cut-change-all
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 15
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+
+tar_load(cut_change_all_diversity)
+
+cut_change_all_diversity[[1]]
+
+```
+
+```{r}
+#| label: fig-graz-change-all
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 15
+#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+
+tar_load(graz_change_all_diversity)
+
+graz_change_all_diversity[[1]]
+
+```
+
+## Biomass diversity relationship
+
+Change in div. Needed?
+
+```{r}
+#| label: fig-bio
+#| echo: false
+#| warning: false
+#| fig-height: 7
+#| fig-cap: Relationship of standing biomass and Shannon diversity.
+
+tar_read(standingB_div_change_figure)
+
+```
