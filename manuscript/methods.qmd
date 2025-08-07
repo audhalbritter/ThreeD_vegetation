@@ -97,7 +97,7 @@ To test if warming, nitrogen addition and clipping affect standing biomass after
 
 <!--# Do we want to run all analysis for grazing as well? -->
 
-To test if warming, nitrogen addition and clipping affect plant diversity at the end of the experiment (2022), we calculated the following diversity indices: species richness (n; number of species), Shannon diversity $H' = -\Sigma_{i} p_{i} * ln(p_{i})$, where $p_{i}$ is the proportional abundance of species i) and species evenness $\frac{H'}{log(n)}$ using the vegan package [@oksanen2022vegan]. The most parsimonious model for all three diversity indices was the linear model.
+To test if warming, nitrogen addition and clipping affect plant diversity at the end of the experiment (2022), we calculated the following diversity indices: species richness (n; number of species), Shannon diversity $H' = -\Sigma_{i} p_{i} * ln(p_{i})$, where $p_{i}$ is the proportional abundance of species i) and species evenness $\frac{H'}{log(n)}$ using the vegan package [@oksanen2022vegan]. The most parsimonious model for all three diversity indices was the linear model, except for Shannon diversity at the sub-alpine site, where the quadratic model was the most parsimonious model. For consistency, we however used the linear model here as well.
 
 <!--# From here we ran all analysis for final biomass/diversity and change in biomass/diversity (log ratio). Do we want to keep both of these analysis? They are similar, but some differences... -->
 
