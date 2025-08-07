@@ -3,390 +3,237 @@
 si_SEM_change_plan <- list(
 
 # CHANGE IN BIOMASS AND DIVERSITY (LOG RATIO)
-  # CUTTING
-  # prep data
+  # CLIPPING
+  
+  # prep diversity data
   tar_target(
-    name = cut_change_data,
-    command = prep_SEM_data(data = biomass_div,
+    name = cut_change_all_diversity,
+    command = {
+    dat1_div <- prep_SEM_data(data = biomass_div,
                             landuse = "clipping",
                             diversity = log_ratio_diversity,
                             biomass = log_ratio_bio)
-  ),
 
-  # sem by origin
-  # alpine
-  tar_target(
-    name = cut_change_alp,
-    command = run_SEM(data = cut_change_data |>
+    # alpine
+    mod1 <- run_SEM(data = dat1_div |>
                         filter(origSiteID == "Alpine"),
                       landuse = "clipping")
-  ),
 
-  # summary
-  tar_target(
-    name = cut_change_alp_out,
-    command = summary(cut_change_alp)
+      out1 <- summary(mod1)
 
-  ),
-
-  # figure
-  tar_target(
-    name = cut_change_alp_fig,
-    command = make_SEM_figure(sem_results = cut_change_alp_out,
+      fig1 <- make_SEM_figure(sem_results = out1,
                               type = "change",
                               landuse = "clipping",
                               col = treatment_palette,
                               diversity_type = "diversity")
-  ),
 
-  # sub-alpine
-  tar_target(
-    name = cut_change_sub,
-    command = run_SEM(data = cut_change_data |>
+    # sub-alpine
+    mod2 <- run_SEM(data = dat1_div |>
                         filter(origSiteID == "Sub-alpine"),
                       landuse = "clipping")
-  ),
 
-  # summary
-  tar_target(
-    name = cut_change_sub_out,
-    command = summary(cut_change_sub)
+      out2 <- summary(mod2)
 
-  ),
-
-  # figure
-  tar_target(
-    name = cut_change_sub_fig,
-    command = make_SEM_figure(sem_results = cut_change_sub_out,
+      fig2 <- make_SEM_figure(sem_results = out2,
                               type = "change",
                               landuse = "clipping",
                               col = treatment_palette,
                               diversity_type = "diversity")
-  ),
 
-  # Figure 2
-  tar_target(
-    name = cut_change_figure,
-    command = {
 
-        (cut_change_alp_fig + cut_change_sub_fig) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
-        theme(plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+      # change in richness
+      dat2 <- prep_SEM_data(data = biomass_div,
+                            landuse = "clipping",
+                            diversity = log_ratio_richness,
+                            biomass = log_ratio_bio)
 
-    }
-  ),
+      # change in richness alpine
+      mod3 <- run_SEM(data = dat2 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "clipping")
 
-  tar_target(
-    name = sem_cut_stats,
-    command = {
+      out3 <- summary(mod3)
 
-      bind_rows(
-        Alpine = cut_change_alp_out$coefficients,
-        "Sub-alpine" = cut_change_sub_out$coefficients,
-        .id = "Type"
-      )
+      fig3 <- make_SEM_figure(sem_results = out3,
+                              type = "change",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "richness")
+
+      # change in richness sub-alpine
+      mod4 <- run_SEM(data = dat2 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "clipping")
+
+      out4 <- summary(mod4)
+
+      fig4 <- make_SEM_figure(sem_results = out4,
+                              type = "change",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "richness")
+
+
+    # change in evenness
+      dat3 <- prep_SEM_data(data = biomass_div,
+                            landuse = "clipping",
+                            diversity = log_ratio_evenness,
+                            biomass = log_ratio_bio)
+
+      # change in evenness alpine
+      mod5 <- run_SEM(data = dat3 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "clipping")
+
+      out5 <- summary(mod5)
+
+      fig5 <- make_SEM_figure(sem_results = out5,
+                              type = "change",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "evenness")
+
+      # change in evenness sub-alpine
+      mod6 <- run_SEM(data = dat3 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "clipping")
+
+      out6 <- summary(mod6)
+
+      fig6 <- make_SEM_figure(sem_results = out6,
+                              type = "change",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "evenness")
+
+
+         # Combine all 6 panels (diversity, richness, evenness × Alpine, Sub-alpine)
+       figure <- (fig1 + fig2) / (fig3 + fig4) / (fig5 + fig6) +
+         plot_annotation(tag_levels = list(c('a) Alpine diversity', 'b) Sub-alpine diversity', 'c) Alpine richness',
+                                            'd) Sub-alpine richness', 'e) Alpine evenness', 'f) Sub-alpine evenness'))) &
+          theme(plot.tag.position = c(0, 1),
+                plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+       # Combine all results
+       out <- bind_rows(
+         "Alpine diversity" = out1$coefficients,
+         "Sub-alpine diversity" = out2$coefficients,
+         "Alpine richness" = out3$coefficients,
+         "Sub-alpine richness" = out4$coefficients,
+         "Alpine evenness" = out5$coefficients,
+         "Sub-alpine evenness" = out6$coefficients,
+         .id = "Type"
+       )
+
+       outputList <- list(figure, out)
 
     }
   ),
 
 
   # GRAZING
-  # prep data
   tar_target(
-    name = graz_change_data,
-    command = prep_SEM_data(data = biomass_div,
-                            landuse = "grazing",
-                            diversity = log_ratio_diversity,
-                            biomass = log_ratio_bio)
-  ),
+    name = graz_change_all_diversity,
+    command = {
+      # Diversity analysis
+      dat1_div <- prep_SEM_data(data = biomass_div,
+                                landuse = "grazing",
+                                diversity = log_ratio_diversity,
+                                biomass = log_ratio_bio)
 
-  # sem by origin
-  # alpine
-  tar_target(
-    name = graz_change_alp,
-    command = run_SEM(data = graz_change_data |>
+      # Diversity alpine
+      mod1 <- run_SEM(data = dat1_div |>
                         filter(origSiteID == "Alpine"),
                       landuse = "grazing")
-  ),
-
-  # summary
-  tar_target(
-    name = graz_change_alp_out,
-    command = summary(graz_change_alp)
-
-  ),
-
-  # figure
-  tar_target(
-    name = graz_change_alp_fig,
-    command = make_SEM_figure(sem_results = graz_change_alp_out,
+      out1 <- summary(mod1)
+      fig1 <- make_SEM_figure(sem_results = out1,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "diversity")
-  ),
 
-  # sub-alpine data
-  tar_target(
-    name = graz_change_sub,
-    command = run_SEM(data = graz_change_data |>
+      # Diversity sub-alpine
+      mod2 <- run_SEM(data = dat1_div |>
                         filter(origSiteID == "Sub-alpine"),
                       landuse = "grazing")
-  ),
-
-  # summary
-  tar_target(
-    name = graz_change_sub_out,
-    command = summary(graz_change_sub)
-
-  ),
-
-  # figure
-  tar_target(
-    name = graz_change_sub_fig,
-    command = make_SEM_figure(sem_results = graz_change_sub_out,
+      out2 <- summary(mod2)
+      fig2 <- make_SEM_figure(sem_results = out2,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "diversity")
-  ),
 
-  # Figure 2
-  tar_target(
-    name = graz_change_figure,
-    command = {
+      # Richness analysis
+      dat2_rich <- prep_SEM_data(data = biomass_div,
+                                 landuse = "grazing",
+                                 diversity = log_ratio_richness,
+                                 biomass = log_ratio_bio)
 
-        (graz_change_alp_fig + graz_change_sub_fig) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
-        theme(plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
-
-    }
-  ),
-
-  tar_target(
-    name = sem_graz_stats,
-    command = {
-
-      bind_rows(
-        Alpine = graz_change_alp_out$coefficients,
-        "Sub-alpine" = graz_change_sub_out$coefficients,
-        .id = "Type"
-      )
-
-    }
-  ),
-
-  
-# SEM other diversity indices
-  # change in biomass and diversity indices
-  # clipping and richness
-  tar_target(
-    name = cut_change_richness,
-    command = {
-
-      # change in richness
-      dat1 <- prep_SEM_data(data = biomass_div,
-                            landuse = "clipping",
-                            diversity = log_ratio_richness,
-                            biomass = log_ratio_bio)
-
-      # change in richness alpine
-      mod3 <- run_SEM(data = dat1 |>
-                        filter(origSiteID == "Alpine"),
-                      landuse = "clipping")
-
-      out3 <- summary(mod3)
-
-      fig3 <- make_SEM_figure(sem_results = out3,
-                              type = "change",
-                              landuse = "clipping",
-                              col = treatment_palette,
-                              diversity_type = "richness")
-
-      # change in richness sub-alpine
-      mod4 <- run_SEM(data = dat1 |>
-                        filter(origSiteID == "Sub-alpine"),
-                      landuse = "clipping")
-
-      out4 <- summary(mod4)
-
-      fig4 <- make_SEM_figure(sem_results = out4,
-                              type = "change",
-                              landuse = "clipping",
-                              col = treatment_palette,
-                              diversity_type = "richness")
-
-      figure <- (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
-        theme(plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
-
-      out <- bind_rows(
-        Alpine = out3$coefficients,
-        "Sub-alpine" = out4$coefficients,
-        .id = "Type"
-      )
-
-      outputList <- list(figure, out)
-
-    }
-  ),
-
-
-  # clipping and evenness
-  tar_target(
-    name = cut_change_evenness,
-    command = {
-
-      # change in evenness
-      dat1 <- prep_SEM_data(data = biomass_div,
-                            landuse = "clipping",
-                            diversity = log_ratio_evenness,
-                            biomass = log_ratio_bio)
-
-      # change in evenness alpine
-      mod3 <- run_SEM(data = dat1 |>
-                        filter(origSiteID == "Alpine"),
-                      landuse = "clipping")
-
-      out3 <- summary(mod3)
-
-      fig3 <- make_SEM_figure(sem_results = out3,
-                              type = "change",
-                              landuse = "clipping",
-                              col = treatment_palette,
-                              diversity_type = "evenness")
-
-      # change in evenness sub-alpine
-      mod4 <- run_SEM(data = dat1 |>
-                        filter(origSiteID == "Sub-alpine"),
-                      landuse = "clipping")
-
-      out4 <- summary(mod4)
-
-      fig4 <- make_SEM_figure(sem_results = out4,
-                              type = "change",
-                              landuse = "clipping",
-                              col = treatment_palette,
-                              diversity_type = "evenness")
-
-      figure <- (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
-        theme(plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
-
-      out <- bind_rows(
-        Alpine = out3$coefficients,
-        "Sub-alpine" = out4$coefficients,
-        .id = "Type"
-      )
-
-      outputList <- list(figure, out)
-
-    }
-  ),
-
-
-  # grazing and richness
-  tar_target(
-    name = graz_change_richness,
-    command = {
-
-      # change in richness
-      dat1 <- prep_SEM_data(data = biomass_div,
-                            landuse = "grazing",
-                            diversity = log_ratio_richness,
-                            biomass = log_ratio_bio)
-
-      # change in richness alpine
-      mod3 <- run_SEM(data = dat1 |>
+      # Richness alpine
+      mod3 <- run_SEM(data = dat2_rich |>
                         filter(origSiteID == "Alpine"),
                       landuse = "grazing")
-
       out3 <- summary(mod3)
-
       fig3 <- make_SEM_figure(sem_results = out3,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "richness")
 
-      # change in richness sub-alpine
-      mod4 <- run_SEM(data = dat1 |>
+      # Richness sub-alpine
+      mod4 <- run_SEM(data = dat2_rich |>
                         filter(origSiteID == "Sub-alpine"),
                       landuse = "grazing")
-
       out4 <- summary(mod4)
-
       fig4 <- make_SEM_figure(sem_results = out4,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "richness")
 
-      figure <- (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
-        theme(plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+      # Evenness analysis
+      dat3_even <- prep_SEM_data(data = biomass_div,
+                                 landuse = "grazing",
+                                 diversity = log_ratio_evenness,
+                                 biomass = log_ratio_bio)
 
-      out <- bind_rows(
-        Alpine = out3$coefficients,
-        "Sub-alpine" = out4$coefficients,
-        .id = "Type"
-      )
-
-      outputList <- list(figure, out)
-
-    }
-  ),
-
-  # grazing and evenness
-  tar_target(
-    name = graz_change_evenness,
-    command = {
-
-      # change in evenness
-      dat1 <- prep_SEM_data(data = biomass_div,
-                            landuse = "grazing",
-                            diversity = log_ratio_evenness,
-                            biomass = log_ratio_bio)
-
-      # change in evenness alpine
-      mod3 <- run_SEM(data = dat1 |>
+      # Evenness alpine
+      mod5 <- run_SEM(data = dat3_even |>
                         filter(origSiteID == "Alpine"),
                       landuse = "grazing")
-
-      out3 <- summary(mod3)
-
-      fig3 <- make_SEM_figure(sem_results = out3,
+      out5 <- summary(mod5)
+      fig5 <- make_SEM_figure(sem_results = out5,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "evenness")
 
-      # change in evenness sub-alpine
-      mod4 <- run_SEM(data = dat1 |>
+      # Evenness sub-alpine
+      mod6 <- run_SEM(data = dat3_even |>
                         filter(origSiteID == "Sub-alpine"),
                       landuse = "grazing")
-
-      out4 <- summary(mod4)
-
-      fig4 <- make_SEM_figure(sem_results = out4,
+      out6 <- summary(mod6)
+      fig6 <- make_SEM_figure(sem_results = out6,
                               type = "change",
                               landuse = "grazing",
                               col = treatment_palette,
                               diversity_type = "evenness")
 
-      figure <- (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine'))) &
+      # Combine all 6 panels (diversity, richness, evenness × Alpine, Sub-alpine)
+      figure <- (fig1 + fig2) / (fig3 + fig4) / (fig5 + fig6) +
+        plot_annotation(tag_levels = list(c('a) Alpine diversity', 'b) Sub-alpine diversity', 'c) Alpine richness',
+                                           'd) Sub-alpine richness', 'e) Alpine evenness', 'f) Sub-alpine evenness'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
+      # Combine all results
       out <- bind_rows(
-        Alpine = out3$coefficients,
-        "Sub-alpine" = out4$coefficients,
+        "Alpine diversity" = out1$coefficients,
+        "Sub-alpine diversity" = out2$coefficients,
+        "Alpine richness" = out3$coefficients,
+        "Sub-alpine richness" = out4$coefficients,
+        "Alpine evenness" = out5$coefficients,
+        "Sub-alpine evenness" = out6$coefficients,
         .id = "Type"
       )
 
