@@ -22,7 +22,15 @@ trait_plan <- list(
     name = affinity_pca,
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
-                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction"))
+                            filter(trait_trans %in% c("plant_height_cm_log","temperature", "light", "moisture", "nutrients", "reaction"))  
+    )
+  ),
+
+      tar_target(
+    name = trait_pca,
+    command = make_trait_pca(trait_mean |> 
+                            filter(grazing != "Natural") |>
+                            filter(trait_trans %in% c("plant_height_cm_log", "dry_mass_g_log", "leaf_area_cm2_log", "leaf_thickness_mm_log", "sla_cm2_g", "ldmc"))
     )
   ),
 
@@ -66,10 +74,14 @@ trait_plan <- list(
     name = affinity_pca_plot,
     command = make_pca_plot_sites(affinity_pca, title = "Affinity", color_warm = warming_palette)
   ),
+    tar_target(
+    name = trait_pca_plot,
+    command = make_pca_plot_sites(trait_pca, title = "Trait", color_warm = warming_palette)
+  ),
 
   # make trait pca plots
   tar_target(
-    name = trait_pca_plot,
+    name = trait_pca_plot_single,
     command = {
       # Create individual plots with tags
               p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = warming_palette) + 
