@@ -123,10 +123,15 @@ analysis_plan <- list(
   tar_target(
     name = diversity_origin_model,
     command = diversity_model_all_origin |>
-      group_by(origSiteID,diversity_index) |>
+      group_by(origSiteID,diversity_index) |> 
       #filter(mod == "interaction")
       # select parsimonious model (by HAND!!!)
       filter(names == "linear")
+      # Use quadratic model for Sub-alpine diversity, linear for everything else
+      # filter(case_when(
+      #   origSiteID == "Sub-alpine" & diversity_index == "diversity" ~ names == "quadratic",
+      #   TRUE ~ names == "linear"
+      # ))
   ),
 
   tar_target(
@@ -164,50 +169,7 @@ analysis_plan <- list(
       unnest(result) |>
       ungroup() |>
       fancy_stats()
-  ),
-
-
-  # status: winners, losers, increasing, decreasing and stable species
-  # mark status of species in cover data
-  tar_target(
-    name = cover_wl,
-    command = get_winners_and_losers(cover_total)
-  ),
-
-  # impute traits for whole community (trait_fill)
-  tar_target(
-    name = trait_impute_all,
-    command = make_trait_impute2(cover_wl |>
-                                   filter(year == "2022" | year == 2019 & status == "extinction"),
-                                 trait_raw,
-                                 ellenberg)
-  ),
-
-  # bootstrap
-  tar_target(
-    name = trait_mean_all,
-    command = make_bootstrapping(trait_impute_all)
   )
-
-  # traits for different stages
-  # tar_target(
-  #   name = trait_mean_status,
-  #   command = {
-
-  #     dat <- cover_wl |>
-  #       # remove duplicates
-  #       tidylog::filter(!c(year == 2019 & status %in% c("decrease", "stable", "increase"))) |>
-  #       mutate(status = fct_relevel(status, "extinction", "decrease", "stable", "increase", "colonization"))
-
-  #     dat |>
-  #       group_by(status, status2) |>
-  #       nest() |>
-  #       mutate(trait_impute = map(data, ~ make_trait_impute2(.x, trait_raw, ellenberg)),
-  #              trait_mean = map(trait_impute, ~ make_bootstrapping(.x)))
-
-
-  #   }
-  # )
 
 )
 

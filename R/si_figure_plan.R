@@ -1,20 +1,39 @@
 si_figure_plan <- list(
 
   # wes anderson colour palette
-  tar_target(
-    name = col_palette,
-    #command = wes_palette("GrandBudapest1")[c(1, 2)]
-    command = c("grey30", "#FD6467")
-  ),
+  # tar_target(
+  #   name = col_palette,
+  #   #command = wes_palette("GrandBudapest1")[c(1, 2)]
+  #   command = c("grey30", "#FD6467")
+  # ),
 
   # Gauguin colour palette
+# Egypt
+# Java
+# Morgenstern
+# Veronese
+
   tar_target(
     name = treatment_palette,
-    # colours for treatments: 1 = grey, 2 = red, 3 = yellow, 4 = green
-    command = c("grey40", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"))
+    # colours for treatments: 1 = grey (control), 2 = red (warming), 3 = yellow (clipping), 4 = light green (...), 5 = green (nitrogen), 6 = blue (biomass)
+      #c("grey40", "#67322e" "#99610a" "#6e948c" "#2c6b67" "#122c43")
+    command = c("grey60", MetBrewer::met.brewer(name="Veronese", n=5, type="discrete"))
   ),
 
-  #c("#FD6467", "#5B1A18", "#D67236")
+  tar_target(
+    name = warming_palette,
+    command = treatment_palette[c(1, 2)]
+  ),
+
+  tar_target(
+    name = nitrogen_palette,
+    command = c(MetBrewer::met.brewer(name="Hokusai2", n=7, type="continuous"))
+  ),
+
+    tar_target(
+    name = grazing_palette,
+    command = c(treatment_palette[c(1, 3)], "tan4")
+  ),
 
   tar_target(
     name = text_colour,
@@ -24,7 +43,7 @@ si_figure_plan <- list(
   ### CLIMATE
   tar_target(
     name = daily_climate_figure,
-    command = make_daily_climate_figure(daily_temp, col_palette)
+    command = make_daily_climate_figure(daily_temp, col_palette = warming_palette)
   ),
 
   # climate figure
@@ -47,7 +66,7 @@ si_figure_plan <- list(
                                     filter(variable != "soilmoisture"),
                                   x_axis = Nitrogen_log,
                                   yaxislabel = "Temperature in °C",
-                                  colourpalette = col_palette,
+                                  colourpalette = warming_palette,
                                   linetypepalette = c("solid", "dashed", "dotted"),
                                   shapepalette = c(16, 0, 2),
                                   facet_2 = "variable",
@@ -67,7 +86,7 @@ si_figure_plan <- list(
                                         filter(variable == "soilmoisture"),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Soilmoisture in %",
-                                      colourpalette = col_palette,
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(16, 0, 2),
                                       facet_2 = "variable",
@@ -191,7 +210,7 @@ si_figure_plan <- list(
         geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
         annotate("text", x = 2000, y = 5,
                  label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
+        scale_colour_manual(values = warming_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
         guides(linetype = FALSE) +
         labs(x = "Cover x height",
@@ -271,8 +290,8 @@ si_figure_plan <- list(
                                            shape = grazing,
                                            fill = warming,
                                            size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = col_palette, name = "Warming") +
+        scale_colour_manual(values = warming_palette, name = "Warming") +
+        scale_fill_manual(values = warming_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
         scale_size_continuous(name = "Nitrogen") +
         scale_linetype_manual(values = c("dashed", "solid"),
@@ -307,23 +326,12 @@ si_figure_plan <- list(
         distinct(origSiteID, term, significance) |>
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
-
-      # rich2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
-      #                                 filter(diversity_index == "richness") |>
-      #                                 unnest(data),
-      #                               x_axis = Nitrogen_log,
-      #                               yaxislabel = "Species richness",
-      #                               colourpalette = col_palette,
-      #                               linetypepalette = c("solid", "dashed", "dotted"),
-      #                               shapepalette = c(21, 22, 24),
-      #                               dat2 = diversity_origin_prediction |>
-      #                                 filter(diversity_index == "richness")) +
         rich <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "richness") |>
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Species richness",
-                                      colourpalette = col_palette,
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,
@@ -374,22 +382,12 @@ si_figure_plan <- list(
         mutate(term = factor(term, levels = c("W", "N", "C", "S", "WxN", "WxC", "NxC", "WxNxC")))
 
 
-      # even2 <- make_vegetation_origin_figure(dat1 = diversity_origin_output |>
-      #                                 filter(diversity_index == "evenness") |>
-      #                                 unnest(data),
-      #                               x_axis = Nitrogen_log,
-      #                               yaxislabel = "Evenness",
-      #                               colourpalette = col_palette,
-      #                               linetypepalette = c("solid", "dashed", "dotted"),
-      #                               shapepalette = c(21, 22, 24),
-      #                               dat2 = diversity_origin_prediction |>
-      #                                 filter(diversity_index == "evenness")) +
       even <- make_vegetation_figure(dat1 = diversity_origin_output |>
                                       filter(diversity_index == "evenness") |>
                                       unnest(data),
                                       x_axis = Nitrogen_log,
                                       yaxislabel = "Evenness",
-                                      colourpalette = col_palette,
+                                      colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(21, 22, 24),
                                       facet_2 = NA,
@@ -438,55 +436,9 @@ si_figure_plan <- list(
       (rich + even) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
               plot.tag.position = c(0, 1),
-              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0),
+              legend.background = element_rect(fill = "transparent"))
 
-    }
-  ),
-
-
-  tar_target(
-    name = final_standingB_div_change_figure,
-    command = {
-
-        # Biomass vs. diversity analysis
-  fit = lm(log_ratio_diversity ~ log(final_bio) * origSiteID * warming, data = biomass_div)
-      
-  summary(fit)
-
-  pred = augment(fit)
-
-      biomass_div |>
-        ggplot(aes(x = log(final_bio), y = log_ratio_diversity)) +
-        geom_line(data = pred, 
-          aes(y = .fitted,
-            x = `log(final_bio)`,
-            linetype = origSiteID,
-            colour = warming),
-            linewidth = 0.75) +
-        geom_point(data = biomass_div, aes(colour = warming,
-                                           shape = grazing,
-                                           fill = interaction(origSiteID, warming),
-                                           size = Namount_kg_ha_y)) +
-        scale_colour_manual(values = col_palette, name = "Warming") +
-        scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-                          name = "Origin",
-                          #breaks = c("Alpine", "Sub-alpine"),
-                          labels = c("Alpine", "Sub-Alpine", "", ""),
-                          guide = guide_legend(override.aes = list(
-                            shape = 21,
-                            colour = "grey30",
-                            fill = c("white", "grey30")
-                          ))) +
-        scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-        scale_size_continuous(name = "Nitrogen") +
-        scale_linetype_manual(values = c("solid", "dashed"),
-                              name = "Origin") +
-        labs(x = bquote(Log(Standing~biomass)~g~m^-2),
-             y = "Change in Shannon diversity") +
-        theme_bw() +
-        theme(legend.position = "bottom",
-              legend.box = "vertical",
-              text = element_text(size = 12))
     }
   )
 

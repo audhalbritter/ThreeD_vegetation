@@ -1,67 +1,10 @@
-### Winners and losers
+# trait bootstrapping functions
 
-get_winners_and_losers <- function(cover_total){
-
-  #first and last year transplant comm by treatment
-  #get first_transplant (year 1)
-  first_transplant = cover_total |>
-    filter(year == 2019)  |>
-    select(origSiteID, destSiteID, destBlockID, turfID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year, species, cover)
-
-  # get last_transplant (last year)
-  last_transplant = cover_total |>
-    filter(year == 2022)  |>
-    select(origSiteID, destSiteID, destBlockID, turfID, warming, Namount_kg_ha_y, Nitrogen_log, grazing, grazing_num, year, species, cover)
-
-  #losers = first - last year
-  losers = anti_join(first_transplant, last_transplant, by = c("origSiteID", "destSiteID", "destBlockID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "grazing", "grazing_num", "species"))
-
-  #winners = last - first year
-  winners = anti_join(last_transplant, first_transplant, by = c("origSiteID", "destSiteID", "destBlockID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "grazing", "grazing_num", "species"))
-
-  # combine winner and losers
-  winn_loos <- bind_rows(colonization = winners,
-                          extinction = losers,
-                         .id = "status") |>
-    select(-cover)
-
-  # join with cover data to get which species are winners and losers
-  cover_all <- cover_total |>
-    tidylog::left_join(winn_loos,
-                       by = c("year", "origSiteID", "destSiteID", "destBlockID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "grazing", "grazing_num", "species"))
-
-  # species that increase and decrease in cover or stay the same
-  cov <- cover_all |>
-    # remove winners and losers
-    filter(is.na(status)) |>
-    pivot_wider(names_from = year, values_from = cover) |>
-    # change
-    mutate(change = `2022` - `2019`,
-           log_ratio = log(`2022` / `2019`),
-           rel_change = (change / `2019`) * 100) |>
-    # categorize species into not changing, increasing and decreasing in cover
-    mutate(status2 = case_when(rel_change >= 10 ~ "increase",
-                              rel_change <= -10 ~ "decrease",
-                              TRUE ~ "stable")) |>
-    select(-`2019`, -`2022`)
-
-  cover_all |>
-    tidylog::left_join(cov, by = c("origSiteID", "origBlockID", "origPlotID", "destSiteID", "destBlockID", "destPlotID", "turfID", "warming", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel", "grazing", "grazing_num", "species", "status")) |>
-    mutate(status = if_else(is.na(status), status2, status)) |>
-    select(-status2) |> 
-    # merge for winner and losers
-    mutate(status2 = if_else(status %in% c("extinction", "decrease"), "loser", "winner"))
-
-  ### PROBABLY WANT TO REMOVE YEAR AND INCREASE, DECREASE AND STABLE FROM 2019. THEY ARE THE SAME AS FROM 2022. QUESTION, DO WE NEED COVER FROM 2019, AND WANT TO KEEP THEM?
-
-}
-
-
-
-make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
+make_trait_impute <- function(cover_total, trait_raw, ellenberg){
 
   #prepare community data
-  comm <- winn_lose |>
+  comm <- cover_total |> 
+    filter(year == 2022) |>
 
     # make new variable for 3 treatments (AC0 is the control)
     mutate(warming2 = if_else(warming == "Ambient", "A", "W"),
@@ -91,10 +34,15 @@ make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
                                species == "Salix herbaceae" ~ "Salix herbacea",
                                species == "Trientalis europea" ~ "Trientalis europaea",
                                species == "Oxytropa laponica" ~ "Oxytropis lapponica",
-                               TRUE ~ species))
+                               TRUE ~ species)) |> 
+    # make grazing numeric
+    mutate(grazing_num = case_when(grazing == "Control" ~ 0,
+                                   grazing == "Medium" ~ 2,
+                                   grazing == "Intensive" ~ 4,
+                                   grazing == "Natural" ~ 2))
 
   #prepare trait data
-  trait <- trait_raw |>
+  trait <- trait_raw |> 
     tidylog::filter(siteID != "Hogsete",
                     !(siteID == "Vikesland" & gradient == "gradient") | is.na(gradient)) |>
     select(-gradient) |>
@@ -167,8 +115,12 @@ make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
            blockID = as.numeric(blockID)) |>
 
     # make grazing numeric
-    mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
-           grazing_num = as.numeric(grazing_num)) |>
+    mutate(grazing_num = case_when(grazing == "Control" ~ 0,
+                                   grazing == "Medium" ~ 2,
+                                   grazing == "Intensive" ~ 4,
+                                   grazing == "Natural" ~ 2)) |>
+    # mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
+    #        grazing_num = as.numeric(grazing_num)) |>
 
     # remove 27 accidental some observations with warm, grazing and N5
     filter(!is.na(treatment)) |>
@@ -204,12 +156,160 @@ make_trait_impute2 <- function(winn_lose, trait_raw, ellenberg){
 
 }
 
-# trait_mean_wl %>%
-#   autoplot(., other_col_how = "ignore") +
-#   scale_fill_manual(labels = c("turfID", "blockID", "siteID", "global"),
-#                     values = c("#56B4E9", "#009E73", "#E69F00", "#D55E00")) +
-#   scale_y_continuous(breaks = c(0, 0.5, 1)) +
-#   facet_wrap(~ trait_trans, labeller = labeller(trait_trans = trait_names)) +
-#   labs(x = "Treatments") +
-#   theme_minimal() +
-#   theme(axis.text.x = element_text(angle = 90))
+#rename traits to fancy names for figures
+
+fancy_trait_name_dictionary <- function(dat){
+
+  dat %>%
+    mutate(trait_fancy = case_match(trait_trans,
+                                    "plant_height_cm_log" ~ "Height cm",
+                                    "dry_mass_g_log" ~ "Dry mass g",
+                                    "leaf_area_cm2_log" ~ "Area cm2",
+                                    "leaf_thickness_mm_log" ~ "Thickness mm",
+                                    "ldmc" ~ "LDMC g/g",
+                                    "sla_cm2_g" ~ "SLA cm2/g",
+                                    "light" ~ "Light",
+                                    "temperature" ~ "Temperature",
+                                    "nutrients" ~ "Nutrients",
+                                    "moisture" ~ "Moisture",
+                                    "salinity" ~ "Salinity",
+                                    "reaction" ~ "Reaction")) |>
+    mutate(figure_names = case_match(trait_trans,
+                                     "plant_height_cm_log" ~ "Plant~height~(cm)",
+                                     "dry_mass_g_log" ~ "Leaf~dry~mass~(g)",
+                                     "leaf_area_cm2_log" ~ "Leaf~area~(cm^2)",
+                                     "leaf_thickness_mm_log" ~ "Leaf~thickness~(mm)",
+                                     "ldmc" ~ "LDMC~(gg^{-1})",
+                                     "sla_cm2_g" ~ "SLA~(cm^2*g^{-1})",
+                                     "light" ~ "Light",
+                                     "temperature" ~ "Temperature",
+                                     "nutrients" ~ "Nutrients",
+                                     "moisture" ~ "Moisture",
+                                     "salinity" ~ "Salinity",
+                                     "reaction" ~ "Reaction")) |>
+    mutate(figure_names = factor(figure_names,
+                                 levels = c("Plant~height~(cm)",
+                                            "Leaf~dry~mass~(g)",
+                                            "Leaf~area~(cm^2)",
+                                            "Leaf~thickness~(mm)",
+                                            "SLA~(cm^2*g^{-1})",
+                                            "LDMC~(gg^{-1})",
+                                            "Light",
+                                            "Temperature",
+                                            "Nutrients",
+                                            "Moisture",
+                                            "Salinity",
+                                            "Reaction")))
+
+}
+
+
+#do the bootstrapping
+make_bootstrapping <- function(trait_impute){
+
+  CWM <- trait_np_bootstrap(trait_impute, nrep = 100, sample_size = 200)
+
+  trait_mean <- trait_summarise_boot_moments(CWM) |>
+    ungroup() |>
+    select(-global, -n) |>
+    fancy_trait_name_dictionary()
+
+  trait_mean
+
+}
+
+
+# Test treatment effects on traits
+test_treatment_effects <- function(data, biomass_data, 
+traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction")) {
+  
+  # Filter data for specified traits
+  trait_data <- data |>
+    filter(grazing != "Natural") |>
+    filter(trait_trans %in% traits)
+  
+  # Test warming effects for each trait
+  results_warming <- trait_data |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
+    nest() |>
+    mutate(
+      # Run linear model
+      model = map(data, ~ {
+        # Ensure warming is a factor
+        dat <- .x |> mutate(warming = as.factor(warming))
+        lm(mean ~ warming, data = .x)
+      }),
+      
+      # Get tidy results
+      result = map(model, tidy),
+      anova = map(model, car::Anova),
+      anova_tidy = map(anova, tidy)
+    )
+
+  # Test nitrogen effects for each trait
+  results_nitrogen <- trait_data |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
+    nest() |>
+    mutate(
+      # Run linear model
+      model = map(data, ~ {
+        lm(mean ~ Nitrogen_log, data = .x)
+      }),
+      
+      # Get tidy results
+      result = map(model, tidy),
+      anova = map(model, car::Anova),
+      anova_tidy = map(anova, tidy)
+    )
+
+  # Test grazing effects for each trait (excluding Natural)
+  results_grazing <- trait_data |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
+    nest() |>
+    mutate(
+      # Run linear model
+      model = map(data, ~ {
+        lm(mean ~ grazing_num, data = .x)
+      }),
+      
+      # Get tidy results
+      result = map(model, tidy),
+      anova = map(model, car::Anova),
+      anova_tidy = map(anova, tidy)
+    )
+
+  # Test biomass effects for each trait (excluding Natural)
+  results_biomass <- trait_data |>
+    tidylog::left_join(
+      biomass_data |> 
+        filter(year == 2022, grazing != "Natural") |>
+        mutate(biomass_log = log(standing_biomass)) |>
+        select(-year),
+      by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")
+    ) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
+    nest() |>
+    mutate(
+      # Run linear model
+      model = map(data, ~ {
+        lm(mean ~ biomass_log, data = .x)
+      }),
+      
+      # Get tidy results
+      result = map(model, tidy),
+      anova = map(model, car::Anova),
+      anova_tidy = map(anova, tidy)
+    )
+
+  # Combine results
+  results <- bind_rows(
+    warming = results_warming, 
+    nitrogen = results_nitrogen,
+    grazing = results_grazing,
+    biomass = results_biomass,
+    .id = "treatment"
+  ) |>
+    select(-data, -model, -anova)
+
+  return(results)
+}

@@ -1,291 +1,155 @@
-# Make trait figures
+# Make trait figures  
 
-make_trait_figure <- function(traits, traits_stats, trait_prediction, col_palette){
+### TRAIT PCA ###
 
-  max_y <- traits |>
-  group_by(figure_names) |>
-  summarise(y_max = max(mean, na.rm = TRUE), .groups = "drop")
+# Make pca
+make_trait_pca <- function(trait_mean){
 
+  set.seed(32)
 
-traits_text <- traits_stats |>
-  filter(p.value <= 0.05) |>
-  mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
-  left_join(max_y, by = c("figure_names")) |>
-  mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
-         y = y_max + nr * 0.1 * y_max,
-         hjust = if_else(origSiteID == "Alpine", 0, 1))
+  # make wide trait table
+  cwm_wide <- trait_mean |>
+    select(trait_trans, turfID, blockID, origSiteID, warming, grazing, grazing_num, Nlevel,Namount_kg_ha_y, Nitrogen_log, mean) |>
+    pivot_wider(names_from = "trait_trans", values_from = "mean") |>
+    ungroup()
 
-traits |>
-  ggplot(aes(x = Nitrogen_log, y = mean,
-             colour = warming, shape = grazing,
-             linetype = grazing, alpha = origSiteID)) +
-  geom_point() +
-  geom_line(data = trait_prediction,
-            aes(y = fit, alpha = origSiteID),
-            linewidth = 0.5) +
-  geom_text(data = traits_text,
-            aes(x = x, y = y, label = term,
-                hjust = hjust,
-                alpha = origSiteID),
-            inherit.aes = FALSE,
-            size = 3) +
-  scale_colour_manual(name = "Warming", values = col_palette) +
-  scale_shape_manual(name = "Clipping", values = c(17, 1, 2)) +
-  scale_linetype_manual(name = "Clipping", values = c("solid", "dashed", "dotted")) +
-  scale_alpha_manual(values = c(1, 0.6)) +
-  labs(y = "Trait mean",
-       x = "Log(Nitrogen)") +
-  facet_grid(rows = vars(figure_names),
-             cols = vars(status2),
-             scales = "free_y", labeller = label_parsed) +
-  theme_bw()
-  
-}
+  pca_output <- cwm_wide |>
+    select(-(turfID:Nitrogen_log)) |>
+    rda(scale = TRUE, center = TRUE)
 
-make_trait_figure_small <- function(traits, traits_stats, trait_prediction_clean, col_palette){
+  pca_sites <- bind_cols(
+    cwm_wide |>
+      select(turfID:Nitrogen_log),
+    fortify(pca_output, display = "sites")
+  )
 
-# average for winners and losers
-traits_wl <- traits |> 
-  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
-  group_by(origSiteID, status2, trait_trans, figure_names, Nitrogen_log, warming, grazing) |> 
-  summarise(mean = mean(mean))
-  
-prediction <- trait_prediction_clean |> 
-  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
-    group_by(origSiteID, status2, trait_trans, figure_names, warming, Nitrogen_log) |> 
-  summarise(fit = mean(fit))
-  
-# figure text
-max_y <- traits_wl |>
-  group_by(figure_names) |>
-  summarise(y_max = max(mean, na.rm = TRUE), .groups = "drop")
+  # arrows
+  pca_traits <- fortify(pca_output, display = "species") |>
+    mutate(trait_trans = label) |>
+    fancy_trait_name_dictionary()
 
+  # permutation test
+  raw <- cwm_wide |> select(-(turfID:Nitrogen_log))
+  # meta data
+  meta <- cwm_wide|> select(turfID:Nitrogen_log) |>
+    mutate(origSiteID = factor(origSiteID))
 
-traits_text <- traits_stats |>
-  filter(p.value <= 0.05) |>
-  filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |> 
-  mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
-  left_join(max_y, by = c("figure_names")) |>
-  mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
-         y = y_max + nr * 0.05 * y_max,
-         hjust = if_else(origSiteID == "Alpine", 0, 1))
+  # adonis test
+  #adonis_result <- adonis2(raw ~ warming * Nitrogen_log * grazing_num + origSiteID, data = meta, permutations = 999, method = "euclidean", by = "terms")
 
-
-traits_wl |> 
-  ggplot(aes(
-    x = Nitrogen_log, 
-    y = mean
-  )) +
-  
-  # Points: Warming colors (only for NxW, but also visible for N as grey)
-  geom_point(aes(color = warming,
-                 shape = grazing,
-                 fill = interaction(origSiteID, warming))) +
-  
-  geom_line(data = prediction,
-    aes(y = fit,
-        colour = warming,
-        linetype = origSiteID),
-        linewidth = 0.5) +
-
-  geom_text(
-    data = traits_text,
-    aes(x = x, y = y, label = term,
-        hjust = hjust,
-        alpha = origSiteID),
-        inherit.aes = FALSE,
-        size = 3
-      ) +
-  
-    # Define color mapping
-    scale_colour_manual(
-      values = c(col_palette),
-      name = "Warming"
-    ) +
-  
-    scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-  
-    scale_fill_manual(values = c("grey30", "white", "#FD6467", "white"),
-    name = "Origin",
-    labels = c("Alpine", "Sub-Alpine", "", ""),
-    guide = guide_legend(override.aes = list(
-      shape = 21,
-      linetype = c("solid", "dashed"),
-      colour = "grey30",
-      fill = c("grey30", "white")
-    ))
-  ) +
-  
-    scale_linetype_manual(
-      values = c("solid", "dashed"),
-      name = "Clipping"
-    ) +
-  
-  scale_alpha_manual(values = c(1, 0.6)) +   
-      
-  labs(y = "Trait mean",
-       x = "Log(Nitrogen)") +
-  
-  # Faceting
-  facet_grid(
-    rows = vars(figure_names), 
-    cols = vars(status2),
-    labeller = label_parsed, 
-    scales = "free"
-  ) +
-  
-  theme_bw()
-
+  outputList <- list(pca_sites, pca_traits, pca_output)
 
 }
 
+# Make pca plot
+make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
 
-make_trait_figure_grazing <- function(traits, traits_stats, trait_prediction_clean, col_palette){
+  e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
 
-  # average for winners and losers
-  traits_wl <- traits |> 
-    filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |>
-    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    group_by(origSiteID, status2, trait_trans, figure_names, Nitrogen_log, warming, grazing) |> 
-    summarise(mean = mean(mean))
+  trait_pca[[1]] |>
+    ggplot(aes(x = PC1, y = PC2, colour = warming, fill = warming, shape = grazing, size = Nitrogen_log)) +
+    geom_point(alpha = 0.5) +
+    geom_segment(data = trait_pca[[2]],
+                 aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                 arrow = arrow(length = unit(0.2, "cm")),
+                 inherit.aes = FALSE, colour = "grey60") +
+    geom_text(data = trait_pca[[2]] |>
+                mutate(figure_names = case_match(figure_names,
+                                                 "Plant~height~(cm)" ~ "Height~(cm)",
+                                                 "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                 "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                 "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                 .default = figure_names)),
+                      #  PC2 = case_when(label == "leaf_area_cm2_log" ~ -0.2,
+                      #                  label == "leaf~dry~mass~(g)" ~ -0.1,
+                      #                  label == "sla_cm2_g" ~ -1.1,
+                      #                  TRUE ~ PC2),
+                      #  PC1 = case_when(label == "leaf_thickness_mm_log" ~ 0.7,
+                      #                  TRUE ~ PC1)),
+              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+              size = 3,
+              inherit.aes = FALSE,
+              show.legend = FALSE, parse = TRUE) +
+    coord_equal() +
+    scale_fill_manual(name = "Warming", values = color_warm) +
+    scale_colour_manual(name = "Warming", values = color_warm) +
+    scale_shape_manual(name = "Clipping", values = c(21, 22, 24)) +
+    labs(title = title,
+         x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+         y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+    theme_bw()
 
-  prediction_h <- trait_prediction_clean |> 
-    filter(trait_trans %in% c("plant_height_cm_log")) |>
-    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing, Nitrogen_log) |> 
-    summarise(fit = mean(fit))
-
-  prediction_t <- trait_prediction_clean |> 
-    filter(trait_trans %in% c("temperature")) |>
-    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    group_by(origSiteID, status2, trait_trans, figure_names, warming, grazing, Nitrogen_log) |> 
-    summarise(fit = mean(fit))
-    
-  # figure text
-  max_y <- traits_wl |>
-    group_by(figure_names) |>
-    summarise(y_max = max(mean, na.rm = TRUE), .groups = "drop")
-  
-  
-  traits_text <- traits_stats |>
-    filter(p.value <= 0.05) |>
-    filter(trait_trans %in% c("plant_height_cm_log", "temperature")) |> 
-    filter(status2 == "loser", origSiteID == "Sub-alpine") |> 
-    mutate(nr = 1:n(), .by = c(origSiteID, status2, trait_trans, figure_names)) |>
-    left_join(max_y, by = c("figure_names")) |>
-    mutate(x = if_else(origSiteID == "Alpine", -Inf, Inf),
-           y = y_max + nr * 0.05 * y_max,
-           hjust = if_else(origSiteID == "Alpine", 0, 1))
-  
-# Plant height
-height <- traits_wl |> 
-  filter(trait_trans == "plant_height_cm_log") |> 
-  ggplot(aes(
-    x = Nitrogen_log, 
-    y = mean,
-    linetype = grazing
-  )) +
-  
-  # Points: Warming colors (only for NxW, but also visible for N as grey)
-  geom_point(aes(shape = grazing,
-                 color = warming,)) +
-  
-  geom_line(data = prediction_h,
-    aes(y = fit, alpha = origSiteID),
-    linewidth = 0.5
-  ) +
-  
-  #geom_smooth(method = "lm", se = FALSE, colour = "grey40") +
-  
-  geom_text(
-    data = traits_text |> 
-      filter(trait_trans == "plant_height_cm_log"),
-    aes(x = x, y = y, label = term,
-        hjust = hjust),
-        alpha = 0.6,
-        inherit.aes = FALSE,
-        size = 3
-      ) +
-  
-  # Define color mapping
-  scale_colour_manual(
-      values = c(col_palette),
-      name = "Warming"
-    ) +
-  
-  scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-  
-  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
-  
-  scale_alpha_manual(values = c(1, 0.6)) +   
-      
-  labs(y = "Trait mean",
-       x = "Log(Nitrogen)") +
-  
-  facet_wrap(vars(figure_names),
-            labeller = label_parsed) +
-  
-  theme_bw()
-
-
-
-  # Temperature
- temp <- traits_wl |> 
-  filter(trait_trans == "temperature") |> 
-  ggplot(aes(
-    x = Nitrogen_log, 
-    y = mean,
-    color = warming,
-    linetype = grazing
-  )) +
-  
-  # Points: Warming colors (only for NxW, but also visible for N as grey)
-  geom_point(aes(shape = grazing)) +
-  
-  geom_line(data = prediction_t,
-    aes(y = fit, alpha = origSiteID),
-    linewidth = 0.5
-  ) +
-  
-  geom_text(
-    data = traits_text |> 
-      filter(trait_trans == "temperature",
-             term == "WxC"),
-    aes(x = x, y = y, label = term,
-        hjust = hjust),
-        alpha = 0.6,
-        inherit.aes = FALSE,
-        size = 3
-      ) +
-  
-  # Define color mapping
-  scale_colour_manual(
-      values = c(col_palette),
-      name = "Warming"
-    ) +
-  
-  scale_shape_manual(values = c(21, 22, 24, 23), name = "Grazing") +
-
-  scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
-  
-  scale_alpha_manual(values = c(1, 0.6)) +   
-      
-  labs(y = "Trait mean",
-       x = "Log(Nitrogen)") +
-  
-  facet_wrap(vars(figure_names),
-            labeller = label_parsed, 
-            scales = "free", nrow = 2) +
-  
-  theme_bw()
-
-  height / temp + plot_layout(guides = "collect")
 }
 
+# Make pca plot
+make_pca_plot_sites <- function(trait_pca, title = NULL, color_warm = NULL){
+
+  e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
+
+  # Create site_graz interaction and ensure correct order
+  plot_data <- trait_pca[[1]] |>
+    mutate(site_graz = paste(origSiteID, grazing, sep = "."),
+           site_graz = factor(site_graz, 
+                            levels = c("Alpine.Control", "Alpine.Medium", "Alpine.Intensive",
+                                     "Sub-alpine.Control", "Sub-alpine.Medium", "Sub-alpine.Intensive")))
+
+  # Create the plot
+  # Split data for filled and unfilled points
+  alpine_data <- plot_data |> filter(!str_detect(site_graz, "Sub-alpine"))
+  subalpine_data <- plot_data |> filter(str_detect(site_graz, "Sub-alpine"))
+  
+  # Create base plot
+  ggplot() +
+    # Add filled points for Alpine
+    geom_point(data = alpine_data,
+               aes(x = PC1, y = PC2, colour = warming, fill = warming, 
+                   shape = site_graz, size = Nitrogen_log),
+               alpha = 0.5) +
+    # Add unfilled points for Sub-alpine
+    geom_point(data = subalpine_data,
+               aes(x = PC1, y = PC2, colour = warming, 
+                   shape = site_graz, size = Nitrogen_log),
+               fill = "white",
+               alpha = 0.5) +
+    # Add arrows for trait loadings
+    geom_segment(data = trait_pca[[2]],
+                 aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                 arrow = arrow(length = unit(0.2, "cm")),
+                 inherit.aes = FALSE, colour = "grey60") +
+    # Add trait labels
+    geom_text(data = trait_pca[[2]] |>
+                mutate(figure_names = case_match(figure_names,
+                                                 "Plant~height~(cm)" ~ "Height~(cm)",
+                                                 "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                 "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                 "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                 .default = figure_names)),
+              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+              size = 3,
+              inherit.aes = FALSE,
+              show.legend = FALSE, parse = TRUE) +
+    # Scales and theme
+    coord_equal() +
+    scale_fill_manual(name = "Warming", values = color_warm) +
+    scale_colour_manual(name = "Warming", values = color_warm) +
+    scale_shape_manual(name = "Site & Clipping", 
+                      values = c("Alpine.Control" = 16,
+                                "Alpine.Medium" = 15, 
+                                "Alpine.Intensive" = 17,
+                                "Sub-alpine.Control" = 21,
+                                "Sub-alpine.Medium" = 22, 
+                                "Sub-alpine.Intensive" = 24)) +
+    labs(title = title,
+         x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+         y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+    theme_bw() +
+    guides(size = guide_legend(title = "Nitrogen (kg/ha/y)"))
+
+}
 
 
 # Ridgeline plot function for trait distributions
-make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL) {
+make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL, figure_names_order = NULL) {
   
   # Check if ggridges package is available
   if (!requireNamespace("ggridges", quietly = TRUE)) {
@@ -321,6 +185,12 @@ make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_b
     plot_data <- data
     y_var <- group_var
     fill_var <- group_var
+  }
+  
+  # Apply custom figure_names order if provided
+  if (!is.null(figure_names_order) && "figure_names" %in% names(plot_data)) {
+    plot_data <- plot_data |>
+      mutate(figure_names = factor(figure_names, levels = figure_names_order))
   }
   
   # Create the ridgeline plot
@@ -394,13 +264,30 @@ add_significance_stars <- function(plot, trait_stats, treatment_type) {
         trait_trans == "moisture" ~ "Moisture",
         trait_trans == "nutrients" ~ "Nutrients",
         trait_trans == "reaction" ~ "Reaction",
-        trait_trans == "salinity" ~ "Salinity",
         TRUE ~ trait_trans
       ),
       # Add positioning variables
       x = Inf,
       y = Inf
     )
+  
+  # Extract factor levels from the original plot to preserve facet ordering
+  # Get the data from the plot's layers to find the factor levels
+  plot_data <- ggplot_build(plot)$data[[1]]  # Get data from the first layer
+  if ("PANEL" %in% names(plot_data)) {
+    # Extract the facet levels from the plot
+    facet_levels <- levels(plot_data$PANEL)
+    # Convert panel names back to figure_names (this assumes the facet structure)
+    # We need to get the actual figure_names levels from the original data
+    original_data <- plot$data
+    if ("figure_names" %in% names(original_data)) {
+      figure_names_levels <- levels(original_data$figure_names)
+      if (!is.null(figure_names_levels)) {
+        annotation_data <- annotation_data |>
+          mutate(figure_names = factor(figure_names, levels = figure_names_levels))
+      }
+    }
+  }
   
   # Add significance stars to the plot
   plot_with_stars <- plot +

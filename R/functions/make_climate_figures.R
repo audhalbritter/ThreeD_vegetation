@@ -32,8 +32,8 @@ make_climate_figure <- function(dat1,
     # scales
     scale_colour_manual(name = "Warming", values = colourpalette) +
     scale_fill_manual(name = "Warming", values = colourpalette) +
-    scale_linetype_manual(name = "Grazing", values = linetypepalette) +
-    scale_shape_manual(name = "Grazing", values = shapepalette) +
+    scale_linetype_manual(name = "Clipping", values = linetypepalette) +
+    scale_shape_manual(name = "Clipping", values = shapepalette) +
     # change labels to real values
     scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
     # facet

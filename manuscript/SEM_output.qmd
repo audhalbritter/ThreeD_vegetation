@@ -42,11 +42,11 @@ div <- biomass_div |>
 
 <!--# Should I mention the main effects only first, since there are interactions in the alpine site -->
 
-Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) than the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition, and clipping (@fig-1-biomass-diversity). At both sites, warming (W) and nitrogen addition (N) significantly increased standing biomass, while clipping (C) reduced standing biomass. Standing biomass was co-limited by warming and nitrogen addition at the alpine site (WxN interaction; Supplementary Table S4). Clipping decreased standing biomass more with warming (WxC) and with nitrogen addition (NxC). At the sub-alpine site, standing biomass increased with warming and nitrogen addition, and decreased with clipping, but we found no interactive effects.
+Standing biomass was twice as high at the sub-alpine (`r bio$mean[2]` ± `r bio$se[2]` g m^-2^) than the alpine site (`r bio$mean[1]` ± `r bio$se[1]` g m^-2^), and was affected by all three global change drivers, warming, nitrogen addition, and clipping (@fig-1-biomass-diversity; Supplementary Table S4). At both sites, warming (W) and nitrogen addition (N) significantly increased standing biomass, while clipping (C) reduced standing biomass. Standing biomass was co-limited by warming and nitrogen addition at the alpine site (WxN interaction). Clipping decreased standing biomass more with warming (WxC) and with nitrogen addition (NxC). At the sub-alpine site, standing biomass increased with warming and nitrogen addition, and decreased with clipping, but we found no interactive effects.
 
 Shannon diversity was 1.5 times higher at the alpine (`r div$mean[1]` ± `r div$se[1]`) than the sub-alpine site (`r div$mean[2]` ± `r div$se[2]`). At the alpine site, the combination of warming and nitrogen addition increased Shannon diversity when little nitrogen was added, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity; Supplementary Table S4). Clipping could mitigate the negative effects of warming and nitrogen addition on diversity at the higher levels of nitrogen addition (WxNxC). At the sub-alpine site, warming and nitrogen addition had a negative effect on diversity and again increasingly at higher nitrogen levels (\> 25 kg N ha^-1^ y^-1^ ). There was no effect of clipping or interactive effects at the sub-alpine site.
 
-We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplemenatry Figure S5). Species richness decreased with warming and nitrogen addition at both sites, but clipping had no effect. The same pattern was found for evenness at the alpine site, but clipping could mitigate the negative impacts of warming and nitrogen addition at higher nitrogen levels (WxNxC). At the sub-alpine site, evenness decreased with nitrogen addition, but warming and clipping had no effect.
+We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplementary Table S4; Supplemenatry Figure S5). Species richness decreased with warming and nitrogen addition at both sites, but clipping had no effect. The same pattern was found for evenness at the alpine site, but clipping could mitigate the negative impacts of warming and nitrogen addition at higher nitrogen levels (WxNxC). At the sub-alpine site, evenness decreased with nitrogen addition, but warming and clipping had no effect.
 
 ```{r}
 #| label: fig-1-biomass-diversity
@@ -55,58 +55,28 @@ We found similar patterns for the impact of the three global change drivers on s
 #| warning: false
 #| fig-width: 8
 #| fig-height: 7.5
-#| fig-cap: Standing biomass (g m^-2^) (a) and Shannon diversity (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters within panels indicate significant (black) model terms (W = warming, N = nitrogen addition, C = clipping, S = site, combined letters, e.g. WxC = interactions).
+#| fig-cap: Standing biomass (g m^-2^) (a) and Shannon diversity (b) with increasing nitrogen addition (kg N ha^-1^ y^-1^) in the alpine (upper row) and sub-alpine (lower row) sites. The x axis is log transformed, the numbers are on the original scale for ease of interpretation. The colors indicate ambient (grey) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, triangle = intensive clipping). The points show the raw data, while the lines indicate model predictions with confidence intervals. The capital letters (black) within panels indicate significant model terms (W = warming, N = nitrogen addition, C = clipping, S = site, combined letters, e.g. WxC = interactions). Letters in grey indicate almost significant model terms (0.05 > *P* < 0.07).
 
 tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-To illustrate the relationship between standing biomass and Shannon diversity we plotted these variables including the three global change drivers (@fig-bio-div; @tbl-bio-div). We find that this relationship is only significant at the sub-alpine site (alpine: F<sub>1, 70</sub> = 1.43, *P* = 0.236, sub-alpine: F<sub>1, 70</sub> = 8.38, *P* = 0.005).
+To illustrate the relationship between standing biomass and Shannon diversity we plotted these variables including the three global change drivers (@fig-bio-div).
 
 ```{r}
 #| label: fig-bio-div
 #| echo: false
 #| warning: false
-#| fig-height: 10
-#| fig-cap: Relationship of change in standing biomass and Shannon diversity. The colors indicate ambient (grey) and warm conditions (pink) and the shapes show the different grazing treatments (circle = control, square = medium, triangle = intensive grazing, diamond = natural grazing). Filled symbols are from the alpine site and open symbols from the sub-alpine site. The lines show the prediction line of the model for the alpine (solid) and sub-alpine site (dashed).
+#| fig-height: 5
+#| fig-cap: Relationship of change in standing biomass and Shannon diversity at the alpine and sub-alpine site. The colors indicate ambient (grey) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, and triangle = intensive clipping). The size of the symbols indicate the nitrogen addition level.
 
-tar_read(standingB_div_final_figure, store = here::here(tar_config_get("store")))
-
-```
-
-```{r}
-#| label: tbl-bio-div
-#| echo: false
-#| eval: false
-#| warning: false
-#| tbl-cap: Model output for the relationship between standing biomass and Shannon diversity.
-
-tar_load(standingB_div_final_model, store = here::here(tar_config_get("store")))
-
-standingB_div_final_result |> 
-  select("Term" = term, "Sum of squares" = sumsq, df, `F` = statistic, `P` = p.value) |>
-  gt() |> 
-  gt::fmt_number(columns = c("Sum of squares", F), decimals = 2) |> 
-  gt::fmt_number(columns = c(P), decimals = 3) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = c(Term, "Sum of squares", df, F, P))) |> 
-    tab_style(
-          style = list(
-            cell_text(weight = "bold")
-          ),
-          locations = cells_body(
-            columns = c(Term, "Sum of squares", df, F, P),
-            rows = P <= 0.05
-          ))
+tar_read(standingB_div_final_figure)
 
 ```
 
 ### Do global change drivers operate on diversity through the same mechanisms?
 
-To test if warming, nitrogen addition and clipping to operate on Shannon diversity through the same mechanisms, namely standing biomass (H1), we ran a structural equation model. Warming and nitrogen addition had the expected positive effect on standing biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b; Supplementary Table S4). The three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. Interestingly, warming also had a direct positive effect on diversity. Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity. However, warming and nitrogen addition had a direct negative effect on diversity.
+To test if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely standing biomass (H1), we ran structural equation models. Warming and nitrogen addition had the expected positive effect on standing biomass, while clipping had a negative effect at both sites (@fig-cut-final-diversity a and b; Supplementary Table S4). The three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. Interestingly, warming also had a direct positive effect on diversity. Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity. However, warming and nitrogen addition had a direct negative effect on diversity.
 
 ```{r}
 #| label: fig-cut-final-diversity
@@ -114,7 +84,7 @@ To test if warming, nitrogen addition and clipping to operate on Shannon diversi
 #| message: false
 #| fig-width: 10
 #| fig-height: 5
-#| fig-cap: Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on Shannon diversity a) for the alpine and b) sub-alpine site. The numbers indicate the regression coefficients, the linetype shows the strength (solid = significant, thick dashed = trend, and thin dashed = non-significant), and the colour the direction of the effect (blue = positive, red = negative). 
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on Shannon diversity for the a) alpine and b) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. The linetype and colours shows the strength and direction of the effect (solid coloured = positive and significant, dashed coloured = negative and significant, and dot-dashed grey = negative and non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, dark green = nitrogen, yellow = clipping, light green = biomass, grey = diversity."
 
 tar_load(cut_final_diversity)
 
@@ -122,17 +92,129 @@ cut_final_diversity[[1]]
 
 ```
 
-The patterns were very similar for the other two diversity indices (Supplementary Figures S6 and S7). There was a large indirect effect via standing biomass on species richness at the alpine site, but it was not significant. In addition, there was a trend for a direct effect of nitrogen addition on richness. Evenness had a direct effect of cutting on evenness instead of warming at the sub-alpine site.
+We found similar but weaker patterns for species richness and evenness (Supplementary Figures S6). There was a large indirect effect via standing biomass on species richness at the alpine site, but it was not significant. In addition, evenness had a direct effect of clipping on evenness.
 
-*(Maybe drop the grazing, since it does not show very similar patterns?):* At alpine site no indirect effects via biomass, at sub-alpine site warming has no direct effect on biomass (Supplementary Figures S8-10).
-
-### Trait responses to global change and increase in standing biomass
+### Trait responses to global change and increase in standing biomass (text not edited!!!)
 
 At the alpine site, all traits except moisture responded to warming. The light requirement and reaction (pH) value decreased with warming, while plant height, nutrient, salinity and temperature increased with warming. Reaction decreased with increasing nitrogen addition. The traits showed similar response to increase in standing biomass as to warming, but moisture also increased and salinity was not significant. No trait in the alpine responded to grazing.
 
 At the sub-alpine site, less traits responded to the global change drivers and biomass. Plant height and moisture increased with warming. Light, reaction (pH), and salinity decreased and temperature increased with nitrogen addition. Plant height decreased with grazing intensity. Light, pH and temperature decreased with increasing standing biomass, while moisture and plant height increased.
 
-### Warming
+#### Affinity and trait PCA
+
+```{r}
+#| label: fig-affinity-pca
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: "Multivariate community-weighted mean affinity responses to warming, clipping and and nitrogen addition, determined by a principal component analysis (PCA). The PCA was conducted for the alpine and sub-alpine site together. The plant community originating from the alpine (filled symbols) and sub-alpine (open symbols) sites are shown. The colour represents the warming treatment (grey = ambient, red = warming) and the shape the clipping treatment (circle = control, square = medium, triangle = intensive clipping), and the point size indicates nitrogen addition level. Affinities include plant height, temperature, light, moisture, nutrients, reaction. Arrows show trait loadings on the first two principal components."
+
+tar_load(affinity_pca_plot)
+
+affinity_pca_plot
+
+```
+
+### 
+
+#### 
+
+```{r}
+#| label: fig-trait-pca
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: "Multivariate community-weighted mean trait responses to warming, clipping and and nitrogen addition, determined by a principal component analysis (PCA). The PCA was conducted for the alpine and sub-alpine site together. The plant community originating from the alpine (filled symbols) and sub-alpine (open symbols) sites are shown. The colour represents the warming treatment (grey = ambient, red = warming) and the shape the clipping treatment (circle = control, square = medium, triangle = intensive clipping), and the point size indicates nitrogen addition level. Traits include plant height, leaf dry mass, leaf area, leaf thickness, specific leaf area, and leaf dry matter content. Arrows show trait loadings on the first two principal components."
+
+tar_load(trait_pca_plot)
+
+trait_pca_plot
+
+```
+
+```{r}
+#| label: fig-trait-pca2
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 12
+#| fig-height: 10
+#| fig-cap: "Multivariate community-weighted mean affinity (a and b) and trait (c and d)responses to warming, clipping and and nitrogen addition, determined by a principal component analysis (PCA). The PCA was conducted for the alpine and sub-alpine site separately. The plant community originating from the alpine (filled symbols) and sub-alpine (open symbols) sites are shown. The colour represents the warming treatment (grey = ambient, red = warming) and the shape the clipping treatment (circle = control, square = medium, triangle = intensive clipping), and the point size indicates nitrogen addition level. Affinities include plant height, temperature, light, moisture, nutrients, reaction. Traits include plant height, leaf dry mass, leaf area, leaf thickness, specific leaf area, and leaf dry matter content. Arrows show trait loadings on the first two principal components."
+
+tar_load(trait_pca_plot_single)
+
+trait_pca_plot_single
+
+```
+
+### 
+
+#### Affinity SEM
+
+```{r}
+#| label: fig-cut-affinity
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on affinity PCA 1 scores for the a) alpine and b) sub-alpine site and the affinity PCA 2 scores for the c) alpine and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. The linetype and colours shows the strength and direction of the effect (solid coloured = positive and significant, dashed coloured = negative and significant, and dot-dashed grey = negative and non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, dark green = nitrogen, yellow = clipping, light green = biomass, grey = diversity."
+
+tar_load(cut_affinity)
+
+cut_affinity[[1]]
+
+```
+
+```{r}
+#| label: fig-cut-affinity2
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: SEM affinity for PCA done separately for alpine and sub-alpine site.
+
+tar_load(cut_affinity2)
+
+cut_affinity2[[1]]
+
+```
+
+
+#### Trait SEM
+
+```{r}
+#| label: fig-cut-traits
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on traits PCA 1 scores for the a) alpine and b) sub-alpine site and the traits PCA 2 scores for the c) alpine and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. The linetype and colours shows the strength and direction of the effect (solid coloured = positive and significant, dashed coloured = negative and significant, and dot-dashed grey = negative and non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, dark green = nitrogen, yellow = clipping, light green = biomass, grey = diversity."
+
+tar_load(cut_traits)
+
+cut_traits[[1]]
+
+```
+
+```{r}
+#| label: fig-cut-traits2
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: SEM for traits. PCA done separately for alpine and sub-alpine site.
+
+tar_load(cut_traits2)
+
+cut_traits[[1]]
+
+```
+
+### Affinity distributions: warming
 
 ```{r}
 #| label: fig-traits-warming
@@ -205,5 +287,3 @@ tar_load(trait_stats_table)
 trait_stats_table
 
 ```
-
-###

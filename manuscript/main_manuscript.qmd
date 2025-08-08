@@ -59,8 +59,7 @@ abstract: >
   Warming and nitrogen addition increased standing biomass resulting in a negative net effect on diversity. 
   Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity.
   The effect of grazing operated through standing biomass independent of site, however only in the alpine site under warming, grazing could mitigate negative impacts of the other drivers.
-  Overall, our study showed that ... mechanisms more complex and works when resources are limited, something on help making management decisions.
-  
+  Overall, our study showed that global change drivers operate through similar mechanisms when resources are limited, which can help inform management decisions.
 
 keywords:
   - adaptive management
