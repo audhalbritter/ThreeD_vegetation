@@ -1,5 +1,5 @@
 ---
-title: "Global change impacts alpine grasslands through the same mechanisms"
+title: "Multiple global change drivers impacts alpine grasslands through standing biomass / the same mechanisms"
 author: 
   - name: Aud H. Halbritter
     orcid: 0000-0003-2597-6328
