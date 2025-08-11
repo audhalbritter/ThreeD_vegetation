@@ -111,6 +111,19 @@ download_plan <- list(
     },
     format = "file"
   ),
+  
+  # disturbance indicator values
+  tar_target(
+    name = disturbance_download,
+    command =  {
+      url <- "https://zenodo.org/records/7116957/files/disturbance_indicator_values.csv?download=1"
+      destfile <- "data/disturbance_indicator_values.csv"  # Local file name
+      download.file(url, destfile, mode = "wb")
+      # print path to file
+      destfile
+    },
+    format = "file"
+  ),
 
   # import and transform in data
   # climate
@@ -170,11 +183,17 @@ download_plan <- list(
     command = read_delim(file = trait_download, delim = ",")
   ),
 
-  # traits
+  # affinities
   tar_target(
     name = ellenberg_raw,
     command = read_xlsx(path = ellenberg_download,
                         sheet = "Tab-IVs-Tichy-et-al2023")
+  ),
+
+  # disturbance indicator values
+  tar_target(
+    name = disturbance_raw,
+    command = read_csv(disturbance_download, show_col_types = FALSE)
   )
 
 )
