@@ -8,16 +8,10 @@ si_figure_plan <- list(
   # ),
 
   # Gauguin colour palette
-# Egypt
-# Java
-# Morgenstern
-# Veronese
-
   tar_target(
     name = treatment_palette,
-    # colours for treatments: 1 = grey (control), 2 = red (warming), 3 = yellow (clipping), 4 = light green (...), 5 = green (nitrogen), 6 = blue (biomass)
-      #c("grey40", "#67322e" "#99610a" "#6e948c" "#2c6b67" "#122c43")
-    command = c("grey60", MetBrewer::met.brewer(name="Veronese", n=5, type="discrete"))
+    # colours for treatments: 1 = black (control), 2 = pink (warming), 3 = yellow (clipping), 4 = green (nitrogen), 5 = blue (biomass) ("#2f70a1", "#0a3351")
+    command = c("grey20", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"), "#2f70a1")
   ),
 
   tar_target(
@@ -26,8 +20,13 @@ si_figure_plan <- list(
   ),
 
   tar_target(
+    name = biomass_palette,
+    command = c(MetBrewer::met.brewer(name="Hokusai2", n=5, type="discrete"))
+  ),
+
+  tar_target(
     name = nitrogen_palette,
-    command = c(MetBrewer::met.brewer(name="Hokusai2", n=7, type="continuous"))
+    command = c(MetBrewer::met.brewer(name="VanGogh3", n=7, type="discrete"))
   ),
 
     tar_target(
