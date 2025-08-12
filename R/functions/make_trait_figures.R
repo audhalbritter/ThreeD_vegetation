@@ -1,5 +1,8 @@
 # Make trait figures  
 
+# Load required libraries
+library(cowplot)
+
 ### TRAIT PCA ###
 
 # Make pca
@@ -61,12 +64,10 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
                                                  "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
                                                  .default = figure_names)),
                       #  PC2 = case_when(label == "leaf_area_cm2_log" ~ -0.2,
-                      #                  label == "leaf~dry~mass~(g)" ~ -0.1,
-                      #                  label == "sla_cm2_g" ~ -1.1,
                       #                  TRUE ~ PC2),
                       #  PC1 = case_when(label == "leaf_thickness_mm_log" ~ 0.7,
                       #                  TRUE ~ PC1)),
-              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+              aes(x = PC1 + 0.1, y = PC2 + 0.1, label = figure_names),
               size = 3,
               inherit.aes = FALSE,
               show.legend = FALSE, parse = TRUE) +
@@ -82,79 +83,103 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
 }
 
 # Make pca plot
-make_pca_plot_sites <- function(trait_pca, title = NULL, color_warm = NULL){
+make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL){
 
   e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
 
-  # Create site_graz interaction and ensure correct order
-  plot_data <- trait_pca[[1]] |>
-    mutate(site_graz = paste(origSiteID, grazing, sep = "."),
-           site_graz = factor(site_graz, 
-                            levels = c("Alpine.Control", "Alpine.Medium", "Alpine.Intensive",
-                                     "Sub-alpine.Control", "Sub-alpine.Medium", "Sub-alpine.Intensive")))
-
-  # Create the plot
-  # Split data for filled and unfilled points
-  alpine_data <- plot_data |> filter(!str_detect(site_graz, "Sub-alpine"))
-  subalpine_data <- plot_data |> filter(str_detect(site_graz, "Sub-alpine"))
+      # Create first plot (original with warming/clipping)
+    plot1 <- ggplot(data = trait_pca[[1]], 
+                     aes(x = PC1, y = PC2, 
+                     colour = warming, 
+                     shape = grazing,
+                     fill = after_scale(colour),
+                     size = Nitrogen_log)) +
+      geom_point(aes(alpha = origSiteID)) +
+      geom_point(fill = "#00000000", show.legend = FALSE) + # hack to get outline back
+      # Add arrows for trait loadings
+      geom_segment(data = trait_pca[[2]],
+                   aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                   arrow = arrow(length = unit(0.2, "cm")),
+                   inherit.aes = FALSE, colour = "grey60") +
+      # Add trait labels
+      geom_text(data = trait_pca[[2]] |>
+                  mutate(figure_names = case_match(figure_names,
+                                                   "Plant~height~(cm)" ~ "Height~(cm)",
+                                                   "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                   "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                   "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                   .default = figure_names)),
+                aes(x = PC1 + 0.1, y = PC2 + 0.1, label = figure_names),
+                size = 3,
+                inherit.aes = FALSE,
+                show.legend = FALSE, parse = TRUE) +
+      # Scales and theme
+      coord_equal() +
+      scale_colour_manual(name = "Warming", values = color_warm) +
+      scale_shape_manual(values = c(24, 21, 25), name = "Clipping") +
+      scale_alpha_manual(values = c("Alpine" = 1, "Sub-alpine" = 0.2), name = "Site") +
+      labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+           y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+      theme_bw() +
+      theme(legend.position = "bottom",
+            legend.box="vertical")
   
-  # Create base plot
-  ggplot() +
-    # Add filled points for Alpine
-    geom_point(data = alpine_data,
-               aes(x = PC1, y = PC2, colour = warming, fill = warming, 
-                   shape = site_graz, size = Nitrogen_log),
-               alpha = 0.5) +
-    # Add unfilled points for Sub-alpine
-    geom_point(data = subalpine_data,
-               aes(x = PC1, y = PC2, colour = warming, 
-                   shape = site_graz, size = Nitrogen_log),
-               fill = "white",
-               alpha = 0.5) +
-    # Add arrows for trait loadings
-    geom_segment(data = trait_pca[[2]],
-                 aes(x = 0, y = 0, xend = PC1, yend = PC2),
-                 arrow = arrow(length = unit(0.2, "cm")),
-                 inherit.aes = FALSE, colour = "grey60") +
-    # Add trait labels
-    geom_text(data = trait_pca[[2]] |>
-                mutate(figure_names = case_match(figure_names,
-                                                 "Plant~height~(cm)" ~ "Height~(cm)",
-                                                 "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
-                                                 "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
-                                                 "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
-                                                 .default = figure_names)),
-              aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
-              size = 3,
-              inherit.aes = FALSE,
-              show.legend = FALSE, parse = TRUE) +
-    # Scales and theme
-    coord_equal() +
-    scale_fill_manual(name = "Warming", values = color_warm) +
-    scale_colour_manual(name = "Warming", values = color_warm) +
-    scale_shape_manual(name = "Site & Clipping", 
-                      values = c("Alpine.Control" = 16,
-                                "Alpine.Medium" = 15, 
-                                "Alpine.Intensive" = 17,
-                                "Sub-alpine.Control" = 21,
-                                "Sub-alpine.Medium" = 22, 
-                                "Sub-alpine.Intensive" = 24)) +
-    labs(title = title,
-         x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
-         y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
-    theme_bw() +
-    guides(size = guide_legend(title = "Nitrogen (kg/ha/y)"))
+  # Create second plot with biomass coloring
+  if (!is.null(biomass_div)) {
+    # Join biomass data to trait PCA data
+    plot_data_biomass <- trait_pca[[1]] |>
+      left_join(biomass_div |> 
+                  select(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log, final_bio),
+                by = c("origSiteID", "warming", "grazing", "grazing_num", "Nlevel", "Namount_kg_ha_y", "Nitrogen_log"))
+    
+    plot2 <- ggplot() +
+      # Add points colored by biomass
+      geom_point(data = plot_data_biomass,
+                 aes(x = PC1, y = PC2, colour = final_bio),
+                 size = 2, alpha = 0.7) +
+      # Add arrows for trait loadings
+      geom_segment(data = trait_pca[[2]],
+                   aes(x = 0, y = 0, xend = PC1, yend = PC2),
+                   arrow = arrow(length = unit(0.2, "cm")),
+                   inherit.aes = FALSE, colour = "grey60") +
+      # Add trait labels
+      geom_text(data = trait_pca[[2]] |>
+                  mutate(figure_names = case_match(figure_names,
+                                                   "Plant~height~(cm)" ~ "Height~(cm)",
+                                                   "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
+                                                   "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
+                                                   "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
+                                                   .default = figure_names)),
+                aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+                size = 3,
+                inherit.aes = FALSE,
+                show.legend = FALSE, parse = TRUE) +
+      # Scales and theme
+      coord_equal() +
+      scale_colour_gradientn(colours = MetBrewer::met.brewer(name="Hokusai2", n=5, type="continuous"), 
+                            name = "Biomass (g/m²)") +
+      labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
+           y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
+      theme_bw() +
+      theme(legend.position = "bottom")
+    
+    # Combine both plots side by side with tags
+    final_plot <- plot1 + plot2 +
+      plot_annotation(tag_levels = list(c('a) Treatments', 'b) Standing biomass'))) &
+      theme(plot.tag.position = c(0, 1),
+            plot.tag = element_text(size = 12, hjust = 0, vjust = -0.8))
+    
+    return(final_plot)
+  } else {
+    # Return only the first plot if no biomass data provided
+    return(plot1)
+  }
 
 }
 
 
 # Ridgeline plot function for trait distributions
-make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL, figure_names_order = NULL) {
-  
-  # Check if ggridges package is available
-  if (!requireNamespace("ggridges", quietly = TRUE)) {
-    stop("Package 'ggridges' is required for ridgeline plots. Please install it with: install.packages('ggridges')")
-  }
+make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_bins = 5, y_axis_label = NULL, figure_names_order = NULL, legend_name = NULL) {
   
   # Validate input
   if (!group_var %in% names(data)) {
@@ -225,8 +250,8 @@ make_trait_ridgeline_plot <- function(data, group_var, custom_colors = NULL, n_b
   # Add custom colors if provided
   if (!is.null(custom_colors)) {
     plot <- plot + 
-      scale_fill_manual(values = custom_colors) +
-      scale_color_manual(values = custom_colors)
+      scale_fill_manual(values = custom_colors, name = legend_name) +
+      scale_color_manual(values = custom_colors, name = legend_name)
   }
   
   return(plot)
@@ -264,6 +289,8 @@ add_significance_stars <- function(plot, trait_stats, treatment_type) {
         trait_trans == "moisture" ~ "Moisture",
         trait_trans == "nutrients" ~ "Nutrients",
         trait_trans == "reaction" ~ "Reaction",
+        trait_trans == "mowing_frequency" ~ "Mowing",
+        trait_trans == "grazing_pressure" ~ "Grazing",
         TRUE ~ trait_trans
       ),
       # Add positioning variables
