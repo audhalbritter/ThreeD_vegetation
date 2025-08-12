@@ -1,6 +1,6 @@
 # trait bootstrapping functions
 
-make_trait_impute <- function(cover_total, trait_raw, ellenberg){
+make_trait_impute <- function(cover_total, trait_raw, affinity){
 
   #prepare community data
   comm <- cover_total |> 
@@ -42,7 +42,7 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
                                    grazing == "Natural" ~ 2))
 
   #prepare trait data
-  trait <- trait_raw |> 
+  trait_wide <- trait_raw |> 
     tidylog::filter(siteID != "Hogsete",
                     !(siteID == "Vikesland" & gradient == "gradient") | is.na(gradient)) |>
     select(-gradient) |>
@@ -125,16 +125,19 @@ make_trait_impute <- function(cover_total, trait_raw, ellenberg){
     # remove 27 accidental some observations with warm, grazing and N5
     filter(!is.na(treatment)) |>
 
-    # add ellenberg
-    pivot_wider(names_from = trait_trans, values_from = value_trans) |>
-    # add ellenberg values
-    tidylog::left_join(ellenberg, by = "species") |>
-    pivot_longer(cols = c(plant_height_cm_log:sla_cm2_g, light:salinity),
+    # add envrionmental and disturbance affinities
+    pivot_wider(names_from = trait_trans, values_from = value_trans)
+    
+    
+    # add affinities
+  trait <- trait_wide |>
+    tidylog::left_join(affinity, by = "species") |> 
+    pivot_longer(cols = c(plant_height_cm_log:sla_cm2_g, light:grazing_pressure),
                  names_to = "trait_trans",
                  values_to = "value_trans") |>
 
     # remove NAs from data
-    filter(!is.na(value_trans)) |>
+    filter(!is.na(value_trans)) |> 
 
     select(siteID, blockID, turfID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log, treatment, species, trait_trans, value_trans, origSiteID, destSiteID)
 
@@ -173,7 +176,9 @@ fancy_trait_name_dictionary <- function(dat){
                                     "nutrients" ~ "Nutrients",
                                     "moisture" ~ "Moisture",
                                     "salinity" ~ "Salinity",
-                                    "reaction" ~ "Reaction")) |>
+                                    "reaction" ~ "Reaction",
+                                    "mowing_frequency" ~ "Mowing",
+                                    "grazing_pressure" ~ "Grazing")) |>
     mutate(figure_names = case_match(trait_trans,
                                      "plant_height_cm_log" ~ "Plant~height~(cm)",
                                      "dry_mass_g_log" ~ "Leaf~dry~mass~(g)",
@@ -186,7 +191,9 @@ fancy_trait_name_dictionary <- function(dat){
                                      "nutrients" ~ "Nutrients",
                                      "moisture" ~ "Moisture",
                                      "salinity" ~ "Salinity",
-                                     "reaction" ~ "Reaction")) |>
+                                     "reaction" ~ "Reaction",
+                                    "mowing_frequency" ~ "Mowing",
+                                    "grazing_pressure" ~ "Grazing")) |>
     mutate(figure_names = factor(figure_names,
                                  levels = c("Plant~height~(cm)",
                                             "Leaf~dry~mass~(g)",
@@ -199,7 +206,9 @@ fancy_trait_name_dictionary <- function(dat){
                                             "Nutrients",
                                             "Moisture",
                                             "Salinity",
-                                            "Reaction")))
+                                            "Reaction",
+                                            "Mowing",
+                                            "Grazing")))
 
 }
 
@@ -221,7 +230,7 @@ make_bootstrapping <- function(trait_impute){
 
 # Test treatment effects on traits
 test_treatment_effects <- function(data, biomass_data, 
-traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction")) {
+traits = c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure")) {
   
   # Filter data for specified traits
   trait_data <- data |>
