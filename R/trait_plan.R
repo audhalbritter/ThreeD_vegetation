@@ -18,11 +18,12 @@ trait_plan <- list(
   ),
 
   # make trait pca's
+  #"mowing_frequency", 
   tar_target(
     name = affinity_pca,
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
-                            filter(trait_trans %in% c("plant_height_cm_log","temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"))
+                            filter(trait_trans %in% c("plant_height_cm_log","temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -31,7 +32,7 @@ trait_plan <- list(
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Alpine") |>
-                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"))
+                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -40,7 +41,7 @@ trait_plan <- list(
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Sub-alpine") |>
-                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"))
+                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -94,7 +95,7 @@ trait_plan <- list(
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
                                                 custom_colors = nitrogen_palette,
-                                                y_axis_label = "Nitrogen",
+                                                y_axis_label = bquote(Nitrogen~addition~(kg~ha^-1~y^-1)),
                                                 legend_name = "Nitrogen",
                                                 figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
