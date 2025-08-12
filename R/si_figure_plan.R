@@ -158,8 +158,8 @@ si_figure_plan <- list(
           group_by(siteID, treatment, plot_nr) |>
           summarise(sum = sum(productivity_g_m2)) |>
           ggplot(aes(x = siteID, y = sum, fill = treatment)) +
-          geom_boxplot() +
-          scale_fill_manual(name = "", values = c("#E9BD7F", "grey30")) +
+          geom_violin() +
+          scale_fill_manual(name = "", values = treatment_palette[c(3, 1)]) +
           labs(y = bquote(Annual~productivity~g~m^-2~y^-1),
                x = "",
                tag = "a)") +
@@ -169,7 +169,7 @@ si_figure_plan <- list(
       plot4 <- consumption |>
         ggplot(aes(x = siteID, y = Consumption)) +
         geom_hline(yintercept = 0, colour = "grey70") +
-        geom_boxplot(fill = "#E9BD7F") +
+        geom_violin(fill = treatment_palette[c(3)]) +
         labs(y = bquote(Annual~biomass~consumption~g~m^-2~y-1),
              x = "",
              tag = "b)") +
