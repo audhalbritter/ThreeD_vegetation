@@ -51,7 +51,7 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
 
   trait_pca[[1]] |>
     ggplot(aes(x = PC1, y = PC2, colour = warming, fill = warming, shape = grazing, size = Nitrogen_log)) +
-    geom_point(alpha = 0.5) +
+    geom_point(alpha = 0.70) +
     geom_segment(data = trait_pca[[2]],
                  aes(x = 0, y = 0, xend = PC1, yend = PC2),
                  arrow = arrow(length = unit(0.2, "cm")),
@@ -87,6 +87,14 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
 
   e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
 
+  # Calculate axis limits for both plots to be the same
+  pc1_range <- range(trait_pca[[1]]$PC1, trait_pca[[2]]$PC1)
+  pc2_range <- range(trait_pca[[1]]$PC2, trait_pca[[2]]$PC2)
+  
+  # Add some padding to the ranges
+  pc1_limits <- c(pc1_range[1] - 0.1, pc1_range[2] + 0.1)
+  pc2_limits <- c(pc2_range[1] - 0.1, pc2_range[2] + 0.1)
+
       # Create first plot (original with warming/clipping)
     plot1 <- ggplot(data = trait_pca[[1]], 
                      aes(x = PC1, y = PC2, 
@@ -109,15 +117,15 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                                                    "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
                                                    "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
                                                    .default = figure_names)),
-                aes(x = PC1 + 0.1, y = PC2 + 0.1, label = figure_names),
+                aes(x = PC1 + 0.3, y = PC2 + 0.1, label = figure_names),
                 size = 3,
                 inherit.aes = FALSE,
                 show.legend = FALSE, parse = TRUE) +
       # Scales and theme
-      coord_equal() +
+      coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
       scale_colour_manual(name = "Warming", values = color_warm) +
-      scale_shape_manual(values = c(24, 21, 25), name = "Clipping") +
-      scale_alpha_manual(values = c("Alpine" = 1, "Sub-alpine" = 0.2), name = "Site") +
+      scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
+      scale_alpha_manual(values = c("Alpine" = 0.75, "Sub-alpine" = 0.10), name = "Site") +
       labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
            y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
       theme_bw() +
@@ -155,7 +163,7 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                 inherit.aes = FALSE,
                 show.legend = FALSE, parse = TRUE) +
       # Scales and theme
-      coord_equal() +
+      coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
       scale_colour_gradientn(colours = MetBrewer::met.brewer(name="Hokusai2", n=5, type="continuous"), 
                             name = "Biomass (g/m²)") +
       labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
