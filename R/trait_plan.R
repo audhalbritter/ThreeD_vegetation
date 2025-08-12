@@ -54,10 +54,22 @@ trait_plan <- list(
   tar_target(
     name = affinity_pca_plot_single,
     command = {
-      # Create individual plots with tags
-              p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = warming_palette) + 
+      # Calculate axis limits across both PCA datasets
+      pc1_range <- range(affinity_alpine_pca[[1]]$PC1, affinity_alpine_pca[[2]]$PC1,
+                        affinity_subalpine_pca[[1]]$PC1, affinity_subalpine_pca[[2]]$PC1)
+      pc2_range <- range(affinity_alpine_pca[[1]]$PC2, affinity_alpine_pca[[2]]$PC2,
+                        affinity_subalpine_pca[[1]]$PC2, affinity_subalpine_pca[[2]]$PC2)
+      
+      # Add some padding to the ranges
+      pc1_limits <- c(pc1_range[1] - 0.1, pc1_range[2] + 0.1)
+      pc2_limits <- c(pc2_range[1] - 0.1, pc2_range[2] + 0.1)
+      
+      # Create individual plots with tags and consistent axis limits
+      p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = warming_palette) + 
+        coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
         labs(tag = "a)")
-              p2 <- make_pca_plot(affinity_subalpine_pca, title = "Affinity: sub-alpine", color_warm = warming_palette) + 
+      p2 <- make_pca_plot(affinity_subalpine_pca, title = "Affinity: sub-alpine", color_warm = warming_palette) + 
+        coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
         labs(tag = "b)")
       
       # Combine with patchwork
@@ -95,7 +107,7 @@ trait_plan <- list(
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
                                                 custom_colors = nitrogen_palette,
-                                                y_axis_label = bquote(Nitrogen~addition~(kg~ha^-1~y^-1)),
+                                                y_axis_label = expression(Nitrogen~addition~(kg~ha^-1~y^-1)),
                                                 legend_name = "Nitrogen",
                                                 figure_names_order = c("Plant~height~(cm)",
                                                "Light", "Temperature", "Nutrients", 
