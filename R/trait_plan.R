@@ -148,7 +148,7 @@ trait_plan <- list(
                                                 select(-year),
                                                 by = c("origSiteID", "warming", "grazing", "Namount_kg_ha_y", "Nitrogen_log", "Nlevel")), 
                                                 group_var = "biomass_log",
-                                                custom_colors = met.brewer(name="VanGogh3", n=5, type="discrete"),
+                                                custom_colors = met.brewer(name="Hokusai2", n=5, type="discrete"),
                                                 y_axis_label = "Log(Standing biomass)",
                                                 legend_name = "Biomass",
                                                 figure_names_order = c("Plant~height~(cm)",
