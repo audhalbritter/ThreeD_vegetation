@@ -61,9 +61,9 @@ tar_read(bio_div_figure, store = here::here(tar_config_get("store")))
 
 ```
 
-### Do global change drivers operate on diversity through the same mechanisms?
+### Do global change drivers operate on diversity and community composition through the same mechanisms?
 
-To test if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely standing biomass (H1), we ran structural equation models. Warming and nitrogen addition had the expected positive effect on standing biomass, while clipping had a negative effect at both sites (@fig-cut-final-diversity a and b; Supplementary Table S4). The three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. Interestingly, warming also had a direct positive effect on diversity. Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity. However, warming and nitrogen addition had a direct negative effect on diversity.
+To test if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely standing biomass (H1), we ran structural equation models. Warming and nitrogen addition had the expected positive effect on standing biomass, while clipping had a negative effect at both sites (@fig-cut-final-diversity a and b; Supplementary Table S4). The three global change drivers operated on diversity through standing biomass only at the alpine site and increased standing biomass resulted in a negative net effect on diversity. Interestingly, warming also had a direct positive effect on diversity. Contrary, at the sub-alpine site, the three global change drivers had the same effect on standing biomass, but did not indirectly affect diversity. While there seems to be a relationship between standing biomass and Shannon diversity at the sub-alpine site, there is considerable variation (@fig-bio-div) and other processes unrelated to competitive interactions might be more important. Warming and nitrogen addition had a direct negative effect on diversity.
 
 ```{r}
 #| label: fig-cut-final-diversity
@@ -79,9 +79,7 @@ cut_final_diversity[[1]]
 
 ```
 
-We found similar but weaker patterns for species richness and evenness (Supplementary Figures S6). There was a large indirect effect via standing biomass on species richness at the alpine site, but it was not significant. In addition, evenness had a direct effect of clipping on evenness.
-
-To illustrate the relationship between standing biomass and Shannon diversity we plotted these variables including the three global change drivers (@fig-bio-div).
+We found similar but weaker patterns for species richness and evenness (Supplementary Figures S6). For example, the indirect effect on species richness via standing biomass was there but not significant at the alpine site. In addition, clipping directly affected evenness at the sub-alpine site.
 
 ```{r}
 #| label: fig-bio-div
@@ -94,13 +92,7 @@ tar_read(standingB_div_final_figure)
 
 ```
 
-### Trait responses to global change and increase in standing biomass (text not edited!!!)
-
-At the alpine site, all traits except moisture responded to warming. The light requirement and reaction (pH) value decreased with warming, while plant height, nutrient, salinity and temperature increased with warming. Reaction decreased with increasing nitrogen addition. The traits showed similar response to increase in standing biomass as to warming, but moisture also increased and salinity was not significant. No trait in the alpine responded to grazing.
-
-At the sub-alpine site, less traits responded to the global change drivers and biomass. Plant height and moisture increased with warming. Light, reaction (pH), and salinity decreased and temperature increased with nitrogen addition. Plant height decreased with grazing intensity. Light, pH and temperature decreased with increasing standing biomass, while moisture and plant height increased.
-
-#### Affinity and trait PCA
+To understand the underlying mechanisms of how the three global change drivers affect the plant community composition (H2), we used environmental affinities to describe the environmental niches of these communities. The first principle component (PC) axis explains 62.9 % of the variation and separates the alpine and sub-alpine sites (@fig-affinity-pca). PC axis 1 is associated with a taller and more competitive plant community (i.e. high temperature, nutrient, and lower light demanding community, and grazing tolerant). The warming treatment separates along the first PC axis with warmed communities being more competitive. Higher standing biomass is also associated with PC axis 1. PC axis 2 explains 21% of the variation and is associated with higher reaction (higher pH) and lower moisture.
 
 ```{r}
 #| label: fig-affinity-pca
@@ -117,7 +109,7 @@ affinity_pca_plot
 
 ```
 
-#### Affinity SEM
+When using environmental affinities (PC axis 1 and 2) in the SEM, we find similar patterns as for Shannon diversity (@fig-cut-affinity). We find that the global change drivers affect environmental affinities associated with competitive plant communities (PC axis 1) strongly indirect via standing biomass at the alpine site, while the effect at the sub-alpine site is weak. However, we find stronger indirect effects (although not significant) for PC axis 2. Something why PC axis 2 is stronger, and then explain this is even more evident when the PCA was done separately by site (Supplement XXX).
 
 ```{r}
 #| label: fig-cut-affinity
@@ -133,7 +125,9 @@ cut_affinity[[1]]
 
 ```
 
-#### Biomass distributions
+??? At the alpine site, all traits except moisture responded to warming. The light requirement and reaction (pH) value decreased with warming, while plant height, nutrient, salinity and temperature increased with warming. Reaction decreased with increasing nitrogen addition. The traits showed similar response to increase in standing biomass as to warming, but moisture also increased and salinity was not significant. No trait in the alpine responded to grazing.
+
+At the sub-alpine site, less traits responded to the global change drivers and biomass. Plant height and moisture increased with warming. Light, reaction (pH), and salinity decreased and temperature increased with nitrogen addition. Plant height decreased with grazing intensity. Light, pH and temperature decreased with increasing standing biomass, while moisture and plant height increased.
 
 ```{r}
 #| label: fig-biomass-nitrogen
