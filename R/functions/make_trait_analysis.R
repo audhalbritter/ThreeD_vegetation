@@ -4,29 +4,32 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
 
   #prepare community data
   comm <- cover_total |> 
-    filter(year == 2022) |>
+    filter(year == 2022) |> 
 
     # make new variable for 3 treatments (AC0 is the control)
     mutate(warming2 = if_else(warming == "Ambient", "A", "W"),
            grazing2 = if_else(grazing == "Control", "C", "N"),
            nitrogen = case_when(Namount_kg_ha_y == 0.5 ~ 0,
-                                Namount_kg_ha_y == 1 ~ 0,
+                                Namount_kg_ha_y == 1 ~ 5,
                                 Namount_kg_ha_y == 100 ~ 50,
                                 TRUE ~ Namount_kg_ha_y),
            treatment = paste0(warming2, grazing2, nitrogen),
+           # recode grazing x nitrogen treatments to control x nitrogen treatments
+           treatment = case_when(treatment == "AN5" ~ "AC5",
+                                 treatment == "AN10" ~ "AC10",
+                                 treatment == "AN50" ~ "AC50",
+                                 treatment == "WN5" ~ "WC5",
+                                 treatment == "WN10" ~ "WC10",
+                                 treatment == "WN50" ~ "WC50",
+                                 TRUE ~ treatment),
            treatment = factor(treatment, levels = c("AC0", "WC0",
                                                     "AC5", "WC5",
                                                     "AC10", "WC10",
                                                     "AC50", "WC50",
-                                                    "AN0", "WN0",
-                                                    "AN5", "WN5",
-                                                    "AN10", "WN10",
-                                                    "AN50", "WN50")),
-
-           #grazing = factor(grazing, levels = c("Control", "Natural")),
+                                                    "AN0", "WN0")),
 
            # make same as traits
-           siteID = recode(destSiteID, "Lia" = "Liahovden", "Joa" = "Joasete", "Vik" = "Vikesland"),
+           siteID = destSiteID,
            blockID = destBlockID) |>
     # fix species names so it matches ellenberg values
     mutate(species = str_replace(species, " cf", ""),
@@ -35,7 +38,7 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
                                species == "Trientalis europea" ~ "Trientalis europaea",
                                species == "Oxytropa laponica" ~ "Oxytropis lapponica",
                                TRUE ~ species)
-                               ) |> 
+                               ) |>
     # make grazing numeric
     mutate(grazing_num = case_when(grazing == "Control" ~ 0,
                                    grazing == "Medium" ~ 2,
@@ -51,8 +54,14 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
     # remove missing treatment (3 leaves)
     tidylog::filter(!is.na(grazing)) |>
 
+    # remove grazing and nitrogen traits (wrong observations)
+    tidylog::filter(!(grazing == "N" & Namount_kg_ha_y == 5)) |>
+
     # remove wet mass
     filter(trait != "wet_mass_g") |>
+
+    # remove 150 kg N treatment
+    filter(Namount_kg_ha_y != 150) |>
 
     # merge species like for cover data
     mutate(species = case_when(str_detect(species, "Pyrola") ~ "Pyrola sp",
@@ -90,40 +99,23 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
     mutate(Nitrogen_log = log(Namount_kg_ha_y + 1)) |>
 
     # prettify and order factors
-    mutate(origSiteID = recode(origSiteID, "Lia" = "Alpine", "Joa" = "Sub-alpine"),
-
-           # make new variable for 3 treatments (AC0 is the control)
-           grazing2 = if_else(grazing == "Control", "C", "N"),
-           nitrogen = case_when(Namount_kg_ha_y == 0.5 ~ 0,
-                                Namount_kg_ha_y == 1 ~ 0,
-                                Namount_kg_ha_y == 100 ~ 50,
-                                TRUE ~ Namount_kg_ha_y),
-           treatment = paste0(warming, grazing2, nitrogen),
+    mutate(origSiteID = recode(origSiteID, "Liahovden" = "Alpine", "Joasete" = "Sub-alpine"),
+           treatment = paste0(warming, grazing, Namount_kg_ha_y),
            treatment = factor(treatment, levels = c("AC0", "WC0",
                                                            "AC5", "WC5",
                                                            "AC10", "WC10",
                                                            "AC50", "WC50",
-                                                           "AN0", "WN0",
-                                                           "AN5", "WN5",
-                                                           "AN10", "WN10",
-                                                           "AN50", "WN50")),
+                                                           "AN0", "WN0")),
 
-           grazing = recode(grazing, "C" = "Control", "M" = "Medium", "I" = "Intensive", "N" = "Natural"),
-           grazing = factor(grazing, levels = c("Control", "Medium", "Intensive", "Natural")),
+           grazing = recode(grazing, "C" = "Control", "N" = "Natural"),
+           grazing = factor(grazing, levels = c("Control", "Natural")),
            warming = recode(warming, "A" = "Ambient", "W" = "Warming"),
            Namount_kg_ha_y = as.character(Namount_kg_ha_y),
            blockID = as.numeric(blockID)) |>
 
     # make grazing numeric
     mutate(grazing_num = case_when(grazing == "Control" ~ 0,
-                                   grazing == "Medium" ~ 2,
-                                   grazing == "Intensive" ~ 4,
                                    grazing == "Natural" ~ 2)) |>
-    # mutate(grazing_num = recode(grazing, Control = "0", Medium = "2", Intensive  = "4"),
-    #        grazing_num = as.numeric(grazing_num)) |>
-
-    # remove 27 accidental some observations with warm, grazing and N5
-    filter(!is.na(treatment)) |>
 
     # add envrionmental and disturbance affinities
     pivot_wider(names_from = trait_trans, values_from = value_trans)
@@ -137,7 +129,7 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
   # )
     
     
-    # add affinities
+  # add affinities
   trait <- trait_wide |>
     tidylog::left_join(affinity, by = "species") |> 
     pivot_longer(cols = c(plant_height_cm_log:sla_cm2_g, light:grazing_pressure),
