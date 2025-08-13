@@ -158,7 +158,7 @@ si_figure_plan <- list(
           group_by(siteID, treatment, plot_nr) |>
           summarise(sum = sum(productivity_g_m2)) |>
           ggplot(aes(x = siteID, y = sum, fill = treatment)) +
-          geom_violin() +
+          geom_violin(draw_quantiles = c(0.5)) +
           scale_fill_manual(name = "", values = treatment_palette[c(3, 1)]) +
           labs(y = bquote(Annual~productivity~g~m^-2~y^-1),
                x = "",
@@ -169,7 +169,7 @@ si_figure_plan <- list(
       plot4 <- consumption |>
         ggplot(aes(x = siteID, y = Consumption)) +
         geom_hline(yintercept = 0, colour = "grey70") +
-        geom_violin(fill = treatment_palette[c(3)]) +
+        geom_violin(fill = treatment_palette[c(3)], draw_quantiles = c(0.5)) +
         labs(y = bquote(Annual~biomass~consumption~g~m^-2~y-1),
              x = "",
              tag = "b)") +
