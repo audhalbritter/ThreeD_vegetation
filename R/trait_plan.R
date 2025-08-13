@@ -169,6 +169,78 @@ trait_plan <- list(
   tar_target(
     name = trait_stats_table,
     command = make_trait_stats(trait_statistical_analysis)
+  ),
+
+  # # CHECK TRAIT IMPUTATION COVERAGE
+  # # trait coverage plot (check how much of the community has been sampled)
+  # tar_target(
+  #   name = trait_coverage,
+  #   command = fortify(trait_impute) |> 
+  #     ungroup() |>
+  #     complete(.id, level, trait_trans, fill = list(s = 0)) |>
+  #     filter(level == "turfID") |>
+  #     group_by(origSiteID, treatment_comm, trait_trans) |>
+  #     # prob = 0.25 gives 75% of the plots
+  #     # also run prob = 0.5 for 50% of the plots
+  #     summarise(q = quantile(s, prob = 0.25))
+  
+  # ),
+
+  # # trait imputation plot
+
+  # tar_target(
+  #   name = trait_names,
+  #   command = c(
+  #     "plant_height_log_cm" = "Height cm",
+  #     "dry_mass_g_log" = "Dry mass g",
+  #     "leaf_area_log_cm2" = "Area cm2",
+  #     "leaf_thickness_log_mm" = "Thickness mm",
+  #     "ldmc" = "LDMC",
+  #     "sla_cm2_g" = "SLA cm2/g")
+  # ),
+
+  tar_target(
+    name = imputation_plot,
+    command = {
+
+        trait_names <- c(
+      "plant_height_log_cm" = "Height cm",
+      "dry_mass_g_log" = "Dry mass g",
+      "leaf_area_cm2_log" = "Area cm2",
+      "leaf_thickness_mm_log" = "Thickness mm",
+      "ldmc" = "LDMC",
+      "sla_cm2_g" = "SLA cm2/g",
+      "temperature" = "Temperature",
+      "light" = "Light",
+      "moisture" = "Moisture",
+      "nutrients" = "Nutrients",
+      "reaction" = "Reaction",
+      "salinity" = "Salinity",
+      "mowing_frequency" = "Mowing",
+      "grazing_pressure" = "Grazing")
+
+      dd <- trait_impute %>% 
+        ungroup() |> 
+        distinct(origSiteID, origBlockID, turfID, warming, grazing, Namount_kg_ha_y) |> 
+        arrange(origSiteID, origBlockID, turfID) |> 
+        mutate(ID = paste0(origSiteID, "_ ", origBlockID, "_", turfID),
+               ID2 = paste0(origSiteID, "-", substr(warming, 1,1), "-", substr(grazing, 1,1))) |> 
+        select(ID, ID2)
+
+      # print list of treatments
+      #cat(paste0('c("', paste(dd$ID2, collapse = '", "'), '")'))
+
+      #check trait coverage
+      trait_impute %>% 
+        autoplot(., other_col_how = "ignore") +
+        scale_y_continuous(breaks = c(0, 0.5, 1)) +
+
+        facet_wrap(~ trait_trans, labeller = labeller(trait_trans = trait_names)) +
+        labs(x = "Treatments") +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 90))
+
+    }
   )
 
 )
