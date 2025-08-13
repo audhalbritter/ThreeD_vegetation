@@ -87,18 +87,22 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
 
   e_B1 <- eigenvals(trait_pca[[3]])/sum(eigenvals(trait_pca[[3]]))
 
-  # Calculate axis limits for both plots to be the same
-  pc1_range <- range(trait_pca[[1]]$PC1, trait_pca[[2]]$PC1)
-  pc2_range <- range(trait_pca[[1]]$PC2, trait_pca[[2]]$PC2)
-  
-  # Add some padding to the ranges
-  pc1_limits <- c(pc1_range[1] - 0.1, pc1_range[2] + 0.1)
-  pc2_limits <- c(pc2_range[1] - 0.1, pc2_range[2] + 0.1)
+  # Calculate axis limits for both plots to be the same, including room for labels
+  x_label_offset <- 0.3   # max horizontal offset used for text labels
+  y_label_offset <- 0.2   # max vertical offset used for text labels
+
+  pc1_min <- min(trait_pca[[1]]$PC1, trait_pca[[2]]$PC1, na.rm = TRUE) - 0.15
+  pc1_max <- max(trait_pca[[1]]$PC1, trait_pca[[2]]$PC1 + x_label_offset, na.rm = TRUE) + 0.10
+  pc2_min <- min(trait_pca[[1]]$PC2, trait_pca[[2]]$PC2, na.rm = TRUE) - 0.15
+  pc2_max <- max(trait_pca[[1]]$PC2, trait_pca[[2]]$PC2 + y_label_offset, na.rm = TRUE) + 0.10
+
+  pc1_limits <- c(pc1_min, pc1_max)
+  pc2_limits <- c(pc2_min, pc2_max)
 
       # Create first plot (original with warming/clipping)
-    plot1 <- ggplot(data = trait_pca[[1]], 
-                     aes(x = PC1, y = PC2, 
-                     colour = warming, 
+    plot1 <- ggplot(data = trait_pca[[1]],
+                     aes(x = PC1, y = PC2,
+                     colour = warming,
                      shape = grazing,
                      fill = after_scale(colour),
                      size = Nitrogen_log)) +
@@ -109,15 +113,25 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                    aes(x = 0, y = 0, xend = PC1, yend = PC2),
                    arrow = arrow(length = unit(0.2, "cm")),
                    inherit.aes = FALSE, colour = "grey60") +
-      # Add trait labels
+            # Add trait labels
       geom_text(data = trait_pca[[2]] |>
-                  mutate(figure_names = case_match(figure_names,
-                                                   "Plant~height~(cm)" ~ "Height~(cm)",
-                                                   "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
-                                                   "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
-                                                   "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
-                                                   .default = figure_names)),
-                aes(x = PC1 + 0.3, y = PC2 + 0.1, label = figure_names),
+                 mutate(figure_names = case_match(figure_names,
+                                                  "Plant~height~(cm)" ~ "Height~(cm)",
+                                                  .default = figure_names),
+                        # Adjust text positions for specific traits
+                        PC1 = case_when(
+                          label == "plant_height_cm_log" ~ PC1 - 0.1,  # Height: left
+                          label == "temperature" ~ PC1 - 0.05,        # Temperature: left
+                          label == "grazing_pressure" ~ PC1 - 0.08,   # Grazing: left
+                          TRUE ~ PC1
+                        ),
+                        PC2 = case_when(
+                          label == "plant_height_cm_log" ~ PC2 - 0.2, # Height: down
+                          label == "temperature" ~ PC2 - 0.15,        # Temperature: down
+                          label == "nutrients" ~ PC2 - 0.02,          # Nutrients: down
+                          TRUE ~ PC2
+                        )),
+               aes(x = PC1 + 0.3, y = PC2 + 0.1, label = figure_names),
                 size = 3,
                 inherit.aes = FALSE,
                 show.legend = FALSE, parse = TRUE) +
@@ -150,15 +164,25 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                    aes(x = 0, y = 0, xend = PC1, yend = PC2),
                    arrow = arrow(length = unit(0.2, "cm")),
                    inherit.aes = FALSE, colour = "grey60") +
-      # Add trait labels
+            # Add trait labels
       geom_text(data = trait_pca[[2]] |>
-                  mutate(figure_names = case_match(figure_names,
-                                                   "Plant~height~(cm)" ~ "Height~(cm)",
-                                                   "Leaf~dry~mass~(g)" ~ "Dry~mass~(g)",
-                                                   "Leaf~area~(cm^2)" ~ "Area~(cm^2)",
-                                                   "Leaf~thickness~(mm)" ~ "Thickness~(mm)",
-                                                   .default = figure_names)),
-                aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
+                 mutate(figure_names = case_match(figure_names,
+                                                  "Plant~height~(cm)" ~ "Height~(cm)",
+                                                  .default = figure_names),
+                        # Adjust text positions for specific traits (same as plot1)
+                        PC1 = case_when(
+                          label == "plant_height_cm_log" ~ PC1 - 0.1,  # Height: left
+                          label == "temperature" ~ PC1 - 0.05,        # Temperature: left
+                          label == "grazing_pressure" ~ PC1 - 0.08,   # Grazing: left
+                          TRUE ~ PC1
+                        ),
+                        PC2 = case_when(
+                          label == "plant_height_cm_log" ~ PC2 - 0.3, # Height: down
+                          label == "temperature" ~ PC2 - 0.2,        # Temperature: down
+                          label == "nutrients" ~ PC2 - 0.02,          # Nutrients: down
+                          TRUE ~ PC2
+                        )),
+               aes(x = PC1 + 0.3, y = PC2 + 0.2, label = figure_names),
                 size = 3,
                 inherit.aes = FALSE,
                 show.legend = FALSE, parse = TRUE) +
