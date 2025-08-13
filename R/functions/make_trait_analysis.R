@@ -34,7 +34,8 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
                                species == "Salix herbaceae" ~ "Salix herbacea",
                                species == "Trientalis europea" ~ "Trientalis europaea",
                                species == "Oxytropa laponica" ~ "Oxytropis lapponica",
-                               TRUE ~ species)) |> 
+                               TRUE ~ species)
+                               ) |> 
     # make grazing numeric
     mutate(grazing_num = case_when(grazing == "Control" ~ 0,
                                    grazing == "Medium" ~ 2,
@@ -54,8 +55,7 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
     filter(trait != "wet_mass_g") |>
 
     # merge species like for cover data
-    mutate(species = case_when(str_detect(species, "Antennaria") ~ "Antennaria sp",
-                               str_detect(species, "Pyrola") ~ "Pyrola sp",
+    mutate(species = case_when(str_detect(species, "Pyrola") ~ "Pyrola sp",
                                species == "Betula pubescence" ~ "Betula pubescens",
                                species == "Salix herbaceae" ~ "Salix herbacea",
                                species == "Trientalis europea" ~ "Trientalis europaea",
@@ -127,6 +127,14 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
 
     # add envrionmental and disturbance affinities
     pivot_wider(names_from = trait_trans, values_from = value_trans)
+
+    # check how many species have affinities
+  #   trait_wide |>
+  # summarise(
+  #   total_species = n_distinct(species),
+  #   species_with_affinities = n_distinct(species[species %in% affinity$species]),
+  #   percentage = round(species_with_affinities / total_species * 100, 1)
+  # )
     
     
     # add affinities

@@ -272,7 +272,6 @@ tranformation_plan <- list(
       filter(Namount_kg_ha_y != 150) |>
       # fix species names
       mutate(species = case_when(
-        str_detect(species, "Antennaria") ~ "Antennaria sp",
         species == "Carex capillaris cf" ~ "Carex capillaris",
         species == "Carex leporina cf" ~ "Carex leporina",
         species == "Carex nigra cf" ~ "Carex nigra",
