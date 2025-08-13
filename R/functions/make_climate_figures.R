@@ -88,18 +88,32 @@ make_annual_climate_figure <- function(annual_climate){
 # daily climate in control and warming
 make_daily_climate_figure <- function(daily_temp, col_palette){
 
-  daily_climate <- daily_temp |>
+  # Daily climate: split into temperature and soil moisture
+  daily_temp_plot <- daily_temp |>
     filter(Nlevel == 1,
-           grazing == "Control") |>
+           grazing == "Control",
+           variable %in% c("air", "ground", "soil")) |>
     ggplot(aes(x = date, y = value, colour = warming)) +
     geom_line() +
     scale_color_manual(name = "", values = col_palette) +
-    labs(x = "", y = "soilmoisture in %         temperature in °C",
-         tag = "a)") +
+    labs(x = "", y = "Temperature (°C)", tag = "a)") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +
     theme_bw() +
     theme(legend.position = "top")
 
+  daily_moisture_plot <- daily_temp |>
+    filter(Nlevel == 1,
+           grazing == "Control",
+           variable == "soilmoisture") |>
+    ggplot(aes(x = date, y = value, colour = warming)) +
+    geom_line() +
+    scale_color_manual(name = "", values = col_palette) +
+    labs(x = "", y = "Soil moisture (%)") +
+    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    theme_bw() +
+    theme(legend.position = "none")
+
+  # Summer mean data
   summer_mean <- daily_temp |>
     mutate(month = month(date),
            year = year(date)) |>
@@ -115,21 +129,43 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
            res = map(fit, tidy)) |>
     unnest(res)
 
-  summer_mean_plot <- ggplot(summer_mean, aes(x = warming, y = value, fill = warming)) +
+  # Summer mean climate: split into temperature and soil moisture
+  summer_temp_plot <- summer_mean |>
+    filter(variable %in% c("air", "ground", "soil")) |>
+    ggplot(aes(x = warming, y = value, fill = warming)) +
     geom_violin(draw_quantiles = c(0.5)) +
-    # geom_point(size = 2, shape = 16) +
-    # geom_errorbar(aes(ymin = value - se, ymax = value + se), width = 0.2) +
     scale_fill_manual(name = "", values = col_palette) +
-    annotate("text", x = Inf, y =Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
-    labs(x = "", y = "",
-         tag = "b)") +
+    annotate("text", x = Inf, y = Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
+    labs(x = "", y = "Temperature (°C)", tag = "b)") +
     facet_grid(variable ~ origSiteID, scales = "free_y") +
     theme_bw() +
-    theme(axis.text.x = element_blank())
+    theme(axis.text.x = element_blank(),
+          legend.position = "none")
 
-  daily_climate_figure <- daily_climate + summer_mean_plot +
+  summer_moisture_plot <- summer_mean |>
+    filter(variable == "soilmoisture") |>
+    ggplot(aes(x = warming, y = value, fill = warming)) +
+    geom_violin(draw_quantiles = c(0.5)) +
+    scale_fill_manual(name = "", values = col_palette) +
+    annotate("text", x = Inf, y = Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
+    labs(x = "", y = "Soil moisture (%)") +
+    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    theme_bw() +
+    theme(axis.text.x = element_blank(),
+          legend.position = "none")
+
+  # Combine all with patchwork: columns = daily (left) and summer (right)
+  daily_group <- (daily_temp_plot / daily_moisture_plot) +
+    plot_layout(heights = c(3, 1))
+
+  summer_group <- (summer_temp_plot / summer_moisture_plot) +
+    plot_layout(heights = c(3, 1))
+
+  daily_climate_figure <- (daily_group | summer_group) +
     plot_layout(widths = c(3, 1.5), guides = "collect") &
     theme(legend.position = "bottom")
+
+  return(daily_climate_figure)
 
 }
 
