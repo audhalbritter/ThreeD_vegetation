@@ -176,12 +176,15 @@ figure_plan <- list(
                                            fill = warming,
                                            shape = grazing,
                                            stroke = 0.8,
-                                           size = Namount_kg_ha_y),
+                                           #size = #Namount_kg_ha_y),
+                                           size = Nitrogen_log),
                                            alpha = 0.5) +
               scale_colour_manual(values = warming_palette, name = "Warming") +
       scale_fill_manual(values = warming_palette, name = "Warming") +
         scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
-        scale_size_continuous(name = "Nitrogen") +
+        scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+                             breaks = c(0, 1, 2, 3, 4),
+                             labels = c("0", "25", "50", "75", "100")) +
         scale_linetype_manual(values = c("solid", "dashed"),
                               name = "Origin") +
         labs(x = bquote(Log(Standing~biomass)~g~m^-2),

@@ -75,6 +75,9 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
     scale_fill_manual(name = "Warming", values = color_warm) +
     scale_colour_manual(name = "Warming", values = color_warm) +
     scale_shape_manual(name = "Clipping", values = c(21, 22, 24)) +
+    scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+                             breaks = c(0, 1, 2, 3, 4),
+                             labels = c("0", "25", "50", "75", "100")) +
     labs(title = title,
          x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
          y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
@@ -137,6 +140,9 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
       coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
       scale_colour_manual(name = "Warming", values = color_warm) +
       scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
+      scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+                             breaks = c(0, 1, 2, 3, 4),
+                             labels = c("0", "25", "50", "75", "100")) +
       scale_alpha_manual(values = c("Alpine" = 0.75, "Sub-alpine" = 0.10), name = "Site") +
       labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
            y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
@@ -155,8 +161,8 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
     plot2 <- ggplot() +
       # Add points colored by biomass
       geom_point(data = plot_data_biomass,
-                 aes(x = PC1, y = PC2, colour = final_bio),
-                 size = 2, alpha = 0.7) +
+                 aes(x = PC1, y = PC2, size = final_bio, colour = final_bio),
+                 alpha = 0.7) +
       # Add arrows for trait loadings
       geom_segment(data = trait_pca[[2]],
                    aes(x = 0, y = 0, xend = PC1, yend = PC2),
@@ -186,10 +192,12 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
       coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
       scale_colour_gradientn(colours = MetBrewer::met.brewer(name="Hokusai2", n=5, type="continuous"), 
                             name = "Biomass (g/m²)") +
+      scale_size_continuous(name = "Biomass (g/m²)") +
       labs(x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
            y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
       theme_bw() +
-      theme(legend.position = "bottom")
+      theme(legend.position = "bottom",
+            legend.box="vertical")
     
     # Combine both plots side by side with tags
     final_plot <- plot1 + plot2 +

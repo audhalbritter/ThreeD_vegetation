@@ -206,11 +206,13 @@ si_figure_plan <- list(
         geom_line(data = prediction,
                   aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)),
                   colour = "grey60") +
-        geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
+        geom_point(aes(colour = warming, size = Nitrogen_log)) +
         annotate("text", x = 2000, y = 5,
                  label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
         scale_colour_manual(values = warming_palette, name = "Warming") +
-        scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
+        scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+                             breaks = c(0, 1, 2, 3, 4),
+                             labels = c("0", "25", "50", "75", "100")) +
         guides(linetype = FALSE) +
         labs(x = "Cover x height",
              y = bquote(Estimated~standing~biomass~(g~m^-2))) +
