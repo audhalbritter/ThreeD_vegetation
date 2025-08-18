@@ -23,7 +23,7 @@ trait_plan <- list(
     name = affinity_pca,
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
-                            filter(trait_trans %in% c("plant_height_cm_log","temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
+                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -32,7 +32,7 @@ trait_plan <- list(
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Alpine") |>
-                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
+                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -41,7 +41,7 @@ trait_plan <- list(
     command = make_trait_pca(trait_mean |> 
                             filter(grazing != "Natural") |>
                             filter(origSiteID == "Sub-alpine") |>
-                            filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
+                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
     )
   ),
 
@@ -85,15 +85,14 @@ trait_plan <- list(
       name = traits_warming_plot,
       command = {
         base_plot <- make_trait_ridgeline_plot(trait_mean |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"),
+                                                filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"),
                                                 grazing != "Natural"), 
                                                 group_var = "warming",
                                                 custom_colors = warming_palette,
                                                 y_axis_label = "",
                                                 legend_name = "Warming",
-                                                figure_names_order = c("Plant~height~(cm)",
-                                               "Light", "Temperature", "Nutrients", 
-                                               "Reaction", "Moisture", "Mowing", "Grazing"))
+                                                figure_names_order = c("Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture", "Grazing"))
         add_significance_stars(base_plot, trait_statistical_analysis, "warming")
       }
     ),
@@ -102,16 +101,15 @@ trait_plan <- list(
       name = traits_nitrogen_plot,
       command = {
         base_plot <- make_trait_ridgeline_plot(trait_mean |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature", "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"),
+                                                filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"),
                                                 grazing != "Natural") |>
                                                 mutate(Namount_kg_ha_y2 = as.factor(Namount_kg_ha_y)), 
                                                 group_var = "Namount_kg_ha_y2",
                                                 custom_colors = nitrogen_palette,
                                                 y_axis_label = expression(Nitrogen~addition~(kg~ha^-1~y^-1)),
                                                 legend_name = "Nitrogen",
-                                                figure_names_order = c("Plant~height~(cm)",
-                                               "Light", "Temperature", "Nutrients", 
-                                               "Reaction", "Moisture", "Mowing", "Grazing"))
+                                                figure_names_order = c("Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture", "Grazing"))
         add_significance_stars(base_plot, trait_statistical_analysis, "nitrogen")
       }
     ),
@@ -121,15 +119,14 @@ trait_plan <- list(
       name = traits_clipping_plot,
       command = {
         base_plot <- make_trait_ridgeline_plot(trait_mean |> 
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"),
+                                                filter(trait_trans %in% c("temperature",  "light", "moisture", "nutrients", "reaction", "grazing_pressure"),
                                                 grazing != "Natural"), 
                                                 group_var = "grazing",
                                                 custom_colors = grazing_palette,
                                                 y_axis_label = "Clipping",
                                                 legend_name = "Clipping",
-                                                figure_names_order = c("Plant~height~(cm)",
-                                               "Light", "Temperature", "Nutrients", 
-                                               "Reaction", "Moisture", "Mowing", "Grazing"))
+                                                figure_names_order = c("Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture", "Grazing"))
         add_significance_stars(base_plot, trait_statistical_analysis, "grazing")
       }
     ),
@@ -139,7 +136,7 @@ trait_plan <- list(
       name = traits_biomass_plot,
       command = {
         base_plot <- make_trait_ridgeline_plot(trait_mean |>
-                                                filter(trait_trans %in% c("plant_height_cm_log", "temperature",  "light", "moisture", "nutrients", "reaction", "mowing_frequency", "grazing_pressure"),
+                                                filter(trait_trans %in% c("temperature",  "light", "moisture", "nutrients", "reaction", "grazing_pressure"),
                                                 grazing != "Natural") |>
                                                 tidylog::left_join(standing_biomass_back |> 
                                                 filter(year == 2022,
@@ -151,9 +148,8 @@ trait_plan <- list(
                                                 custom_colors = met.brewer(name="Hokusai2", n=5, type="discrete"),
                                                 y_axis_label = "Log(Standing biomass)",
                                                 legend_name = "Biomass",
-                                                figure_names_order = c("Plant~height~(cm)",
-                                               "Light", "Temperature", "Nutrients", 
-                                               "Reaction", "Moisture", "Mowing", "Grazing"))
+                                                figure_names_order = c("Light", "Temperature", "Nutrients", 
+                                               "Reaction", "Moisture", "Grazing"))
         add_significance_stars(base_plot, trait_statistical_analysis, "biomass")
       }
     ),

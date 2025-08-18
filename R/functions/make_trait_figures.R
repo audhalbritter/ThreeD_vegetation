@@ -120,13 +120,11 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                                                   .default = figure_names),
                         # Adjust text positions for specific traits
                         PC1 = case_when(
-                          label == "plant_height_cm_log" ~ PC1 - 0.1,  # Height: left
                           label == "temperature" ~ PC1 - 0.05,        # Temperature: left
                           label == "grazing_pressure" ~ PC1 - 0.08,   # Grazing: left
                           TRUE ~ PC1
                         ),
                         PC2 = case_when(
-                          label == "plant_height_cm_log" ~ PC2 - 0.2, # Height: down
                           label == "temperature" ~ PC2 - 0.15,        # Temperature: down
                           label == "nutrients" ~ PC2 - 0.02,          # Nutrients: down
                           TRUE ~ PC2
@@ -171,13 +169,11 @@ make_pca_plot_sites <- function(trait_pca, color_warm = NULL, biomass_div = NULL
                                                   .default = figure_names),
                         # Adjust text positions for specific traits (same as plot1)
                         PC1 = case_when(
-                          label == "plant_height_cm_log" ~ PC1 - 0.1,  # Height: left
                           label == "temperature" ~ PC1 - 0.05,        # Temperature: left
                           label == "grazing_pressure" ~ PC1 - 0.08,   # Grazing: left
                           TRUE ~ PC1
                         ),
                         PC2 = case_when(
-                          label == "plant_height_cm_log" ~ PC2 - 0.3, # Height: down
                           label == "temperature" ~ PC2 - 0.2,        # Temperature: down
                           label == "nutrients" ~ PC2 - 0.02,          # Nutrients: down
                           TRUE ~ PC2
@@ -315,13 +311,11 @@ add_significance_stars <- function(plot, trait_stats, treatment_type) {
     # Convert trait_trans to figure_names format
     mutate(
       figure_names = case_when(
-        trait_trans == "plant_height_cm_log" ~ "Plant~height~(cm)",
         trait_trans == "temperature" ~ "Temperature",
         trait_trans == "light" ~ "Light",
         trait_trans == "moisture" ~ "Moisture",
         trait_trans == "nutrients" ~ "Nutrients",
         trait_trans == "reaction" ~ "Reaction",
-        trait_trans == "mowing_frequency" ~ "Mowing",
         trait_trans == "grazing_pressure" ~ "Grazing",
         TRUE ~ trait_trans
       ),
