@@ -23,7 +23,7 @@ library(tarchetypes)
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The linetype and colours shows the direction of the effect (solid = positive and dotted = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, black = richness." 
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in species richness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = richness." 
 
 tar_load(cut_change_all_diversity)
 
@@ -37,7 +37,7 @@ cut_change_all_diversity[[1]]
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The linetype and colours shows the direction of the effect (solid = positive and dotted = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, black = evenness." 
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through change in biomass on change in evenness a) across sites, b) including site as a moderator, c) for the alpine site only, and d) for the sub-alpine site only. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = evenness." 
 
 tar_load(graz_change_all_diversity)
 
