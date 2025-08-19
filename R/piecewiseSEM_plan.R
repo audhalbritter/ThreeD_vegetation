@@ -86,7 +86,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC1 affinity")
 
       # affinity sub-alpine
       mod2 <- run_SEM(data = dat1 |>
@@ -99,7 +99,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC1 affinity")
 
       # PC2 analyses
       # prep data for PC2
@@ -119,7 +119,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC2 affinity")
 
       # PC2 affinity sub-alpine
       mod4 <- run_SEM(data = dat2 |>
@@ -132,10 +132,10 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC2 affinity")
 
       figure <- (fig1 + fig2) / (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine PC1', 'b) Sub-alpine PC1', 'c) Alpine PC2', 'd) Sub-alpine PC2'))) &
+        plot_annotation(tag_levels = list(c('c) Alpine', 'd) Sub-alpine', 'e) Alpine', 'f) Sub-alpine'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
@@ -182,7 +182,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC1")
 
       # traits sub-alpine
       mod2 <- run_SEM(data = dat1 |>
@@ -195,7 +195,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC1")
 
       # PC2 analyses
       # prep data for PC2
@@ -215,7 +215,7 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC2")
 
       # PC2 traits sub-alpine
       mod4 <- run_SEM(data = dat2 |>
@@ -228,10 +228,10 @@ piecewiseSEM_plan <- list(
                               type = "final",
                               landuse = "clipping",
                               col = treatment_palette,
-                              diversity_type = "affinity")
+                              diversity_type = "PC2")
 
       figure <- (fig1 + fig2) / (fig3 + fig4) +
-        plot_annotation(tag_levels = list(c('a) Alpine PC1', 'b) Sub-alpine PC1', 'c) Alpine PC2', 'd) Sub-alpine PC2'))) &
+        plot_annotation(tag_levels = list(c('c) Alpine', 'd) Sub-alpine', 'e) Alpine', 'f) Sub-alpine'))) &
         theme(plot.tag.position = c(0, 1),
               plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
 
