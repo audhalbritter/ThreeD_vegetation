@@ -81,7 +81,9 @@ make_pca_plot <- function(trait_pca, title = NULL, color_warm = NULL){
     labs(title = title,
          x = glue("PCA1 ({round(e_B1[1] * 100, 1)}%)"),
          y = glue("PCA2 ({round(e_B1[2] * 100, 1)}%)")) +
-    theme_bw()
+    theme_bw() +
+    theme(legend.position = "bottom",
+            legend.box="vertical")
 
 }
 
