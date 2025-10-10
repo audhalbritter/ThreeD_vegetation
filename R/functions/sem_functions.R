@@ -202,7 +202,7 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
            # Create label with significance stars
            label_with_stars = paste0(label, significance_stars),
            # Size: scale with absolute value of standardized estimate
-           size = abs(label) * 4,             # multiply by 6 to make differences more visible
+           size = abs(label) * 4,             # multiply by 4 to make differences more visible
            # Replace "diversity" with the actual diversity type for display
            to = case_when(to == "diversity" ~ diversity_type,
                           TRUE ~ to))
@@ -267,9 +267,9 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
   nodes <- tibble(
     name = all_nodes,
     # Box fill colors (white/transparent for all nodes)
-    fill = "white",
+    fill = "#ffffff00",
     # Box outline color (white for no visible outline)
-    color = "white",
+    color = "#ffffff00",
     alpha = 1,
     # Text colors
     label_color = case_when(
