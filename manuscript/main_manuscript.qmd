@@ -72,7 +72,7 @@ keywords:
 
 bibliography: bibliography.bib
 
-csl: science-advances.csl
+csl: ecology-letters.csl
 link-citations: true
 
 execute:
