@@ -31,7 +31,6 @@ library(ggpubr)
 
 ### Supplementary Figure S1: Temperature effects on the microclimate
 
-
 ```{r}
 #| label: fig-daily-climate
 #| fig-height: 6
@@ -43,20 +42,7 @@ daily_climate_figure
 
 ```
 
-### Supplementary Figure S2: Plant productivity and consumption
-
-```{r}
-#| label: fig-prod-consumption 
-#| warning: false
-#| fig-height: 4
-#| fig-cap: "Annual productivity (mg m^-2^ y^-1^) and biomass consumption (mg m^-2^ y^-1) at the three study sites. Colors indicate grazed (yellow) and ungrazed (caged; gray) plots. Productivity and biomass consumption by grazers was assessed using three 30 x 30 cm cages (ungrazed) and according control plots (grazed). The cages were designed to exclude mammal herbivores, but not insects, with a mesh size of 1 cm. The plots were moved every 15.5 ± 0.447 days, and the biomass in each plot was harvested 2-3 cm above the ground, dried at 65°C for 72h and weighed."
-
-tar_load(productivity_consumption_figure)
-productivity_consumption_figure
-
-```
-
-### Supplementary Table S1: Temperature effects on the microclimate
+### Supplementary Table S1: Stats for temperature effects on the microclimate
 
 ```{r}
 #| label: tbl-climate-test
@@ -68,7 +54,7 @@ microclimate_stats
 
 ```
 
-### Supplementary Figure S3: Climate and global change drivers
+### Supplementary Figure S2: Climate and global change drivers
 
 ```{r}
 #| label: fig-climate
@@ -78,7 +64,7 @@ tar_load(climate_figure)
 climate_figure
 ```
 
-### Supplementary Table S2: Climate and global change drivers
+### Supplementary Table S2: Stats for climate and global change drivers
 
 ```{r}
 #| label: tbl-climate
@@ -89,7 +75,7 @@ climate_stats
 
 ```
 
-### Supplementary Figure S4: Calculating standing biomass
+### Supplementary Figure S3: Calculating community biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
@@ -102,7 +88,7 @@ tar_read(standing_biomass_back_fig)
 
 ```
 
-### Supplementary Table S3: Model output for estimated standing biomass
+### Supplementary Table S3: Model output for estimated community biomass
 
 ```{r}
 #| label: tbl-standing-biomass-model-output
@@ -259,7 +245,7 @@ biomass_origin_anova_table |>
 
 ```
 
-### Supplementary Figure S5: Global change affects richness and evenness
+### Supplementary Figure S4: Global change affects richness and evenness
 
 ```{r}
 #| label: fig-div-index
@@ -273,10 +259,9 @@ tar_read(div_index_figure)
 
 ```
 
-
 ### Structural equation models
 
-#### Supplementary Table S5: Stats for final cut diversity
+#### Supplementary Table S5: Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site
 
 ```{r}
 #| label: tbl-cut-final-stats
@@ -284,16 +269,31 @@ tar_read(div_index_figure)
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via standing biomass on Shannon diversity. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via standing biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
 
 tar_load(cut_final_diversity)
+tar_load(cut_final_richness_evenness)
 
-cut_final_diversity[[2]] |> 
-  select(Type:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
+bind_rows(
+  cut_final_diversity[[2]] |> 
+    mutate(diversity_index = "diversity",
+           Site = Type),
+  cut_final_richness_evenness[[2]] |> 
+    mutate(diversity_index = case_when(
+             str_detect(Type, "richness") ~ "richness",
+             str_detect(Type, "evenness") ~ "evenness"
+           ),
+           Site = case_when(
+             str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
+             str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
+           ))
+) |> 
+  mutate(Response = diversity_index) |> 
+  select(Site, Response:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
   mutate(Std.Estimate = round(Std.Estimate, 2),
            Std.Error = round(Std.Error, 2),
            P.Value = if_else(P.Value <= 0.001, "≤ 0.001", as.character(round(P.Value, 3)))) |> 
-  group_by(Type) |> 
+  group_by(Site) |> 
   gt() |> 
   tab_style(
       style = list(
@@ -312,7 +312,7 @@ cut_final_diversity[[2]] |>
 
 ```
 
-#### Supplementary Figure S6: SEM for species richness and evenness
+#### Supplementary Figure S5: SEM for species richness and evenness
 
 ```{r}
 #| label: fig-cut-final-rich-even
@@ -328,8 +328,7 @@ cut_final_richness_evenness[[1]]
 
 ```
 
-
-### Supplementary Figure S7: PCA for single sites
+### Supplementary Figure S6: PCA separately for the alpine and sub-alpine site
 
 ```{r}
 #| label: fig-trait-pca2
@@ -346,7 +345,7 @@ affinity_pca_plot_single
 
 ```
 
-### Supplementary Figure S8: SEM for single sites
+### Supplementary Figure S7: SEM separately for the alpine and sub-alpine site
 
 ```{r}
 #| label: fig-cut-affinity2
@@ -362,7 +361,7 @@ cut_affinity2[[1]]
 
 ```
 
-### Supplementary Figure S9: Affinity distributions
+### Supplementary Figure S8: Environmentalf afinity distributions
 
 To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
 
@@ -393,8 +392,7 @@ tar_load(traits_clipping_plot)
 
 ```
 
-
-### Supplementary Table S6: Affinity distributions statistics
+### Supplementary Table S6: Environmental affinity distributions statistics
 
 ```{r}
 #| label: tbl-trait-stats
@@ -407,7 +405,6 @@ tar_load(trait_stats_table)
 trait_stats_table
 
 ```
-
 
 #### Supplementary Figure S10: SEMs for natural grazing
 
