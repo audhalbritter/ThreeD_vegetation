@@ -3,7 +3,7 @@ source("other_scripts/load_libraries.R")
 
 # make the targets that are out of date
 # looks for a file called "_targets.R" in the working directory
-tar_make()
+targets::tar_make()
 # tar_make(-manuscript, -si)
 tar_load_everything()
 # view pipeline and show which targets are out of date
@@ -30,3 +30,5 @@ ggsave("output/FigSx_origin.png", SEM_origin_fig, dpi = 300, height = 8, width =
 ggsave("output/FigSx_div.png", SEM_diversity_fig, dpi = 300, height = 8, width = 10)
 
 ggsave("output/Fig5_traits.png", traits_figure, dpi = 300, height = 8, width = 10)
+
+ggsave("output/Prod_cons.png", productivity_consumption_figure, dpi = 300, height = 4, width = 8)
