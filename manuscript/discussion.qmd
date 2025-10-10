@@ -6,6 +6,66 @@ editor: visual
 
 ## Discussion
 
+\[*The discussion should be about why using biomass works one place but not the other and what other mechanisms need to be included*\]
+
+In this study we tested if community biomass is a general indicator of mechanisms mediating global change impacts on plant diversity. Our results show that this mechanism works for the temperature and nutrient limited alpine site, but less well for the sub-alpine site. \[Something what the main mechanism at the sub-alpine site is\]. Specifically, by including environmental affinities, we were able to explain the underlying mechanisms of community responses to global change.
+
+### \[*Explain why it works for the alpine site*\]
+
+-   Our hypothesis mostly works really well
+
+-   Additional positive warming effect - some lower elevation species coming in? Turf colonisation is faster than extinction (cf seedclim papers)
+
+-   Note: Biomass co-limitation by temperature and nitrogen
+
+We expected the three global change drivers to operate through community biomass, by favoring more competitive species, especially graminoids, resulting in a decrease in vascular plant diversity (H1). In line with this hypothesis, we found a strong increase in standing biomass with warming and/or nitrogen addition in both alpine and sub-alpine communities (Fig...), parallelling the findings of several previous studies manipulating one or both of these drivers[(*18*, *21*, *37*, *38*)](https://paperpile.com/c/KKq9O1/9ySc+Qi5J+3zFM+nLSC). Warming can increase biomass because of higher rates of photosynthesis, a longer growing season, or because higher microbial activity can increase nutrient availability. Nitrogen addition directly increases nutrient availability, a limiting factor in alpine habitats[(*18*)](https://paperpile.com/c/KKq9O1/9ySc).
+
+Direct effect of warming could be because of colonization of turfs. Figure for species richness shows that warming increases species richness (Supplementary Figure 4a). Colonization generally happen faster than extinctions and there is often an extinction lag in alpine communities (Vandvik 2020, Alexander, ...).
+
+This similar relationship between the warmed alpine and ambient sub-alpine communities suggests that colder alpine plant communities are not intrinsically less productive than those at lower elevation, but are limited by temperature-related  environmental factors [(*27*)](https://paperpile.com/c/KKq9O1/FMfe).
+
+### \[*Why did it not work for the sub-alpine site, and what are the alternative mechanisms*\]
+
+**Why not biomass effect on biodiversity?**
+
+-   Narrower range of biomass in the subalpine (less to play with).
+
+-   Fewer species already
+
+-   NB - note that data is more variable for diversity responses in the sub-alpine than in the alpine - other factors matter, explanatory power lower…
+
+**Why those other non-biomass effects?**
+
+-   Nitrogen acidification: one alternative explanation for the non-biomass negative effect of nitrogen is soil acidification. shown by Ellenberg pH trait distribution to be shifting towards lower pH optima and especially loss of the higher-pH part of the community in the higher N treatments.
+
+-   Drought: one explanation for the non-biomass negative effect of warming in the sub-alpine could be drought. However, we see more an increase in moisture for warmer sub-alpine communities.
+
+-   Note: Biomass additive / compensatory effects of nitrogen and warming.
+
+The drop in biomass at high levels of nitrogen addition could result from soil acidification[(*40*)](https://paperpile.com/c/KKq9O1/oG7A). In our study, this is supported by an increase in available calcium at high levels of nitrogen addition, which can be released from the bedrock under acid conditions (Figure S5, Table S5).
+
+The biomass of the warmed sub-alpine community did not increase above the maximum levels found at ambient climate, but reached the same biomass across the whole nitrogen gradient, indicating growth limited by other factors, possibly lower water availability at the warmer site[(*41*)](https://paperpile.com/c/KKq9O1/nJXV), which might have been especially prominent due to a dry growing season in 2022 ( Figure S1).
+
+### *\[Weak grazing effects\]*
+
+-   Why so weak grazing effects?? Treatment levels? Time? Grazing only + for diversity when (i) other drivers are having negative effects and (ii) the additional species are available for colonisation and (iii) there is enough time….
+
+**Some interesting points (unclear how to use these):**
+
+-   The net effects of warming and nitrogen on traits encapsulates both non-biomass and biomass effects, and so should generally be less clear in terms of height.
+
+-   Note that the warmed alpine and the unwarmed subalpine have very similar N slopes. They are living in the same climate! So even if the community is different, the N limitation is real at this temperature, but not colder (or warmer)
+
+### Conclusions, implications
+
+-   Several drivers work through same mechanisms, BUT at the same time, one driver can operate through several mechanisms at the same time….
+
+-   This varies across sites (as in, the relative importance of drivers, processes) -\> asks for replicated experiments
+
+-   Understanding how drivers map onto processes - we need to understand processes, find proxies, etc. We find that traits can help understand processes, and we might need to find ecosystem or community (Ellenberg, trait) proxies for these.
+
+-   Ellenbergs are useful! Proxies for envt response. Map them onto other traits?
+
 ## Acknowledgements
 
 We thank Sigurd Vikesland for sparking the idea for this experiment, and all the landowners for permission to use their land for this study. We thank Silje Östmann, Susanne Berthelsen, Linn Voldstad, Ingrid Dahle, Ragnhild Gya for helping with recording species composition, Dagmar Egelkraut and Linn Cecilie Krüger for experimental and site maintenance, and numerous students and friends including Elia Betschen, Leire Campos, Mary Chatzitriantafillou, Manon Denis, Mari Dybwad, Julie Eriksen, Joseph Gaudard, Regine Romain Goury, Gulbrandsen, Ragnhild Gya, Marie Hoensbroech, Jana Kovacic, Michaela Lebedova, Elisa Lehmann, Emma Little, Josh S. Lynn, Frida Merkesvik, Silvia Montagnani, Kevin Rechsteiner, Jana Rüthers, Christina Perez Sanchez, Christian Stømme, Eliska Suchoparova, Agnieszka Tokarczyk, Joachim Töpper, Alexander Vågenes, Camilla Zernichow, and Vincent Zimmermann for helping transplanting turfs and pretending to be grazers by clipping and then sorting plants. This study was supported by the Norwegian Research Council (Grant 287801).
@@ -16,7 +76,7 @@ The authors declare that they have no competing interests.
 
 ## Data availability
 
-All data underlying these analyses (including raw and processed data) are openly available on the Open Science Framework (OSF) repository[(63)](https://paperpile.com/c/KKq9O1/AhYc). 
+All data underlying these analyses (including raw and processed data) are openly available on the Open Science Framework (OSF) repository[(63)](https://paperpile.com/c/KKq9O1/AhYc).
 
 ## Code availability
 
@@ -25,15 +85,3 @@ All code for downloading the data from the OSF repository, data transformation, 
 ## Author contributions
 
 We follow the CreDiT taxonomy[(67)](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).
-
-\\
-
-\## Code availability
-
-All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub\[(64)\](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hopefully) fully reproducible by using a target pipeline\[(65)\](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv\[(66)\](https://paperpile.com/c/KKq9O1/L148). Please feel free to fork the GitHub repo and reproduce the analyses and manuscript and feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
-
-\\
-
-\## Author contributions
-
-We follow the CreDiT taxonomy\[(67)\](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).

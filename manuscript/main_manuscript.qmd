@@ -86,3 +86,5 @@ execute:
 {{< include methods.qmd >}}
 
 {{< include SEM_output.qmd >}}
+
+{{< include discussion.qmd >}}
