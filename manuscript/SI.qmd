@@ -2,11 +2,24 @@
 format:
     html:
       self-contained: true
+    docx: default
+    pdf:
+      documentclass: scrartcl
+      classoption:
+        - DIV=11
+        - numbers=noendperiod
+      papersize: a4
+      header-includes:
+        - \KOMAoption{captions}{tableheading}
+        - \usepackage{placeins}
+        - \FloatBarrier
+      fig-pos: H
+      tbl-pos: H
 title: Supporting Information
 execute:
   echo: false
 bibliography: bibliography.bib
-csl: science-advances.csl
+csl: ecology-letters.csl
 editor: 
   markdown: 
     wrap: sentence
@@ -16,6 +29,10 @@ editor:
 #| label: set-up
 #| echo: false
 #| message: false
+# Set working directory to project root for targets
+if(!dir.exists("_targets")) {
+  setwd("..")
+}
 library(targets)
 library(tarchetypes)
 library(tidyverse)

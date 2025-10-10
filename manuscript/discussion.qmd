@@ -1,10 +1,8 @@
 ---
-title: "Discussion"
-format: html
 editor: visual
 ---
 
-## Discussion
+# Discussion
 
 \[*The discussion should be about why using biomass works one place but not the other and what other mechanisms need to be included*\]
 
