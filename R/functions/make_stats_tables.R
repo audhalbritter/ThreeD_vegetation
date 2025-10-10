@@ -390,6 +390,8 @@ make_trait_stats <- function(trait_statistical_analysis){
       )
     ) |>
     select(trait_trans, trait_fancy, origSiteID, treatment, term, sumsq, df, statistic, p.value) |>
+    # Sort traits in the same order as ridgeline plots
+    mutate(trait_fancy = factor(trait_fancy, levels = c("Height cm", "Light", "Temperature", "Nutrients", "Reaction", "Moisture", "Mowing", "Grazing"))) |>
     # Pivot to wide format with origSiteID as columns
     pivot_wider(
       names_from = origSiteID, 
@@ -404,7 +406,9 @@ make_trait_stats <- function(trait_statistical_analysis){
       Alpine_sumsq, Alpine_df, Alpine_statistic, Alpine_p.value,
       # Sub-alpine columns  
       `Sub-alpine_sumsq`, `Sub-alpine_df`, `Sub-alpine_statistic`, `Sub-alpine_p.value`
-    )
+    ) |>
+    # Sort traits in the same order as ridgeline plots
+    arrange(trait_fancy)
 
   # Create gt table
   trait_stats |>

@@ -272,7 +272,6 @@ tranformation_plan <- list(
       filter(Namount_kg_ha_y != 150) |>
       # fix species names
       mutate(species = case_when(
-        str_detect(species, "Antennaria") ~ "Antennaria sp",
         species == "Carex capillaris cf" ~ "Carex capillaris",
         species == "Carex leporina cf" ~ "Carex leporina",
         species == "Carex nigra cf" ~ "Carex nigra",
@@ -417,9 +416,10 @@ tranformation_plan <- list(
 
   ### ELLENBERG VALUES
   tar_target(
-    name = ellenberg,
+    name = affinity,
     command = {
-      ellenberg_raw |>
+      
+      e <- ellenberg_raw |>
         clean_names() |>
         rename(seq_id = x1, species = x2) |>
         slice(-1) |>
@@ -440,6 +440,14 @@ tranformation_plan <- list(
           nutrients = mean(nutrients, na.rm = TRUE),
           salinity = mean(salinity, na.rm = TRUE)
         )
+
+    d <- disturbance_raw |>
+      clean_names() |>
+      mutate(species = str_replace(species, " aggr.", "")) |>
+      select(species, mowing_frequency, grazing_pressure)
+
+    tidylog::left_join(e, d, by = "species")
     }
   )
+
 )

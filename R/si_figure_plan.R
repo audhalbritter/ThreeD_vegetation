@@ -8,16 +8,10 @@ si_figure_plan <- list(
   # ),
 
   # Gauguin colour palette
-# Egypt
-# Java
-# Morgenstern
-# Veronese
-
   tar_target(
     name = treatment_palette,
-    # colours for treatments: 1 = grey (control), 2 = red (warming), 3 = yellow (clipping), 4 = light green (...), 5 = green (nitrogen), 6 = blue (biomass)
-      #c("grey40", "#67322e" "#99610a" "#6e948c" "#2c6b67" "#122c43")
-    command = c("grey60", MetBrewer::met.brewer(name="Veronese", n=5, type="discrete"))
+    # colours for treatments: 1 = black (control), 2 = pink (warming), 3 = yellow (clipping), 4 = green (nitrogen), 5 = blue (biomass) ("#2f70a1", "#0a3351")
+    command = c("grey20", MetBrewer::met.brewer(name="Gauguin", n=3, type="discrete"), "#2f70a1")
   ),
 
   tar_target(
@@ -26,8 +20,13 @@ si_figure_plan <- list(
   ),
 
   tar_target(
+    name = biomass_palette,
+    command = c(MetBrewer::met.brewer(name="Hokusai2", n=5, type="discrete"))
+  ),
+
+  tar_target(
     name = nitrogen_palette,
-    command = c(MetBrewer::met.brewer(name="Hokusai2", n=7, type="continuous"))
+    command = c(MetBrewer::met.brewer(name="VanGogh3", n=7, type="discrete"))
   ),
 
     tar_target(
@@ -159,8 +158,8 @@ si_figure_plan <- list(
           group_by(siteID, treatment, plot_nr) |>
           summarise(sum = sum(productivity_g_m2)) |>
           ggplot(aes(x = siteID, y = sum, fill = treatment)) +
-          geom_boxplot() +
-          scale_fill_manual(name = "", values = c("#E9BD7F", "grey30")) +
+          geom_violin(draw_quantiles = c(0.5)) +
+          scale_fill_manual(name = "", values = treatment_palette[c(3, 1)]) +
           labs(y = bquote(Annual~productivity~g~m^-2~y^-1),
                x = "",
                tag = "a)") +
@@ -170,7 +169,7 @@ si_figure_plan <- list(
       plot4 <- consumption |>
         ggplot(aes(x = siteID, y = Consumption)) +
         geom_hline(yintercept = 0, colour = "grey70") +
-        geom_boxplot(fill = "#E9BD7F") +
+        geom_violin(fill = treatment_palette[c(3)], draw_quantiles = c(0.5)) +
         labs(y = bquote(Annual~biomass~consumption~g~m^-2~y-1),
              x = "",
              tag = "b)") +
@@ -207,11 +206,13 @@ si_figure_plan <- list(
         geom_line(data = prediction,
                   aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)),
                   colour = "grey60") +
-        geom_point(aes(colour = warming, size = Namount_kg_ha_y)) +
+        geom_point(aes(colour = warming, size = Nitrogen_log)) +
         annotate("text", x = 2000, y = 5,
                  label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
         scale_colour_manual(values = warming_palette, name = "Warming") +
-        scale_size_continuous(name = bquote(Nitrogen~addition~(kg~ha^-1~y^-1))) +
+        scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+                             breaks = c(0, 1, 2, 3, 4),
+                             labels = c("0", "25", "50", "75", "100")) +
         guides(linetype = FALSE) +
         labs(x = "Cover x height",
              y = bquote(Estimated~standing~biomass~(g~m^-2))) +

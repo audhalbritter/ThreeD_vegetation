@@ -3203,6 +3203,43 @@
       "Maintainer": "Teun van den Brand <tahvdbrand@gmail.com>",
       "Repository": "CRAN"
     },
+    "ggnetwork": {
+      "Package": "ggnetwork",
+      "Version": "0.5.13",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Geometries to Plot Networks with 'ggplot2'",
+      "Description": "Geometries to plot network objects with 'ggplot2'.",
+      "Date": "2024-02-14",
+      "Maintainer": "François Briatte <f.briatte@gmail.com>",
+      "Authors@R": "c( person(\"François\", \"Briatte\", email = \"f.briatte@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0001-6494-9774\")), person(\"Michał\", \"Bojanowski\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7503-852X\")), person(\"Mickaël\", \"Canouil\", role = \"ctb\", comment = c(ORCID = \"0000-0002-3396-4549\")), person(\"Zachary\", \"Charlop-Powers\", role = \"ctb\", comment = c(ORCID = \"0000-0001-8816-4680\")), person(\"Jacob C.\", \"Fisher\", role = \"ctb\", comment = c(ORCID = \"0000-0003-0299-0346\")), person(\"Kipp\", \"Johnson\", role = \"ctb\", comment = c(ORCID = \"0000-0002-5102-741X\")), person(\"Tyler\", \"Rinker\", role = \"ctb\") )",
+      "License": "GPL-3",
+      "URL": "https://github.com/briatte/ggnetwork",
+      "BugReports": "https://github.com/briatte/ggnetwork/issues",
+      "Depends": [
+        "R (>= 3.5)",
+        "ggplot2 (>= 2.0.0)"
+      ],
+      "Imports": [
+        "ggrepel (>= 0.5)",
+        "network",
+        "igraph",
+        "sna",
+        "utils"
+      ],
+      "Suggests": [
+        "knitr",
+        "rmarkdown",
+        "testthat"
+      ],
+      "Collate": "'utilities.R' 'fortify-igraph.R' 'fortify-network.R' 'geom-nodes.R' 'geom-edges.R' 'ggnetwork.R'",
+      "VignetteBuilder": "knitr",
+      "RoxygenNote": "7.3.1",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "no",
+      "Author": "François Briatte [aut, cre] (<https://orcid.org/0000-0001-6494-9774>), Michał Bojanowski [ctb] (<https://orcid.org/0000-0001-7503-852X>), Mickaël Canouil [ctb] (<https://orcid.org/0000-0002-3396-4549>), Zachary Charlop-Powers [ctb] (<https://orcid.org/0000-0001-8816-4680>), Jacob C. Fisher [ctb] (<https://orcid.org/0000-0003-0299-0346>), Kipp Johnson [ctb] (<https://orcid.org/0000-0002-5102-741X>), Tyler Rinker [ctb]",
+      "Repository": "CRAN"
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "3.5.2",
@@ -5275,6 +5312,39 @@
       "NeedsCompilation": "yes",
       "Author": "Alan Genz [aut], Frank Bretz [aut], Tetsuhisa Miwa [aut], Xuefei Mi [aut], Friedrich Leisch [ctb], Fabian Scheipl [ctb], Bjoern Bornkamp [ctb] (<https://orcid.org/0000-0002-6294-8185>), Martin Maechler [ctb] (<https://orcid.org/0000-0002-8685-9910>), Torsten Hothorn [aut, cre] (<https://orcid.org/0000-0001-8301-0471>)",
       "Maintainer": "Torsten Hothorn <Torsten.Hothorn@R-project.org>",
+      "Repository": "CRAN"
+    },
+    "network": {
+      "Package": "network",
+      "Version": "1.19.0",
+      "Source": "Repository",
+      "Date": "2024-12-08",
+      "Title": "Classes for Relational Data",
+      "Authors@R": "c( person(\"Carter T.\", \"Butts\", role=c(\"aut\",\"cre\"), email=\"buttsc@uci.edu\"), person(\"David\", \"Hunter\", role=c(\"ctb\"), email=\"dhunter@stat.psu.edu\"), person(\"Mark\", \"Handcock\", role=c(\"ctb\"), email=\"handcock@stat.ucla.edu\"), person(\"Skye\", \"Bender-deMoll\", role=c(\"ctb\"), email=\"skyebend@uw.edu\"), person(\"Jeffrey\", \"Horner\", role=c(\"ctb\"), email=\"jeffrey.horner@gmail.com\"), person(\"Li\", \"Wang\", role=c(\"ctb\"), email=\"lxwang@uw.edu\"), person(\"Pavel N.\", \"Krivitsky\", role=c(\"ctb\"), email=\"pavel@statnet.org\", comment=c(ORCID=\"0000-0002-9101-3362\")), person(\"Brendan\", \"Knapp\", role=c(\"ctb\"), email=\"brendan.g.knapp@gmail.com\", comment=c(ORCID=\"0000-0003-3284-4972\")), person(\"Michał\", \"Bojanowski\", role=c(\"ctb\"), email = \"michal2992@gmail.com\", comment = c(ORCID = \"0000-0001-7503-852X\")), person(\"Chad\", \"Klumb\", role=c(\"ctb\"), email=\"cklumb@gmail.com\"))",
+      "Maintainer": "Carter T. Butts <buttsc@uci.edu>",
+      "Depends": [
+        "R (>= 2.10)",
+        "utils"
+      ],
+      "Imports": [
+        "tibble",
+        "magrittr",
+        "statnet.common (>= 4.5)",
+        "stats"
+      ],
+      "Suggests": [
+        "sna",
+        "testthat",
+        "covr"
+      ],
+      "Description": "Tools to create and modify network objects.  The network class can represent a range of relational data types, and supports arbitrary vertex/edge/graph attributes.",
+      "License": "GPL (>= 2)",
+      "URL": "https://statnet.org/",
+      "RoxygenNote": "7.3.2.9000",
+      "Collate": "'access.R' 'as.edgelist.R' 'assignment.R' 'coercion.R' 'constructors.R' 'dataframe.R' 'fileio.R' 'layout.R' 'misc.R' 'network-package.R' 'operators.R' 'plot.R' 'printsum.R' 'zzz.R'",
+      "Encoding": "UTF-8",
+      "NeedsCompilation": "yes",
+      "Author": "Carter T. Butts [aut, cre], David Hunter [ctb], Mark Handcock [ctb], Skye Bender-deMoll [ctb], Jeffrey Horner [ctb], Li Wang [ctb], Pavel N. Krivitsky [ctb] (<https://orcid.org/0000-0002-9101-3362>), Brendan Knapp [ctb] (<https://orcid.org/0000-0003-3284-4972>), Michał Bojanowski [ctb] (<https://orcid.org/0000-0001-7503-852X>), Chad Klumb [ctb]",
       "Repository": "CRAN"
     },
     "nlme": {
@@ -7478,6 +7548,32 @@
       "Maintainer": "Edzer Pebesma <edzer.pebesma@uni-muenster.de>",
       "Repository": "CRAN"
     },
+    "sna": {
+      "Package": "sna",
+      "Version": "2.8",
+      "Source": "Repository",
+      "Date": "2024-09-07",
+      "Title": "Tools for Social Network Analysis",
+      "Authors@R": "person(given=c(\"Carter\", \"T.\"), family=\"Butts\", role=c(\"aut\",\"cre\",\"cph\"), email = \"buttsc@uci.edu\")",
+      "Depends": [
+        "R (>= 2.0.0)",
+        "utils",
+        "statnet.common",
+        "network"
+      ],
+      "Suggests": [
+        "rgl",
+        "numDeriv",
+        "SparseM"
+      ],
+      "Description": "A range of tools for social network analysis, including node and graph-level indices, structural distance and covariance methods, structural equivalence detection, network regression, random graph generation, and 2D/3D network visualization.",
+      "License": "GPL (>= 2)",
+      "URL": "https://statnet.org",
+      "NeedsCompilation": "yes",
+      "Author": "Carter T. Butts [aut, cre, cph]",
+      "Maintainer": "Carter T. Butts <buttsc@uci.edu>",
+      "Repository": "CRAN"
+    },
     "snakecase": {
       "Package": "snakecase",
       "Version": "0.11.1",
@@ -7511,6 +7607,42 @@
       "VignetteBuilder": "knitr",
       "NeedsCompilation": "no",
       "Author": "Malte Grosser [aut, cre]",
+      "Repository": "CRAN"
+    },
+    "statnet.common": {
+      "Package": "statnet.common",
+      "Version": "4.12.0",
+      "Source": "Repository",
+      "Date": "2025-05-30",
+      "Title": "Common R Scripts and Utilities Used by the Statnet Project Software",
+      "Authors@R": "c( person(c(\"Pavel\", \"N.\"), \"Krivitsky\", role=c(\"aut\",\"cre\"), email=\"pavel@statnet.org\", comment=c(ORCID=\"0000-0002-9101-3362\", affiliation=\"University of New South Wales\")), person(\"Skye\", \"Bender-deMoll\", role=c(\"ctb\"), email=\"skyebend@uw.edu\"), person(\"Chad\", \"Klumb\", role=c(\"ctb\"), email=\"cklumb@gmail.com\", comment=c(affiliation=\"University of Washington\")), person(\"Michał\", \"Bojanowski\", role=c(\"ctb\"), email=\"michal2992@gmail.com\", comment=c(ORCID=\"0000-0001-7503-852X\")))",
+      "Description": "Non-statistical utilities used by the software developed by the Statnet Project. They may also be of use to others.",
+      "Depends": [
+        "R (>= 4.1)"
+      ],
+      "Imports": [
+        "utils",
+        "methods",
+        "coda",
+        "parallel",
+        "tools",
+        "Matrix"
+      ],
+      "BugReports": "https://github.com/statnet/statnet.common/issues",
+      "License": "GPL-3 + file LICENSE",
+      "URL": "https://statnet.org",
+      "RoxygenNote": "7.3.2.9000",
+      "Encoding": "UTF-8",
+      "Suggests": [
+        "covr",
+        "roxygen2",
+        "rlang (>= 1.1.1)",
+        "purrr",
+        "MASS"
+      ],
+      "NeedsCompilation": "yes",
+      "Author": "Pavel N. Krivitsky [aut, cre] (ORCID: <https://orcid.org/0000-0002-9101-3362>, affiliation: University of New South Wales), Skye Bender-deMoll [ctb], Chad Klumb [ctb] (affiliation: University of Washington), Michał Bojanowski [ctb] (ORCID: <https://orcid.org/0000-0001-7503-852X>)",
+      "Maintainer": "Pavel N. Krivitsky <pavel@statnet.org>",
       "Repository": "CRAN"
     },
     "stringi": {
