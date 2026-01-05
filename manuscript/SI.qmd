@@ -59,6 +59,117 @@ daily_climate_figure
 
 ```
 
+
+### Supplementary Table S1: Environmantal variables for the study sites
+
+```{r}
+#| label: method
+#| echo: false
+#| warning: false
+
+tar_load(daily_temp)
+
+daily_temp2 <- as.data.frame(daily_temp)
+
+temp <- daily_temp2 |>
+      mutate(month = month(date),
+             year = year(date)) %>%
+      filter(month %in% c(5, 6, 7, 8, 9),
+             year %in% c(2020, 2021),
+             # only controls
+             Nlevel %in% c(1, 2, 3),
+             grazing == "Control") |> 
+  group_by(destSiteID, origSiteID, variable, warming, .drop = TRUE) %>%
+  summarise(mean = round(mean(value), 2),
+            se = round(sd(value)/sqrt(n()), 1)) |> 
+  filter(!c(origSiteID == "Alpine" & warming == "Warming")) |> 
+  mutate(siteID = case_when(destSiteID == "Lia" ~ "Alpine",
+                            destSiteID == "Joa" ~ "Sub-alpine",
+                            destSiteID == "Vik" ~ "Lowland"),
+         siteID = factor(siteID, levels = c("Alpine", "Sub-alpine", "Lowland")))
+
+ta <- temp |> 
+  filter(variable == "air") |> 
+  arrange(siteID)
+  
+
+tar_load(consumption)
+prod <- consumption |> 
+  group_by(siteID) |> 
+  summarise(mean = round(mean(Ungrazed), 2),
+            se = round(sd(Ungrazed)/sqrt(n()), 1))
+
+cons <- consumption |> 
+  group_by(siteID) |> 
+  summarise(mean = round(mean(Consumption), 2),
+            se = round(sd(Consumption)/sqrt(n()), 1))
+
+# Create table with site characteristics
+# Ensure siteID names are consistent (Lowland -> Boreal)
+ta_table <- ta |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, temp_mean = mean, temp_se = se)
+
+prod_table <- prod |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, prod_mean = mean, prod_se = se)
+
+cons_table <- cons |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, cons_mean = mean, cons_se = se)
+
+site_table <- data.frame(
+  Site = c("Alpine", "Sub-alpine", "Boreal"),
+  stringsAsFactors = FALSE
+) |>
+  # Add air temperature
+  left_join(ta_table, by = c("Site" = "siteID")) |>
+  # Add precipitation (hardcoded values from text)
+  mutate(
+    Precipitation_mm = c(2089, 1256, 1292)
+  ) |>
+  # Add productivity
+  left_join(prod_table, by = c("Site" = "siteID")) |>
+  # Add consumption
+  left_join(cons_table, by = c("Site" = "siteID")) |>
+  # Format values as strings with ± SE
+  mutate(
+    `Air temperature (°C)` = paste0(temp_mean, " ± ", temp_se),
+    `Precipitation (mm)` = as.character(Precipitation_mm),
+    `Annual productivity (g m^-2^ y^-1^)` = paste0(prod_mean, " ± ", prod_se),
+    `Grazing consumption (g m^-2^ y^-1^)` = paste0(cons_mean, " ± ", cons_se)
+  ) |>
+  # Select only needed columns in desired order
+  select(Site, `Air temperature (°C)`, `Precipitation (mm)`, 
+         `Annual productivity (g m^-2^ y^-1^)`, `Grazing consumption (g m^-2^ y^-1^)`)
+
+```
+
+```{r}
+#| label: tbl-site-characteristics
+#| echo: false
+#| tbl-cap: "Environmental characteristics of the study sites. Air temperature is the average summer temperature (May-September) measured in situ between 2019-2022. Precipitation values are from modeled climate data (2008-2021) by the Norwegian Meteorological Institute. Values shown as mean ± SE."
+
+site_table |>
+  gt() |>
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_column_labels()
+  ) |>
+  cols_align(align = "left", columns = Site) |>
+  cols_align(align = "center", columns = -Site)
+
+```
+
 ### Supplementary Table S1: Stats for temperature effects on the microclimate
 
 ```{r}
