@@ -27,15 +27,11 @@ library(cowplot)
 
 ### Global change drivers affect community biomass and diversity differently between sites
 
-<!-- Title: not so differently for biomass -->
-
-<!--# Should I mention the main effects only first, since there are interactions in the alpine site -->
-
-As expected, at both sites, warming (W) and nitrogen addition (N) significantly increased community biomass, clipping (C) reduced community biomass (@fig-1-biomass-diversity; Supplementary Table S4). At the alpine site, community biomass was co-limited by warming and nitrogen addition (WxN interaction) such that either warming alone or the highest N level alone had similar biomass. The results seemed to be more additive at the sub-alpine site, although the WXN interaction was almost significant(Figure 3).
+As expected, at both sites, warming (W) and nitrogen addition (N) significantly increased community biomass, while clipping (C) reduced biomass (@fig-1-biomass-diversity; Supplementary Table S6). At the alpine site, community biomass was co-limited by warming and nitrogen addition (WxN interaction) such that either warming alone or the highest N level alone had similar biomass. The results seemed to be more additive at the sub-alpine site, although the WXN interaction was almost significant (@fig-1-biomass-diversity).
 
 Responses of Shannon diversity to the treatments different considerable at the two sites. At the alpine site, warming increased Shannon diversity over most of the nitrogen addition gradient, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity; Supplementary Table S4). Clipping seemed to mitigate this negative effect of warming on diversity at high nitrogen addition (WxNxC). In contrast, at the sub-alpine site, warming and nitrogen addition had a negative effect on diversity throughout the nitrogen addition gradient, although the biggest effect was, again, at higher nitrogen levels (\> 25 kg N ha^-1^ y^-1^ ). There was no effect of clipping or interactive effects at the sub-alpine site.
 
-We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplementary Table S4; Supplemenatry Figure S4).
+We found similar patterns for the impact of the three global change drivers on species richness and evenness (Supplementary Figure S4, and Table S4).
 
 ```{r}
 #| label: fig-1-biomass-diversity
@@ -52,7 +48,7 @@ tar_read(bio_div_figure)
 
 ### Do global change drivers operate on diversity and community composition through the same mechanisms?
 
-We tested if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely community biomass, using structural equation models. As we found with the regression models, at both sites, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b; Supplementary Table S5). Also as predicted, community biomass had a negative effect on diversity, albeit weak and nonsignificant at the sub-alpine site (@fig-cut-final-diversity; @fig-bio-div). However, contrary to our prediction in neither site, all three global change drivers operated on diversity solely indirectly through community biomass. In the alpine, our prediction was largely met, with nitrogen addition and clipping having only indirect effects on diversity, but warming had a substantial positive direct effect on diversity as well as a negative effect mediated through community biomass. In contrast, at the sub-alpine site all three drivers had primarily direct negative effects on diversity.
+We tested if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely community biomass, using structural equation models. As we found with the regression models, at both sites, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b; Supplementary Table S7). Also as predicted, community biomass had a negative effect on diversity, albeit weak and non-significant at the sub-alpine site (@fig-cut-final-diversity; @fig-bio-div). However, contrary to our prediction in neither site, all three global change drivers operated on diversity solely indirectly through community biomass. In the alpine, our prediction was largely met, with nitrogen addition and clipping having only indirect effects on diversity, but warming had a substantial positive direct effect on diversity as well as a negative effect mediated through community biomass. In contrast, at the sub-alpine site warming and nitrogen addition had primarily direct negative effects on diversity, while clipping had operated through community biomass.
 
 ```{r}
 #| label: fig-cut-final-diversity
@@ -68,9 +64,9 @@ cut_final_diversity[[1]]
 
 ```
 
-We found similar but weaker patterns for the direct and indirect effects of warming, nitrogen addition, and clipping on species richness and evenness (Supplementary Figures S5, Table S5). For example, the indirect negative effect on species richness via community biomass was weaker and not significant at the alpine site. At the sub-alpine only warming affected species richness directly and nitrogen addition and clipping affected evenness directly.
+We found similar but weaker patterns for the direct and indirect effects of warming, nitrogen addition, and clipping on species richness and evenness (Supplementary Figures S5, Table S7). For example, the indirect negative effect on species richness via community biomass was weaker and not significant at the alpine site. At the sub-alpine site only warming affected species richness directly while nitrogen addition and clipping had a weaker direct effect on evenness.
 
-<!-- Grazing results -->
+<!-- Grazing results: similar but weaker results for grazing instead of clipping. Stronger indirect effect, although not significant, and no direct effect of warming. In the sub-alpine N and G mostly indirect but not significant, while warming had a more direct effect. Need to do stats. -->
 
 ```{r}
 #| label: fig-bio-div
