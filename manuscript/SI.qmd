@@ -20,6 +20,11 @@ execute:
   echo: false
 bibliography: bibliography.bib
 csl: ecology-letters.csl
+crossref:
+  fig-prefix: "S"
+  tbl-prefix: "S"
+  fig-title: "Supplementary Figure"
+  tbl-title: "Supplementary Table"
 editor: 
   markdown: 
     wrap: sentence
@@ -46,7 +51,7 @@ library(ggpubr)
 
 ## Methods
 
-### Supplementary Figure S1: Temperature effects on the microclimate
+### Temperature effects on the microclimate
 
 ```{r}
 #| label: fig-daily-climate
@@ -60,7 +65,7 @@ daily_climate_figure
 ```
 
 
-### Supplementary Table S1: Environmantal variables for the study sites
+### Environmantal variables for the study sites
 
 ```{r}
 #| label: method
@@ -170,7 +175,7 @@ site_table |>
 
 ```
 
-### Supplementary Table S1: Stats for temperature effects on the microclimate
+### Stats for temperature effects on the microclimate
 
 ```{r}
 #| label: tbl-climate-test
@@ -182,7 +187,7 @@ microclimate_stats
 
 ```
 
-### Supplementary Figure S2: Climate and global change drivers
+### Climate and global change drivers
 
 ```{r}
 #| label: fig-climate
@@ -192,7 +197,7 @@ tar_load(climate_figure)
 climate_figure
 ```
 
-### Supplementary Table S2: Stats for climate and global change drivers
+### Stats for climate and global change drivers
 
 ```{r}
 #| label: tbl-climate
@@ -203,7 +208,7 @@ climate_stats
 
 ```
 
-### Supplementary Figure S3: Calculating community biomass
+### Calculating community biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
@@ -216,7 +221,7 @@ tar_read(standing_biomass_back_fig)
 
 ```
 
-### Supplementary Table S3: Model output for estimated community biomass
+### Model output for estimated community biomass
 
 ```{r}
 #| label: tbl-standing-biomass-model-output
@@ -245,7 +250,7 @@ tidy(standing_biomass_model) |>
 
 ```
 
-### Supplementary Table S4: Model output for biomass and diversity models
+### Model output for biomass and diversity models
 
 ```{r}
 #| label: tbl-biomass-diversity-model-output
@@ -373,7 +378,7 @@ biomass_origin_anova_table |>
 
 ```
 
-### Supplementary Figure S4: Global change affects richness and evenness
+### Global change affects richness and evenness
 
 ```{r}
 #| label: fig-div-index
@@ -387,9 +392,9 @@ tar_read(div_index_figure)
 
 ```
 
-### Structural equation models
+## Structural equation models
 
-#### Supplementary Table S5: Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site
 
 ```{r}
 #| label: tbl-cut-final-stats
@@ -440,7 +445,7 @@ bind_rows(
 
 ```
 
-#### Supplementary Figure S5: SEM for species richness and evenness
+### SEM for species richness and evenness
 
 ```{r}
 #| label: fig-cut-final-rich-even
@@ -456,7 +461,7 @@ cut_final_richness_evenness[[1]]
 
 ```
 
-### Supplementary Figure S6: PCA separately for the alpine and sub-alpine site
+### PCA separately for the alpine and sub-alpine site
 
 ```{r}
 #| label: fig-trait-pca2
@@ -473,7 +478,7 @@ affinity_pca_plot_single
 
 ```
 
-### Supplementary Figure S7: SEM separately for the alpine and sub-alpine site
+### SEM separately for the alpine and sub-alpine site
 
 ```{r}
 #| label: fig-cut-affinity2
@@ -489,7 +494,7 @@ cut_affinity2[[1]]
 
 ```
 
-### Supplementary Figure S8: Environmentalf afinity distributions
+### Environmentalf afinity distributions
 
 To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
 
@@ -520,7 +525,7 @@ tar_load(traits_clipping_plot)
 
 ```
 
-### Supplementary Table S6: Environmental affinity distributions statistics
+### Environmental affinity distributions statistics
 
 ```{r}
 #| label: tbl-trait-stats
@@ -534,7 +539,7 @@ trait_stats_table
 
 ```
 
-#### Supplementary Figure S10: SEMs for natural grazing
+### SEMs for natural grazing
 
 ```{r}
 #| label: fig-graz-final-all-diversity
