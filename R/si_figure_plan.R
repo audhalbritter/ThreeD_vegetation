@@ -197,7 +197,7 @@ si_figure_plan <- list(
       new_data <- crossing(dat |>
                              ungroup() |>
                              select(biomass_remaining_calc),
-                           tibble(Nitrogen_log = c(0, 4.62)))
+                           tibble(Nitrogen_log = c(0, log(100 + 1))))
 
       prediction <- augment(SB_back_model_22, newdata = new_data)
 
@@ -213,7 +213,7 @@ si_figure_plan <- list(
         scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
                              breaks = c(0, 1, 2, 3, 4),
                              labels = c("0", "25", "50", "75", "100")) +
-        guides(linetype = FALSE) +
+        guides(linetype = "none") +
         labs(x = "Cover x height",
              y = bquote(Estimated~standing~biomass~(g~m^-2))) +
         theme_bw()
