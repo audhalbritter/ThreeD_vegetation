@@ -54,6 +54,13 @@ si_analysis_plan <- list(
           AIC(model_N),
           AIC(model_W),
           AIC(model_biomass)
+        ),
+        R2 = c(
+          summary(model_full)$r.squared,
+          summary(model_additive)$r.squared,
+          summary(model_N)$r.squared,
+          summary(model_W)$r.squared,
+          summary(model_biomass)$r.squared
         )
       ) |>
         arrange(AIC) |>

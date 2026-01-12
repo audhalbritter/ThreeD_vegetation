@@ -238,14 +238,15 @@ climate_stats
 
 ```{r}
 #| label: tbl-biomass-model-comparison
-#| tbl-cap: "Model comparison for the relationship between estimated and collected standing biomass. Shown are AIC and delta AIC."
+#| tbl-cap: "Model comparison for the relationship between estimated and collected standing biomass. Shown are AIC, delta AIC, and R²."
 
 tar_load(biomass_estimation_model_comparison)
 biomass_estimation_model_comparison$aic_comparison |>
   gt() |>
   fmt_number(columns = c(AIC), decimals = 1) |>
   fmt_number(columns = c(delta_AIC), decimals = 3) |>
-  cols_label(delta_AIC = "ΔAIC") |>
+  fmt_number(columns = c(R2), decimals = 3) |>
+  cols_label(delta_AIC = "ΔAIC", R2 = "R²") |>
   tab_style(
     style = list(cell_text(weight = "bold")),
     locations = cells_column_labels()
@@ -259,7 +260,7 @@ biomass_estimation_model_comparison$aic_comparison |>
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: "Relationship between collected and estimated standing biomass in the unfertilized and unclipped control plots. Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red). The point size indicates the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
+#| fig-cap: "Relationship between collected and estimated standing biomass in the unfertilized and unclipped control plots. Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red) and the point size the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. The line type indicate model predictions for 0 (solid) and 100 kg N ha^-1^ y^-1^ (dashed)."
 
 
 tar_read(standing_biomass_back_fig)
