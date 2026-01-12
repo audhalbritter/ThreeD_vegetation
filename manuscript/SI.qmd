@@ -238,7 +238,7 @@ climate_stats
 
 ```{r}
 #| label: tbl-biomass-model-comparison
-#| tbl-cap: "Model comparison for the relationship between estimated and collected standing biomass. Shown are AIC, delta AIC, and R²."
+#| tbl-cap: "Model comparison for the relationship between estimated and collected community biomass. Shown are AIC, delta AIC, and R²."
 
 tar_load(biomass_estimation_model_comparison)
 biomass_estimation_model_comparison$aic_comparison |>
@@ -260,7 +260,7 @@ biomass_estimation_model_comparison$aic_comparison |>
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: "Relationship between collected and estimated standing biomass in the unfertilized and unclipped control plots. Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red) and the point size the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. The line type indicate model predictions for 0 (solid) and 100 kg N ha^-1^ y^-1^ (dashed)."
+#| fig-cap: "Relationship between collected and estimated community biomass in the unfertilized and unclipped control plots. Community biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red) and the point size the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. The line type indicate model predictions for 0 (solid) and 100 kg N ha^-1^ y^-1^ (dashed)."
 
 
 tar_read(standing_biomass_back_fig)
@@ -273,7 +273,7 @@ tar_read(standing_biomass_back_fig)
 #| label: tbl-standing-biomass-model-output
 #| echo: false
 #| warning: false
-#| tbl-cap: "Model output for the relationship between estimated and collected standing biomass. Shown are estimates, standard error, t statistics and P value."
+#| tbl-cap: "Model output for the relationship between estimated and collected community biomass. Shown are estimates, standard error, t statistics and P value."
 
 tar_load(standing_biomass_model)
 
@@ -302,7 +302,7 @@ tidy(standing_biomass_model) |>
 #| label: tbl-biomass-diversity-model-output
 #| echo: false
 #| warning: false
-#| tbl-cap: "Model output for the relationship between the global change drivers and standing biomass or the diversity indices. Shown are sum of squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
+#| tbl-cap: "Model output for the relationship between the global change drivers and community biomass or the diversity indices. Shown are sum of squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
 
 tar_load(biomass_origin_anova_table)
 tar_load(diversity_origin_anova_table)
@@ -448,7 +448,7 @@ tar_read(div_index_figure)
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via standing biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
 
 tar_load(cut_final_diversity)
 tar_load(cut_final_richness_evenness)
@@ -499,7 +499,7 @@ bind_rows(
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness and evenness for the a) and c) alpine and b) and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity index."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through community biomass on species richness and evenness for the a) and c) alpine and b) and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity index."
 
 tar_load(cut_final_richness_evenness)
 
@@ -532,7 +532,7 @@ affinity_pca_plot_single
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on environmental affinity for the a) and c) alpine and b) and d) sub-alpine site. The PCA for the affinity was done separately for the alpine and sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = affinity."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through community biomass on environmental affinity for the a) and c) alpine and b) and d) sub-alpine site. The PCA for the affinity was done separately for the alpine and sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = affinity."
 
 tar_load(cut_affinity2)
 
@@ -542,7 +542,7 @@ cut_affinity2[[1]]
 
 ### Environmentalf afinity distributions
 
-To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
+To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
 
 ```{r}
 #| label: fig-affinity-distributions
@@ -577,7 +577,7 @@ tar_load(traits_clipping_plot)
 #| label: tbl-trait-stats
 #| echo: false
 #| warning: false
-#| tbl-cap: "Statistical results for trait responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, mowing, and grazing disturbance) at the alpine and sub-alpine sites. Significant effects (P ≤ 0.05) are shown in bold."
+#| tbl-cap: "Statistical results for trait responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, mowing, and grazing disturbance) at the alpine and sub-alpine sites. Significant effects (P ≤ 0.05) are shown in bold."
 
 tar_load(trait_stats_table)
 
@@ -593,7 +593,7 @@ trait_stats_table
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through communitybiomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
 
 tar_load(graz_final_all_div)
 
