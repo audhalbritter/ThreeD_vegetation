@@ -593,7 +593,7 @@ trait_stats_table
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through communitybiomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through community biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
 
 tar_load(graz_final_all_div)
 
