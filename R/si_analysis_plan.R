@@ -27,6 +27,52 @@ si_analysis_plan <- list(
     command = summary(SB_back_model_22)
   ),
 
+  # compare biomass models
+  tar_target(
+    name = biomass_estimation_model_comparison,
+    command = {
+      # Prepare data
+      data <- prep_SB_back |>
+        filter(
+          grazing == "Control",
+          year == 2022
+        )
+      
+      # Fit all models
+      model_full <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log * warming, data = data)
+      model_additive <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log + warming, data = data)
+      model_N <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = data)
+      model_W <- lm(biomass_remaining_coll ~ biomass_remaining_calc + warming, data = data)
+      model_biomass <- lm(biomass_remaining_coll ~ biomass_remaining_calc, data = data)
+      
+      # Compare by AIC
+      aic_comparison <- data.frame(
+        Model = c("biomass + N * W", "biomass + N + W", "biomass + N", "biomass + W", "biomass"),
+        AIC = c(
+          AIC(model_full),
+          AIC(model_additive),
+          AIC(model_N),
+          AIC(model_W),
+          AIC(model_biomass)
+        )
+      ) |>
+        arrange(AIC) |>
+        mutate(delta_AIC = AIC - min(AIC))
+      
+      # Return list with models and comparison
+      list(
+        models = list(
+          full = model_full,
+          additive = model_additive,
+          N = model_N,
+          W = model_W,
+          biomass = model_biomass
+        ),
+        aic_comparison = aic_comparison
+      )
+    }
+  ),
+
 
   # MICROCLIMATE
   # run 3-way interaction model for climate
