@@ -64,7 +64,7 @@ cut_final_diversity[[1]]
 
 ```
 
-We found similar but weaker patterns for the direct and indirect effects of warming, nitrogen addition, and clipping on species richness and evenness (Supplementary Figures S5, Table S7). For example, the indirect negative effect on species richness via community biomass was weaker and not significant at the alpine site. At the sub-alpine site only warming affected species richness directly while nitrogen addition and clipping had a weaker direct effect on evenness. Grazing had the same effect on community biomass, diversity, richness and evenness as clipping (Supplementary Figure S10, Table S7). The SEMs including grazing showed similar patterns to the models with clipping and both the direct and indirect effect of the global change drivers via community biomass were the same or weaker.
+We found similar but weaker patterns for the direct and indirect effects of warming, nitrogen addition, and clipping on species richness and evenness (Supplementary Figures S5, Table S7). For example, the indirect negative effect on species richness via community biomass was weaker and not significant at the alpine site. At the sub-alpine site only warming affected species richness directly while nitrogen addition and clipping had a weaker direct effect on evenness. Grazing had the same effect on community biomass, diversity, richness and evenness as clipping (Supplementary Figure S6, Table S8). The SEMs including grazing showed similar patterns to the models with clipping and both the direct and indirect effect of the global change drivers via community biomass were the same or weaker.
 
 
 ```{r}
