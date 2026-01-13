@@ -449,7 +449,7 @@ tar_read(div_index_figure)
 ### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (clipping)
 
 ```{r}
-#| label: tbl-cut-final-stats
+#| label: tbl-cut-final-stats2
 #| echo: false
 #| message: false
 #| fig-width: 10
@@ -473,8 +473,7 @@ bind_rows(
              str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
            ))
 ) |> 
-  mutate(Response = diversity_index,
-         P.Value_num = P.Value,
+  mutate(P.Value_num = P.Value,
          is_significant = P.Value <= 0.05) |> 
   mutate(Std.Estimate = round(Std.Estimate, 2),
          Std.Error = round(Std.Error, 2),
@@ -555,8 +554,7 @@ graz_final_all_div[[2]] |>
            str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
            str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
          )) |> 
-  mutate(Response = diversity_index,
-         P.Value_num = P.Value,
+  mutate(P.Value_num = P.Value,
          is_significant = P.Value <= 0.05) |> 
   mutate(Std.Estimate = round(Std.Estimate, 2),
          Std.Error = round(Std.Error, 2),
