@@ -500,7 +500,7 @@ bind_rows(
 
 ```
 
-### SEM for species richness and evenness
+### SEM for species richness and evenness (clipping)
 
 ```{r}
 #| label: fig-cut-final-rich-even
@@ -515,6 +515,75 @@ tar_load(cut_final_richness_evenness)
 cut_final_richness_evenness[[1]]
 
 ```
+
+
+### SEMs for natural grazing
+
+```{r}
+#| label: fig-graz-final-all-diversity
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 15
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through community biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
+
+tar_load(graz_final_all_div)
+
+graz_final_all_div[[1]]
+
+```
+
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (grazing)
+
+```{r}
+#| label: tbl-graz-final-stats
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+
+tar_load(graz_final_all_div)
+
+graz_final_all_div[[2]] |> 
+  mutate(diversity_index = case_when(
+           str_detect(Type, "diversity") ~ "diversity",
+           str_detect(Type, "richness") ~ "richness",
+           str_detect(Type, "evenness") ~ "evenness"
+         ),
+         Site = case_when(
+           str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
+           str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
+         )) |> 
+  mutate(Response = diversity_index,
+         P.Value_num = P.Value,
+         is_significant = P.Value <= 0.05) |> 
+  mutate(Std.Estimate = round(Std.Estimate, 2),
+         Std.Error = round(Std.Error, 2),
+         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
+  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
+  group_by(Site) |> 
+  gt() |> 
+  cols_hide(columns = is_significant) |> 
+  tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        rows = is_significant
+      )) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    )
+
+```
+
+
+## PCA affinities
 
 ### PCA separately for the alpine and sub-alpine site
 
@@ -532,6 +601,8 @@ tar_load(affinity_pca_plot_single)
 affinity_pca_plot_single
 
 ```
+
+## SEM affinities
 
 ### SEM separately for the alpine and sub-alpine site
 
@@ -610,73 +681,5 @@ tar_load(traits_clipping_plot)
 tar_load(trait_stats_table)
 
 trait_stats_table
-
-```
-
-
-## Grazing
-
-### SEMs for natural grazing
-
-```{r}
-#| label: fig-graz-final-all-diversity
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through community biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
-
-tar_load(graz_final_all_div)
-
-graz_final_all_div[[1]]
-
-```
-
-### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (grazing)
-
-```{r}
-#| label: tbl-graz-final-stats
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
-
-tar_load(graz_final_all_div)
-
-graz_final_all_div[[2]] |> 
-  mutate(diversity_index = case_when(
-           str_detect(Type, "diversity") ~ "diversity",
-           str_detect(Type, "richness") ~ "richness",
-           str_detect(Type, "evenness") ~ "evenness"
-         ),
-         Site = case_when(
-           str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
-           str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
-         )) |> 
-  mutate(Response = diversity_index,
-         P.Value_num = P.Value,
-         is_significant = P.Value <= 0.05) |> 
-  mutate(Std.Estimate = round(Std.Estimate, 2),
-         Std.Error = round(Std.Error, 2),
-         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
-  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
-  group_by(Site) |> 
-  gt() |> 
-  cols_hide(columns = is_significant) |> 
-  tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
-        rows = is_significant
-      )) |> 
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-      ),
-    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
-    )
 
 ```
