@@ -49,7 +49,7 @@ library(patchwork)
 library(ggpubr)
 ```
 
-## Methods
+## Environmental data
 
 ### Temperature effects on the microclimate
 
@@ -234,6 +234,9 @@ climate_stats
 
 ```
 
+
+## Biomass estimation
+
 ### Model comparision for estimated community biomass
 
 ```{r}
@@ -295,6 +298,9 @@ tidy(standing_biomass_model) |>
     )
 
 ```
+
+
+## Biomass-diversity relationship
 
 ### Model output for biomass and diversity models
 
@@ -440,7 +446,7 @@ tar_read(div_index_figure)
 
 ## Structural equation models
 
-### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (clipping)
 
 ```{r}
 #| label: tbl-cut-final-stats
@@ -467,20 +473,23 @@ bind_rows(
              str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
            ))
 ) |> 
-  mutate(Response = diversity_index) |> 
-  select(Site, Response:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
+  mutate(Response = diversity_index,
+         P.Value_num = P.Value,
+         is_significant = P.Value <= 0.05) |> 
   mutate(Std.Estimate = round(Std.Estimate, 2),
-           Std.Error = round(Std.Error, 2),
-           P.Value = if_else(P.Value <= 0.001, "≤ 0.001", as.character(round(P.Value, 3)))) |> 
+         Std.Error = round(Std.Error, 2),
+         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
+  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
   group_by(Site) |> 
   gt() |> 
+  cols_hide(columns = is_significant) |> 
   tab_style(
       style = list(
         cell_text(weight = "bold")
       ),
       locations = cells_body(
         columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
-        rows = P.Value <= 0.05
+        rows = is_significant
       )) |> 
   tab_style(
     style = list(
@@ -540,7 +549,26 @@ cut_affinity2[[1]]
 
 ```
 
-### Environmentalf afinity distributions
+
+### SEM for all affinities
+
+```{r}
+#| label: fig-cut-final-affinity-all
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 20
+#| fig-cap: "Structural equation models showing the direct effects of the global change drivers, warming, nitrogen addition and clipping and indirectly through community biomass on community-weighted mean environmental affinities for temperature, moisture, nutrients and grazing disturbance at the alpine (a, c, e, g) and sub-alpine site (b, d, f, h). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours show the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = environmental affinity."
+
+tar_load(cut_final_affinity_all)
+
+cut_final_affinity_all[[1]]
+
+```
+
+## Environmental affinities
+
+### Environmentalf affinity distributions
 
 To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
 
@@ -585,6 +613,9 @@ trait_stats_table
 
 ```
 
+
+## Grazing
+
 ### SEMs for natural grazing
 
 ```{r}
@@ -598,5 +629,54 @@ trait_stats_table
 tar_load(graz_final_all_div)
 
 graz_final_all_div[[1]]
+
+```
+
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (grazing)
+
+```{r}
+#| label: tbl-graz-final-stats
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+
+tar_load(graz_final_all_div)
+
+graz_final_all_div[[2]] |> 
+  mutate(diversity_index = case_when(
+           str_detect(Type, "diversity") ~ "diversity",
+           str_detect(Type, "richness") ~ "richness",
+           str_detect(Type, "evenness") ~ "evenness"
+         ),
+         Site = case_when(
+           str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
+           str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
+         )) |> 
+  mutate(Response = diversity_index,
+         P.Value_num = P.Value,
+         is_significant = P.Value <= 0.05) |> 
+  mutate(Std.Estimate = round(Std.Estimate, 2),
+         Std.Error = round(Std.Error, 2),
+         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
+  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
+  group_by(Site) |> 
+  gt() |> 
+  cols_hide(columns = is_significant) |> 
+  tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        rows = is_significant
+      )) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    )
 
 ```
