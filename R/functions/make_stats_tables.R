@@ -301,17 +301,17 @@ make_climate_stats <- function(climate_anova_table){
                statistic_air = "F",
                p.value_air	= "P") |>
     tab_spanner(label = "Ground", columns = c(6:9)) |>
-    cols_label(sumsq_ground = "Estimate ± SE",
+    cols_label(sumsq_ground = "Sum of Squares",
                df_ground = "df",
                statistic_ground = "t",
                p.value_ground	= "P") |>
     tab_spanner(label = "Soil", columns = c(10:13)) |>
-    cols_label(sumsq_soil = "Estimate ± SE",
+    cols_label(sumsq_soil = "Sum of Squares",
                df_soil = "df",
                statistic_soil = "t",
                p.value_soil	= "P") |>
     tab_spanner(label = "Soilmoisture", columns = c(14:17)) |>
-    cols_label(sumsq_soilmoisture = "Estimate ± SE",
+    cols_label(sumsq_soilmoisture = "Sum of Squares",
                df_soilmoisture = "df",
                statistic_soilmoisture = "t",
                p.value_soilmoisture	= "P") |>
