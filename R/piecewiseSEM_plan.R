@@ -246,6 +246,107 @@ piecewiseSEM_plan <- list(
       outputList <- list(figure, out)
 
     }
+  ),
+
+# cut and light
+  tar_target(
+    name = cut_light_reaction,
+    command = {
+
+      # light affinity data
+      dat <- biomass_div |> 
+        tidylog::left_join(trait_mean |> 
+        filter(trait_trans == "light"),
+        by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      # prep data
+      dat1 <- prep_SEM_data(data = dat,
+                            landuse = "clipping",
+                            diversity = mean,
+                            biomass = final_bio)
+
+      # affinity alpine
+      mod1 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "clipping")
+
+      out1 <- summary(mod1)
+
+      fig1 <- make_SEM_figure(sem_results = out1,
+                              type = "final",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "light affinity")
+
+      # affinity sub-alpine
+      mod2 <- run_SEM(data = dat1 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "clipping")
+
+      out2 <- summary(mod2)
+
+      fig2 <- make_SEM_figure(sem_results = out2,
+                              type = "final",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "light affinity")
+
+      # Reaction affinity data
+      dat2 <- biomass_div |> 
+        tidylog::left_join(trait_mean |> 
+        filter(trait_trans == "reaction"),
+        by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      # prep data for PC2
+      dat3 <- prep_SEM_data(data = dat2,
+                            landuse = "clipping",
+                            diversity = mean,
+                            biomass = final_bio)
+
+      # PC2 affinity alpine
+      mod3 <- run_SEM(data = dat3 |>
+                        filter(origSiteID == "Alpine"),
+                      landuse = "clipping")
+
+      out3 <- summary(mod3)
+
+      fig3 <- make_SEM_figure(sem_results = out3,
+                              type = "final",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "reaction affinity")
+
+      # PC2 affinity sub-alpine
+      mod4 <- run_SEM(data = dat3 |>
+                        filter(origSiteID == "Sub-alpine"),
+                      landuse = "clipping")
+
+      out4 <- summary(mod4)
+
+      fig4 <- make_SEM_figure(sem_results = out4,
+                              type = "final",
+                              landuse = "clipping",
+                              col = treatment_palette,
+                              diversity_type = "reaction affinity")
+
+      figure <- (fig1 + fig2) / (fig3 + fig4) +
+        plot_annotation(tag_levels = list(c('a) Alpine', 'b) Sub-alpine', 'c) Alpine', 'd) Sub-alpine'))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      out <- bind_rows(
+        "Light affinity: Alpine PC1" = out1$coefficients,
+        "Light affinity: Sub-alpine PC1" = out2$coefficients,
+        "Reaction affinity: Alpine PC2" = out3$coefficients,
+        "Reaction affinity: Sub-alpine PC2" = out4$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   )
 
 )

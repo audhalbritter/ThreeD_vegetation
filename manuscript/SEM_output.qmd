@@ -82,6 +82,20 @@ tar_read(standingB_div_final_figure)
 To understand the alternative mechanisms of how the three global change drivers directly and indirectly affect plant community composition (H2), we used environmental affinities to describe the changes in environmental niches of these communities. The first principle component (PC) axis of environmental affinities explained 59.0 % of the variation and was associated with a more competitive plant communities (i.e. more temperature and nutrient demanding, as well as shade and grazing tolerant), and partially with higher acidic affinity (reaction; @fig-affinity-pca-sem a). PC axis 2 explained 24.3 % of the variation and correlated with more alkaline and drier communities. The first PC axis separated the alpine and sub-alpine sites as well as the warming treatment at the alpine site. The sub-alpine and the warmed alpine communities were associated with more competitive environmental affinities. Plant communities at both sites that received higher levels of nitrogen and had higher community biomass were located at the lower right corner of the PCA corresponding to higher temperature and nutrient demanding, shade and grazing tolerant and acidic communities (@fig-affinity-pca-sem a and b). The sub-alpine community was not well described by PC axis 1 and separated mostly along PC axis 2 where warmed communities receiving higher levels of nitrogen were associated with more acidic and moist affinities. Since different mechanisms seem to play a role at the alpine and sub-alpine communities, we repeated the PCA using environmental affinities separately by site (PC axis 1 explained 51.2 % and PC axis 2 explained 25 % of the variation; Supplementary Figure S6). This analysis indicates that sub-alpine communities...
 
 ```{r}
+#| label: light-reaction-sem
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and clipping on light affinity, as well as their indirect effects through community biomass for the a) alpine and b) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity."
+
+tar_load(cut_light_reaction)
+
+cut_light_reaction[[1]]
+
+```
+
+```{r}
 #| label: affinity-pca
 #| echo: false
 #| message: false

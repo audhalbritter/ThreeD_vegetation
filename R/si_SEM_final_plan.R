@@ -249,6 +249,179 @@ si_SEM_final_plan <- list(
       outputList <- list(figure, out)
 
     }
+  ),
+
+  # Clipping and environmental affinities (temperature, moisture, nutrients, grazing pressure)
+  tar_target(
+    name = cut_final_affinity_all,
+    command = {
+
+      # Temperature affinity data
+      dat_temp <- biomass_div |>
+        tidylog::left_join(trait_mean |>
+                             filter(trait_trans == "temperature"),
+                           by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      dat_temp1 <- prep_SEM_data(data = dat_temp,
+                                 landuse = "clipping",
+                                 diversity = mean,
+                                 biomass = final_bio)
+
+      # Temperature affinity alpine
+      mod_temp_alpine <- run_SEM(data = dat_temp1 |>
+                                   filter(origSiteID == "Alpine"),
+                                 landuse = "clipping")
+      out_temp_alpine <- summary(mod_temp_alpine)
+      fig_temp_alpine <- make_SEM_figure(sem_results = out_temp_alpine,
+                                         type = "final",
+                                         landuse = "clipping",
+                                         col = treatment_palette,
+                                         diversity_type = "temperature affinity")
+
+      # Temperature affinity sub-alpine
+      mod_temp_sub <- run_SEM(data = dat_temp1 |>
+                                filter(origSiteID == "Sub-alpine"),
+                              landuse = "clipping")
+      out_temp_sub <- summary(mod_temp_sub)
+      fig_temp_sub <- make_SEM_figure(sem_results = out_temp_sub,
+                                      type = "final",
+                                      landuse = "clipping",
+                                      col = treatment_palette,
+                                      diversity_type = "temperature affinity")
+
+      # Moisture affinity data
+      dat_moist <- biomass_div |>
+        tidylog::left_join(trait_mean |>
+                             filter(trait_trans == "moisture"),
+                           by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      dat_moist1 <- prep_SEM_data(data = dat_moist,
+                                  landuse = "clipping",
+                                  diversity = mean,
+                                  biomass = final_bio)
+
+      # Moisture affinity alpine
+      mod_moist_alpine <- run_SEM(data = dat_moist1 |>
+                                    filter(origSiteID == "Alpine"),
+                                  landuse = "clipping")
+      out_moist_alpine <- summary(mod_moist_alpine)
+      fig_moist_alpine <- make_SEM_figure(sem_results = out_moist_alpine,
+                                          type = "final",
+                                          landuse = "clipping",
+                                          col = treatment_palette,
+                                          diversity_type = "moisture affinity")
+
+      # Moisture affinity sub-alpine
+      mod_moist_sub <- run_SEM(data = dat_moist1 |>
+                                 filter(origSiteID == "Sub-alpine"),
+                               landuse = "clipping")
+      out_moist_sub <- summary(mod_moist_sub)
+      fig_moist_sub <- make_SEM_figure(sem_results = out_moist_sub,
+                                       type = "final",
+                                       landuse = "clipping",
+                                       col = treatment_palette,
+                                       diversity_type = "moisture affinity")
+
+      # Nutrient affinity data
+      dat_nutr <- biomass_div |>
+        tidylog::left_join(trait_mean |>
+                             filter(trait_trans == "nutrients"),
+                           by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      dat_nutr1 <- prep_SEM_data(data = dat_nutr,
+                                 landuse = "clipping",
+                                 diversity = mean,
+                                 biomass = final_bio)
+
+      # Nutrient affinity alpine
+      mod_nutr_alpine <- run_SEM(data = dat_nutr1 |>
+                                   filter(origSiteID == "Alpine"),
+                                 landuse = "clipping")
+      out_nutr_alpine <- summary(mod_nutr_alpine)
+      fig_nutr_alpine <- make_SEM_figure(sem_results = out_nutr_alpine,
+                                         type = "final",
+                                         landuse = "clipping",
+                                         col = treatment_palette,
+                                         diversity_type = "nutrient affinity")
+
+      # Nutrient affinity sub-alpine
+      mod_nutr_sub <- run_SEM(data = dat_nutr1 |>
+                                filter(origSiteID == "Sub-alpine"),
+                              landuse = "clipping")
+      out_nutr_sub <- summary(mod_nutr_sub)
+      fig_nutr_sub <- make_SEM_figure(sem_results = out_nutr_sub,
+                                      type = "final",
+                                      landuse = "clipping",
+                                      col = treatment_palette,
+                                      diversity_type = "nutrient affinity")
+
+      # Grazing pressure affinity data
+      dat_graz <- biomass_div |>
+        tidylog::left_join(trait_mean |>
+                             filter(trait_trans == "grazing_pressure"),
+                           by = join_by(origSiteID, warming, grazing, grazing_num, Nlevel, Namount_kg_ha_y, Nitrogen_log)) |>
+        filter(grazing != "Natural")
+
+      dat_graz1 <- prep_SEM_data(data = dat_graz,
+                                 landuse = "clipping",
+                                 diversity = mean,
+                                 biomass = final_bio)
+
+      # Grazing pressure affinity alpine
+      mod_graz_alpine <- run_SEM(data = dat_graz1 |>
+                                   filter(origSiteID == "Alpine"),
+                                 landuse = "clipping")
+      out_graz_alpine <- summary(mod_graz_alpine)
+      fig_graz_alpine <- make_SEM_figure(sem_results = out_graz_alpine,
+                                         type = "final",
+                                         landuse = "clipping",
+                                         col = treatment_palette,
+                                         diversity_type = "grazing pressure affinity")
+
+      # Grazing pressure affinity sub-alpine
+      mod_graz_sub <- run_SEM(data = dat_graz1 |>
+                                filter(origSiteID == "Sub-alpine"),
+                              landuse = "clipping")
+      out_graz_sub <- summary(mod_graz_sub)
+      fig_graz_sub <- make_SEM_figure(sem_results = out_graz_sub,
+                                      type = "final",
+                                      landuse = "clipping",
+                                      col = treatment_palette,
+                                      diversity_type = "grazing pressure affinity")
+
+      # Combine all 8 panels: 4 affinities × 2 sites
+      figure <- (fig_temp_alpine + fig_temp_sub) /
+        (fig_moist_alpine + fig_moist_sub) /
+        (fig_nutr_alpine + fig_nutr_sub) /
+        (fig_graz_alpine + fig_graz_sub) +
+        plot_annotation(tag_levels = list(c(
+          'a) Alpine temperature', 'b) Sub-alpine temperature',
+          'c) Alpine moisture', 'd) Sub-alpine moisture',
+          'e) Alpine nutrients', 'f) Sub-alpine nutrients',
+          'g) Alpine grazing pressure', 'h) Sub-alpine grazing pressure'
+        ))) &
+        theme(plot.tag.position = c(0, 1),
+              plot.tag = element_text(size = 12, hjust = 0, vjust = 0))
+
+      # Combine all results
+      out <- bind_rows(
+        "Temperature affinity: Alpine" = out_temp_alpine$coefficients,
+        "Temperature affinity: Sub-alpine" = out_temp_sub$coefficients,
+        "Moisture affinity: Alpine" = out_moist_alpine$coefficients,
+        "Moisture affinity: Sub-alpine" = out_moist_sub$coefficients,
+        "Nutrient affinity: Alpine" = out_nutr_alpine$coefficients,
+        "Nutrient affinity: Sub-alpine" = out_nutr_sub$coefficients,
+        "Grazing pressure affinity: Alpine" = out_graz_alpine$coefficients,
+        "Grazing pressure affinity: Sub-alpine" = out_graz_sub$coefficients,
+        .id = "Type"
+      )
+
+      outputList <- list(figure, out)
+
+    }
   )
 
 )
