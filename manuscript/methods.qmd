@@ -8,9 +8,6 @@ editor: visual
 #| message: false
 library(targets)
 library(tarchetypes)
-library(tidyverse)
-library(broom)
-library(gt)
 
 tar_load(standing_biomass_model_output)
 
