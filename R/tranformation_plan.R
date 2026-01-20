@@ -40,8 +40,8 @@ tranformation_plan <- list(
       )]
       long_data[, grazing := factor(grazing, levels = c("Control", "Medium", "Intensive"))]
       long_data[, origSiteID := fcase(
-        origSiteID == "Joa", "Sub-alpine",
-        origSiteID == "Lia", "Alpine"
+        origSiteID == "Joasete", "Sub-alpine",
+        origSiteID == "Liahovden", "Alpine"
       )]
       long_data[, variable := fcase(
         variable == "air_temperature", "air",
@@ -393,7 +393,7 @@ tranformation_plan <- list(
         ungroup() |>
         pivot_wider(names_from = diversity_index, values_from = c(delta, log_ratio, final)) |>
         # add standing biomass
-        left_join(
+        tidylog::left_join(
           standing_biomass_back |>
             pivot_wider(names_from = year, values_from = standing_biomass) |>
             mutate(
@@ -401,9 +401,10 @@ tranformation_plan <- list(
               log_ratio_bio = log(`2022` / `2019`),
               final_bio = `2022`
             ) |>
-            select(-c(`2019`, `2022`)),
+            select(-c(`2019`, `2022`, variable, functional_group)),
           by = c("origSiteID", "warming", "grazing", "Nlevel", "Namount_kg_ha_y", "Nitrogen_log")
         ) |>
+        tidylog::filter(!is.na(final_bio)) |>
         mutate(
           grazing_num = as.numeric(recode(grazing, Control = "0", Medium = "2", Intensive = "4", Natural = "2")),
           grazing = factor(grazing, levels = c("Control", "Medium", "Intensive", "Natural")),
