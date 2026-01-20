@@ -592,24 +592,13 @@ To understand how traits respond to the different global change drivers, we anal
 #| message: false
 #| warning: false
 #| fig-width: 8
-#| fig-height: 10
-#| fig-cap: "Trait distributions for different treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values, as well as a mowing and grazing disturbance indicator. The colours indicate the different treatments: a) warming (ambient = black, warming = red), b) nitrogen addition levels, and c) clipping (control, medium, intensive)."
+#| fig-height: 5
+#| fig-cap: "Trait distributions for plots with different clipping treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values, as well as a mowing and grazing disturbance indicator. The colours indicate different levels of clipping."
 
 # Load the individual plots
-tar_load(traits_warming_plot)
-tar_load(traits_nitrogen_plot)
 tar_load(traits_clipping_plot)
 
-# Combine the plots with tags
-(traits_warming_plot + labs(tag = "a) Warming")) +
-  (traits_nitrogen_plot + labs(tag = "b) Nitrogen")) +
-  (traits_clipping_plot + labs(tag = "c) Clipping")) +
-  plot_layout(ncol = 1, guides = "collect") &
-  theme(legend.position = "none",
-        legend.box = "vertical",
-        plot.tag.position = c(0.12, 1.08),
-        plot.tag = element_text(size = 12, hjust = 0, vjust = 1),
-        plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
+traits_clipping_plot
 
 ```
 

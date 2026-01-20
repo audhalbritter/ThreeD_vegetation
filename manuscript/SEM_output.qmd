@@ -89,17 +89,29 @@ tar_read(standingB_div_final_figure)
 
 ```
 
-
-
 ```{r}
 #| label: fig-biomass-nitrogen
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-width: 10
-#| fig-height: 5
-#| fig-cap: "Trait distributions for plots with different standing biomass at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values, as well as a mowing and grazing disturbance indicator. The colours indicate different levels of standing biomass."
+#| fig-width: 8
+#| fig-height: 10
+#| fig-cap: "Distributions for affinities for different treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the distributions for the Ellenberg indicator values light, temperature, nutrient, moisture, salinity and reaction, and mowing and grazing disturbance. The colours indicate the different treatments: a) warming (ambient = black, warming = red), b) nitrogen addition levels, and c) biomass."
 
+# Load the individual plots
 tar_read(traits_biomass_plot)
+tar_load(traits_warming_plot)
+tar_load(traits_nitrogen_plot)
+
+# Combine the plots with tags
+(traits_warming_plot + labs(tag = "a) Warming")) +
+  (traits_nitrogen_plot + labs(tag = "b) Nitrogen")) +
+  (traits_biomass_plot + labs(tag = "c) Community biomass")) +
+  plot_layout(ncol = 1, guides = "collect") &
+  theme(legend.position = "none",
+        legend.box = "vertical",
+        plot.tag.position = c(0.12, 1.08),
+        plot.tag = element_text(size = 12, hjust = 0, vjust = 1),
+        plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
 
 ```
