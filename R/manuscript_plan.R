@@ -8,10 +8,7 @@ manuscript_plan <- list(
 
   # SI
   tar_quarto(name = si,
-    path = "manuscript/SI.qmd"),
-
-    tar_quarto(name = si_change,
-    path = "manuscript/si_change.qmd")
+    path = "manuscript/SI.qmd")
 
   # tar_target(
   #   name = render_manuscript_pdf,

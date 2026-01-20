@@ -17,68 +17,6 @@ trait_plan <- list(
         filter(trait_trans != "salinity")
   ),
 
-  # make trait pca's
-  #"mowing_frequency", 
-  tar_target(
-    name = affinity_pca,
-    command = make_trait_pca(trait_mean |> 
-                            filter(grazing != "Natural") |>
-                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
-    )
-  ),
-
-  tar_target(
-    name = affinity_alpine_pca,
-    command = make_trait_pca(trait_mean |> 
-                            filter(grazing != "Natural") |>
-                            filter(origSiteID == "Alpine") |>
-                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
-    )
-  ),
-
-    tar_target(
-    name = affinity_subalpine_pca,
-    command = make_trait_pca(trait_mean |> 
-                            filter(grazing != "Natural") |>
-                            filter(origSiteID == "Sub-alpine") |>
-                            filter(trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"))
-    )
-  ),
-
-  tar_target(
-    name = affinity_pca_plot,
-    command = make_pca_plot_sites(trait_pca = affinity_pca, color_warm = warming_palette, biomass_div = biomass_div)
-  ),
-
-  # make trait pca plots
-  tar_target(
-    name = affinity_pca_plot_single,
-    command = {
-      # Calculate axis limits across both PCA datasets
-      pc1_range <- range(affinity_alpine_pca[[1]]$PC1, affinity_alpine_pca[[2]]$PC1,
-                        affinity_subalpine_pca[[1]]$PC1, affinity_subalpine_pca[[2]]$PC1)
-      pc2_range <- range(affinity_alpine_pca[[1]]$PC2, affinity_alpine_pca[[2]]$PC2,
-                        affinity_subalpine_pca[[1]]$PC2, affinity_subalpine_pca[[2]]$PC2)
-      
-      # Add some padding to the ranges
-      pc1_limits <- c(pc1_range[1] - 0.1, pc1_range[2] + 0.1)
-      pc2_limits <- c(pc2_range[1] - 0.1, pc2_range[2] + 0.1)
-      
-      # Create individual plots with tags and consistent axis limits
-      p1 <- make_pca_plot(affinity_alpine_pca, title = "Affinity: alpine", color_warm = warming_palette) + 
-        coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
-        labs(tag = "a)")
-      p2 <- make_pca_plot(affinity_subalpine_pca, title = "Affinity: sub-alpine", color_warm = warming_palette) + 
-        coord_equal(xlim = pc1_limits, ylim = pc2_limits) +
-        labs(tag = "b)")
-      
-      # Combine with patchwork
-      (p1 + p2) +
-        plot_layout(guides = "collect") &
-        theme(legend.position = "bottom")
-    }
-  ),
-
     # Trats ridgeline plot
     # warming
     tar_target(

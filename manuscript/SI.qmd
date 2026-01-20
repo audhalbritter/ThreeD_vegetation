@@ -580,61 +580,6 @@ graz_final_all_div[[2]] |>
 
 ```
 
-
-## PCA affinities
-
-### PCA separately for the alpine and sub-alpine site
-
-```{r}
-#| label: fig-trait-pca2
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-width: 12
-#| fig-height: 6
-#| fig-cap: "Multivariate community-weighted mean affinity responses to warming, clipping and and nitrogen addition, determined by a principal component analysis (PCA) at the a) alpine and b) sub-alpine sites. The colour represents the warming treatment (black = ambient, red = warming), the shape the clipping treatment (circle = control, square = medium, triangle = intensive clipping), and the point size indicates nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. Affinities include temperature, light, moisture, nutrients, reaction, and grazing disturbance. Arrows show trait loadings on the first two principal components."
-
-tar_load(affinity_pca_plot_single)
-
-affinity_pca_plot_single
-
-```
-
-## SEM affinities
-
-### SEM separately for the alpine and sub-alpine site
-
-```{r}
-#| label: fig-cut-affinity2
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through community biomass on environmental affinity for the a) and c) alpine and b) and d) sub-alpine site. The PCA for the affinity was done separately for the alpine and sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = affinity."
-
-tar_load(cut_affinity2)
-
-cut_affinity2[[1]]
-
-```
-
-
-### SEM for all affinities
-
-```{r}
-#| label: fig-cut-final-affinity-all
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 20
-#| fig-cap: "Structural equation models showing the direct effects of the global change drivers, warming, nitrogen addition and clipping and indirectly through community biomass on community-weighted mean environmental affinities for temperature, moisture, nutrients and grazing disturbance at the alpine (a, c, e, g) and sub-alpine site (b, d, f, h). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours show the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = environmental affinity."
-
-tar_load(cut_final_affinity_all)
-
-cut_final_affinity_all[[1]]
-
-```
-
 ## Environmental affinities
 
 ### Environmentalf affinity distributions
