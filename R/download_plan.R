@@ -7,7 +7,7 @@ download_plan <- list(
     name = climate_download,
     command =  get_file(node = "pk4bg",
                         file = "THREE-D_clean_microclimate_2019-2022.csv.zip",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Climate")
   ),
 
@@ -15,10 +15,11 @@ download_plan <- list(
   tar_target(
     name = climate_unzip,
     command =  {
-      unzip(climate_download, exdir = "data")
+      data_dir <- here::here("data")
+      unzip(climate_download, exdir = data_dir)
 
-      zip <- "data/THREE-D_clean_microclimate_2019-2022.csv.zip"
-      unzip <- "data/THREE-D_clean_microclimate_2019-2022.csv"
+      zip <- file.path(data_dir, "THREE-D_clean_microclimate_2019-2022.csv.zip")
+      unzip <- file.path(data_dir, "THREE-D_clean_microclimate_2019-2022.csv")
       #Check its existence
       if (file.exists(zip) & file.exists(unzip)) {
         #Delete file if it exists
@@ -33,7 +34,7 @@ download_plan <- list(
     name = gridded_climate_download,
     command =  get_file(node = "pk4bg",
                         file = "THREE_D_GriddedDailyClimateData2008-2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Climate"),
     format = "file"
   ),
@@ -43,7 +44,7 @@ download_plan <- list(
     name = biomass_download,
     command =  get_file(node = "pk4bg",
                         file = "Three-D_clean_biomass_2020-2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Vegetation"),
     format = "file"
   ),
@@ -53,7 +54,7 @@ download_plan <- list(
     name = productivity_download,
     command =  get_file(node = "pk4bg",
                         file = "Three-D_clean_productivity_2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Vegetation"),
     format = "file"
   ),
@@ -63,7 +64,7 @@ download_plan <- list(
     name = cover_download,
     command =  get_file(node = "pk4bg",
                         file = "Three-D_clean_cover_2019-2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Vegetation"),
     format = "file"
   ),
@@ -73,7 +74,7 @@ download_plan <- list(
     name = height_download,
     command =  get_file(node = "pk4bg",
                         file = "Three-D_clean_height_2019_2020.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Vegetation"),
     format = "file"
   ),
@@ -83,7 +84,7 @@ download_plan <- list(
     name = soil_download,
     command =  get_file(node = "pk4bg",
                         file = "THREE-D_Soil_2019-2020.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "Soil"),
     format = "file"
   ),
@@ -93,7 +94,7 @@ download_plan <- list(
     name = trait_download,
     command =  get_file(node = "fcbw4",
                         file = "PFTC6_clean_ElevationGradient_GlobalChangeExperiment_morphological_traits_2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "i. trait_data"),
     format = "file"
   ),
@@ -104,7 +105,7 @@ download_plan <- list(
     name = ellenberg_download,
     command =  {
       url <- "https://zenodo.org/records/7427088/files/Indicator.values-tables-2022-11-07-Zenodo.v2.xlsx?download=1"
-      destfile <- "data/ellenberg.xlsx"  # Local file name
+      destfile <- here::here("data", "ellenberg.xlsx")  # Local file name
       download.file(url, destfile, mode = "wb")
       # print path to file
       destfile
@@ -117,7 +118,7 @@ download_plan <- list(
     name = disturbance_download,
     command =  {
       url <- "https://zenodo.org/records/7116957/files/disturbance_indicator_values.csv?download=1"
-      destfile <- "data/disturbance_indicator_values.csv"  # Local file name
+      destfile <- here::here("data", "disturbance_indicator_values.csv")  # Local file name
       download.file(url, destfile, mode = "wb")
       # print path to file
       destfile
@@ -163,7 +164,7 @@ download_plan <- list(
 
   tar_target(
     name = sp_list,
-    command = read_csv(file = "data/Three-D_clean_taxonomy.csv")
+    command = read_csv(file = here::here("data", "Three-D_clean_taxonomy.csv"))
   ),
 
   tar_target(
