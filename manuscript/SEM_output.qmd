@@ -14,24 +14,7 @@ library(lubridate)
 library(broom)
 library(gt)
 library(vegan)
-
-# Load PCA targets for extracting percentages
-tar_load(affinity_pca)
-tar_load(affinity_alpine_pca)
-tar_load(affinity_subalpine_pca)
-
-# Calculate percentages for combined PCA
-e_combined <- eigenvals(affinity_pca[[3]])/sum(eigenvals(affinity_pca[[3]]))
-pc1_combined <- sprintf("%.1f", round(e_combined[1] * 100, 1))
-pc2_combined <- sprintf("%.1f", round(e_combined[2] * 100, 1))
-
-# Calculate percentages for separate site PCAs
-e_alpine <- eigenvals(affinity_alpine_pca[[3]])/sum(eigenvals(affinity_alpine_pca[[3]]))
-e_subalpine <- eigenvals(affinity_subalpine_pca[[3]])/sum(eigenvals(affinity_subalpine_pca[[3]]))
-pc1_alpine <- sprintf("%.1f", round(e_alpine[1] * 100, 1))
-pc2_alpine <- sprintf("%.1f", round(e_alpine[2] * 100, 1))
-pc1_subalpine <- sprintf("%.1f", round(e_subalpine[1] * 100, 1))
-pc2_subalpine <- sprintf("%.1f", round(e_subalpine[2] * 100, 1))
+library(patchwork)
 
 ```
 
@@ -99,7 +82,7 @@ tar_read(standingB_div_final_figure)
 #| fig-cap: "Distributions for affinities for different treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the distributions for the Ellenberg indicator values light, temperature, nutrient, moisture, salinity and reaction, and mowing and grazing disturbance. The colours indicate the different treatments: a) warming (ambient = black, warming = red), b) nitrogen addition levels, and c) biomass."
 
 # Load the individual plots
-tar_read(traits_biomass_plot)
+tar_load(traits_biomass_plot)
 tar_load(traits_warming_plot)
 tar_load(traits_nitrogen_plot)
 
