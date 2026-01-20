@@ -170,8 +170,8 @@ tranformation_plan <- list(
       summarise(sum_cover = sum(cover)) |>
       left_join(
         height |>
-          filter(vegetation_layer == "Vascular plant layer") |>
-          select(-destSiteID, -vegetation_layer, -delta) |>
+          filter(variable == "height" & functional_group == "vegetation") |>
+          select(-destSiteID, -delta) |>
           pivot_longer(cols = c(`2019`, `2022`), names_to = "year", values_to = "height") |>
           mutate(year = as.numeric(year)),
         by = c("year", "origSiteID", "warming", "grazing", "Namount_kg_ha_y")
