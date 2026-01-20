@@ -118,10 +118,10 @@ si_figure_plan <- list(
     name = annual_productivity,
     command = productivity_raw |>
       # calculate productivity in g per m^2
-      mutate(productivity_g_m2 = productivity * 10000 / area_cm) |>
+      mutate(productivity_g_m2 = productivity * 10000 / area_cm2) |>
       # productivity per day
       mutate(productivity_g_m2_d = productivity_g_m2 / duration) |>
-      mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
+      mutate(siteID = recode(destSiteID, "Vikesland" = "Lowland", "Joasete" = "Sub-alpine", "Liahovden" = "Alpine"),
              siteID = factor(siteID, levels = c("Lowland", "Sub-alpine", "Alpine")),
              treatment = case_match(treatment,
                                     "Control" ~ "Grazed",
