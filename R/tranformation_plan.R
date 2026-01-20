@@ -184,8 +184,8 @@ tranformation_plan <- list(
   # prep data
   tar_target(
     name = prep_SB_back,
-    command = estimated_standing_biomass |>
-      select(-sum_cover, -height) |>
+    command = estimated_standing_biomass |> ungroup() |> 
+      select(-sum_cover, -variable, -functional_group) |>
       # join collected biomass from control plots
       tidylog::left_join(measured_standing_biomass |>
         filter(grazing == "Control"))
@@ -395,16 +395,16 @@ tranformation_plan <- list(
         # add standing biomass
         tidylog::left_join(
           standing_biomass_back |>
+            select(-height) |>
             pivot_wider(names_from = year, values_from = standing_biomass) |>
             mutate(
               delta_bio = `2022` - `2019`,
               log_ratio_bio = log(`2022` / `2019`),
               final_bio = `2022`
             ) |>
-            select(-c(`2019`, `2022`, variable, functional_group)),
+            select(-c(`2019`, `2022`)),
           by = c("origSiteID", "warming", "grazing", "Nlevel", "Namount_kg_ha_y", "Nitrogen_log")
         ) |>
-        tidylog::filter(!is.na(final_bio)) |>
         mutate(
           grazing_num = as.numeric(recode(grazing, Control = "0", Medium = "2", Intensive = "4", Natural = "2")),
           grazing = factor(grazing, levels = c("Control", "Medium", "Intensive", "Natural")),
