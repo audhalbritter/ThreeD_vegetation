@@ -321,21 +321,20 @@ tranformation_plan <- list(
     command = {
       # replace height values of 0 with average from previous year
       height_estimation <- height_raw |>
-        filter(vegetation_layer == "Vascular plant layer") |>
+        filter(variable == "height" & functional_group == "vegetation") |> 
         filter(turfID %in% c("133 WN4C 186", "33 AN10I 33", "35 AN10C 35", "70 AN9C 70")) |>
-        filter(height > 0) |>
+        filter(value > 0) |>
         group_by(turfID) |>
         summarise(
-          height_est = mean(height),
+          height_est = mean(value),
           year = 2022,
-          vegetation_layer = "Vascular plant layer"
+          variable = "height",
+          functional_group = "vegetation"
         )
 
       height_raw %>%
         # first and last year
         filter(year %in% c(2019, 2022)) |>
-        # add meta data
-        left_join(metaTurfID, by = "turfID") |>
         # remove 150 kg N
         filter(Namount_kg_ha_y != 150) |>
         # prettify
@@ -350,14 +349,15 @@ tranformation_plan <- list(
           grazing_num = as.numeric(grazing_num)
         ) |>
         # replace 0 heights
-        left_join(height_estimation, by = c("turfID", "year", "vegetation_layer")) |>
-        mutate(height = if_else(!is.na(height_est), height_est, height)) |>
+        # 2 tufs do not match, because they are from 150 kg N, which has been removed
+        tidylog::left_join(height_estimation, by = c("turfID", "year", "variable", "functional_group")) |> 
+        mutate(value = if_else(!is.na(height_est), height_est, value)) |>
         select(-height_est) |>
         # take average cover of 3 control plots
-        group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, grazing_num, vegetation_layer) |>
-        summarise(height = mean(height)) |>
+        group_by(year, origSiteID, destSiteID, warming, grazing, Namount_kg_ha_y, grazing_num, variable, functional_group) |>
+        summarise(value = mean(value)) |>
         ungroup() |>
-        pivot_wider(names_from = year, values_from = height) |>
+        pivot_wider(names_from = year, values_from = value) |>
         # Fun groups that do not exist in one year => 0
         # calculate difference between years
         mutate(
@@ -368,7 +368,6 @@ tranformation_plan <- list(
         ungroup()
     }
   ),
-
 
   # diversity
   tar_target(
