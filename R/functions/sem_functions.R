@@ -189,8 +189,10 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
                   label = round(sem_results$coefficients$Std.Estimate, 3),
                   P.Value = sem_results$coefficients$P.Value) |>
     mutate(
-           # Colour based on direction:
-           colour = if_else(label > 0, "grey30", "grey80"),
+           # Linetype based on direction:
+           #linetype = if_else(label > 0, 1, 3),
+           # Colour based on P-value:
+           colour = if_else(P.Value <= 0.05, "grey30", "grey80"),
            # Add asterisks for significance:
            # * for p < 0.05, ** for p < 0.01, *** for p < 0.001
            significance_stars = case_when(
