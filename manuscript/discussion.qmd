@@ -1,14 +1,16 @@
 ---
 editor: visual
+
+bibliography: bibliography.bib
 ---
 
 # Discussion
 
 \[*The discussion should be about why using biomass works one place but not the other and what other mechanisms need to be included*\]
 
-In this study we tested if community biomass is a general indicator of mechanisms mediating global change impacts on plant diversity. Our results show that this mechanism works for the temperature and nutrient limited alpine site, but less well for the sub-alpine site. \[Something what the main mechanism at the sub-alpine site is\]. Specifically, by including environmental affinities, we were able to explain the underlying mechanisms of community responses to global change.
+In this study we tested if community biomass is a general indicator of mechanisms mediating global change impacts on plant diversity. Our results show that this mechanism works for the temperature and nutrient limited alpine site, but less well for the sub-alpine site. At the sub-alpine site, global change affected diversity more directly than through community biomass. By including environmental affinities, specifically affinities for light and reaction, we were able to explain the underlying mechanisms of community responses to global change.
 
-### \[*Explain why it works for the alpine site*\]
+### Community biomass mediates global change impacts on diversity in alpine sites
 
 -   Our hypothesis mostly works really well
 
@@ -16,13 +18,24 @@ In this study we tested if community biomass is a general indicator of mechanism
 
 -   Note: Biomass co-limitation by temperature and nitrogen
 
-We expected the three global change drivers to operate through community biomass, by favoring more competitive species, especially graminoids, resulting in a decrease in vascular plant diversity (H1). In line with this hypothesis, we found a strong increase in standing biomass with warming and/or nitrogen addition in both alpine and sub-alpine communities (Fig...), parallelling the findings of several previous studies manipulating one or both of these drivers[(*18*, *21*, *37*, *38*)](https://paperpile.com/c/KKq9O1/9ySc+Qi5J+3zFM+nLSC). Warming can increase biomass because of higher rates of photosynthesis, a longer growing season, or because higher microbial activity can increase nutrient availability. Nitrogen addition directly increases nutrient availability, a limiting factor in alpine habitats[(*18*)](https://paperpile.com/c/KKq9O1/9ySc).
+We expected the three global change drivers, warming, nitrogen addition, and clipping, to operate through community biomass favoring more competitive interactions, resulting in a decrease in vascular plant diversity. In line with this hypothesis, we found a strong increase in community biomass with warming and/or nitrogen addition in both alpine and sub-alpine communities, paralleling the findings of several previous studies manipulating one or both of these drivers @Humbert2016-wg, @elmendorf2012plot, @Zhang2023-xg. Warming can increase biomass because of higher rates of photosynthesis, a longer growing season, or because higher microbial activity can increase nutrient availability, while nitrogen addition directly increases nutrient availability. Our alpine site was highly temperature and nutrient limited, resulting in a four to five times increase of community biomass. This co-limitation could be the reason for the stronger mediation through biomass at the alpine site.
 
-Direct effect of warming could be because of colonization of turfs. Figure for species richness shows that warming increases species richness (Supplementary Figure 4a). Colonization generally happen faster than extinctions and there is often an extinction lag in alpine communities (Vandvik 2020, Alexander, ...).
+We found that the increase in community biomass resulted in a decrease in diversity, which has been observed in several other warming and nitrogen addition experiments @kaarlejarvi2017herbivores, @Humbert2016-wg. This could be due to a shift towards more competitive interactions, where warming and nitrogen addition favors taller and fast growing (resource-acquisitive) species such as graminoids at the expense of resource conservative species such as many forbs @Klanderud2005-yx, @Fu2016-dw, @Wang2012-cj. The negative indirect effect on diversity was mainly through shifts in species abundance (evenness) than loss of species (richness; Supplement Figure S5), suggesting an increase in abundance of species with competitive abilities rather than species loss @Humbert2016-wg, @elmendorf2012global.
 
-This similar relationship between the warmed alpine and ambient sub-alpine communities suggests that colder alpine plant communities are not intrinsically less productive than those at lower elevation, but are limited by temperature-related  environmental factors [(*27*)](https://paperpile.com/c/KKq9O1/FMfe).
+While the effects of nitrogen addition and clipping were only indirectly, warming also directly increased Shannon diversity. An increase in diversity is less commonly found in warming experiments @dainese2024global, but has been shown in long-term studies @steinbauer2018accelerated. We found both an increase in species richness and evenness suggesting that both species turnover and shift in abundance were responsible for the increase in diversity.
 
-### \[*Why did it not work for the sub-alpine site, and what are the alternative mechanisms*\]
+*\[Not sure where to put the text below yet\]*
+
+The increase in diversity only happened when no or little nitrogen was added (\< 25 kg N ha\^-1\^ y\^-1\^).\
+The major change in standing biomass, diversity and evenness occurred at levels of nitrogen addition beyond 10 kg N ha^-1^ y^-1^, which is the critical load for significant changes in the structure and function of alpine and sub-alpine grasslands[(*35*)](https://paperpile.com/c/KKq9O1/4W2I).
+
+Colonization generally happen faster than extinctions and there is often an extinction lag in alpine communities @Vandvik2020-hu, @Alexander2015-gu.
+
+Interestingly, diversity indices based on change in abundance (i.e. evenness and diversity) showed more change in the cold alpine community in response to global change drivers, while indices based on change in species turnover (i.e. species richness and diversity), changed more in the warmer sub-alpine community. This might be because community changes in cold environments (i.e. the alpine) are often slow[(*45*)](https://paperpile.com/c/KKq9O1/ot2B) and changes in biomass (i.e. abundance) generally happen faster than species turnover (i.e. colonization or extinction) and there is often an extinction lag in alpine communities[(*14*, *15*, *46*)](https://paperpile.com/c/KKq9O1/ztDH+wbqE+5luD).
+
+This similar relationship between the warmed alpine and ambient sub-alpine communities suggests that colder alpine plant communities are not intrinsically less productive than those at lower elevation, but are limited by temperature-related environmental factors [(*27*)](https://paperpile.com/c/KKq9O1/FMfe).
+
+### Alternative mechanisms drive diversity shifts in the sub-alpine
 
 **Why not biomass effect on biodiversity?**
 
@@ -78,8 +91,8 @@ All data underlying these analyses (including raw and processed data) are openly
 
 ## Code availability
 
-All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub[(64)](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hopefully) fully reproducible by using a target pipeline[(65)](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv[(66)](https://paperpile.com/c/KKq9O1/L148). Please fork the GitHub repo and reproduce the analyses and manuscript. Feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
+All code for downloading the data from the OSF repository, data transformation, analyses and producing this manuscript are available on GitHub[(64)](https://paperpile.com/c/KKq9O1/1ay0). The whole workflow is (hope-) fully reproducible by using a target pipeline[(65)](https://paperpile.com/c/KKq9O1/ZNBp) and a reproducible environment via renv[(66)](https://paperpile.com/c/KKq9O1/L148). Please fork the GitHub repo and reproduce the analyses and manuscript. Feedback on the efficiency, reproducibility and accuracy of the code and results are very welcome. The final version of the GitHub repository will be versioned on Zenodo.
 
 ## Author contributions
 
-We follow the CreDiT taxonomy[(67)](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wr); VV (co, fu, in, su, me, wo, wr).
+We follow the CreDiT taxonomy[(67)](https://paperpile.com/c/KKq9O1/38Gvd) and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH (co, da, fo, fu, in, me, pr, su, va, vi, wo, wr); KK (in, me, wr); RJT (fo, me, wr); GA (me, wr); JMA (me, wr); DG (co, fu, me, wo, wr); VV (co, fu, in, su, me, wo, wr).
