@@ -75,9 +75,11 @@ Grazing had the same effect on community biomass, diversity, richness and evenne
 tar_read(standingB_div_final_figure)
 ```
 
-<!-- Unsure how to explain these changes in the distributions. I should talk about communities, but mention light demanding species etc. -->
+<!-- Unsure how to explain these changes in the distributions. I should talk about communities, but mention light demanding species etc. 
+Also I tried to discuss the more important affinities and patterns first (light, reaction). How much focus we want on the other once. 
+A bit unsure how to discuss biomass here. That is more of an indirect effect? -->
 
-To test alternative hypotheses, we tested if warming, nitrogen addition, clipping , and community biomass affect environmental affinities. Warming and community biomass had a stronger effect on the environmental affinities in the alpine while nitrogen addition was more important at the sub-alpine site (\@fig-toenails). Warming, nitrogen addition, and increased biomass consistently shifted the communities towards less light demanding species at both sites. Interestingly, nitrogen addition and biomass decreased the reaction indicator at both sites suggesting that communities became more tolerant to acidic conditions. In addition, warming and biomass shifted the communities towards higher temperature, nutrient demanding and grazing tolerant species at the alpine. At the sub-alpine site, nitrogen addition increased nutrient and moisture demanding species.
+Our results show that the global change drivers also had direct effects on diversity, and we therefore tested alternative mechanisms how warming, nitrogen addition, clipping, and community biomass affect environmental affinities. The community distributions for these affinities were all affected by the treatments (except for grazing) and community biomass suggesting both direct and indirect effects drive these shifts (@fig-toenails; Supplementary Table S9 and Figure S7). Warming and community biomass had a stronger effect on the environmental affinities in the alpine while nitrogen addition was more important at the sub-alpine site. Warming, nitrogen addition, and increased biomass consistently shifted the communities towards less light demanding species at both sites. Interestingly, nitrogen addition and biomass decreased the reaction indicator value at both sites suggesting that communities became more tolerant to acidic conditions. In addition, warming and biomass shifted the communities towards higher temperature, nutrient demanding and grazing tolerant species at the alpine. At the sub-alpine site, nitrogen addition increased nutrient and moisture demanding species.
 
 ```{r}
 #| label: fig-toenails
