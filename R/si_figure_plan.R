@@ -315,6 +315,19 @@ si_figure_plan <- list(
     name = div_index_figure,
     command = {
 
+      # variance explained labels
+      richness_r2 <- diversity_origin_output |>
+        filter(diversity_index == "richness") |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "\nAdj R² = ", round(adj.r.squared, 2)))
+
+      evenness_r2 <- diversity_origin_output |>
+        filter(diversity_index == "evenness") |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "\nAdj R² = ", round(adj.r.squared, 2)))
+
       ### richness by origin
       rich_text2 <- diversity_origin_anova_table |>
         filter(diversity_index == "richness") |>
@@ -367,7 +380,13 @@ si_figure_plan <- list(
                                 slice(3),
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
-                  size = 3, colour = "grey60", nudge_x = 50)
+                  size = 3, colour = "grey60", nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = richness_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3, colour = text_colour)
       
 
       ### evenness by origin
@@ -432,7 +451,13 @@ si_figure_plan <- list(
                                   slice(4),
                               by = c("origSiteID")),
                     aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -6.2, label = term),
-                    size = 3, colour = text_colour, nudge_x = 50)
+                    size = 3, colour = text_colour, nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = evenness_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3, colour = text_colour)
 
       (rich + even) + plot_layout(guides = "collect") &
         theme(legend.position = "top",

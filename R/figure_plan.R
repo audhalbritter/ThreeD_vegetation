@@ -8,6 +8,18 @@ figure_plan <- list(
     name = bio_div_figure,
     command = {
 
+      # variance explained labels
+      biomass_r2 <- biomass_origin_output |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "; Adj. R² = ", round(adj.r.squared, 2)))
+
+      diversity_r2 <- diversity_origin_output |>
+        filter(diversity_index == "diversity") |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "; Adj. R² = ", round(adj.r.squared, 2)))
+
       ### Figure 3a Biomass by origin
       biomass_text2 <- biomass_origin_anova_table |>
         mutate(significance = case_when(term == "Residuals" ~ "non-sign",
@@ -97,7 +109,13 @@ figure_plan <- list(
                                 slice(6),
                               by = c("origSiteID")),
                   aes(x = -Inf, y = Inf, hjust = -0.1, vjust = 9.4, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50)
+                  size = 3, colour = text_colour, nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = biomass_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3.5, colour = text_colour)
 
       ### Figure 3b DIVERSITY BY ORIGIN
       div_text2 <- diversity_origin_anova_table |>
@@ -152,7 +170,13 @@ figure_plan <- list(
                                 slice(3),
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
-                  size = 3, colour = text_colour, nudge_x = 50)
+                  size = 3, colour = text_colour, nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = diversity_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3.5, colour = text_colour)
 
       (bio + div) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
