@@ -11,8 +11,8 @@ figure_plan <- list(
       biomass_r2 <- biomass_origin_output |>
         transmute(origSiteID,
           r2_label = paste0(
-            "R<U+00B2> = ", round(r.squared, 2),
-            "; Adj. R<U+00B2> = ", round(adj.r.squared, 2)
+            "R² = ", round(r.squared, 2),
+            "; Adj. R² = ", round(adj.r.squared, 2)
           )
         )
 
@@ -20,8 +20,8 @@ figure_plan <- list(
         filter(diversity_index == "diversity") |>
         transmute(origSiteID,
           r2_label = paste0(
-            "R<U+00B2> = ", round(r.squared, 2),
-            "; Adj. R<U+00B2> = ", round(adj.r.squared, 2)
+            "R² = ", round(r.squared, 2),
+            "; Adj. R² = ", round(adj.r.squared, 2)
           )
         )
 
