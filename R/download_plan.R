@@ -5,86 +5,64 @@ download_plan <- list(
   # climate
   tar_target(
     name = climate_download,
-    command =  get_file(node = "pk4bg",
-                        file = "THREE-D_clean_microclimate_2019-2022.csv.zip",
-                        path = "data",
-                        remote_path = "Climate")
-  ),
-
-  # unzip and delete zip file
-  tar_target(
-    name = climate_unzip,
-    command =  {
-      unzip(climate_download, exdir = "data")
-
-      zip <- "data/THREE-D_clean_microclimate_2019-2022.csv.zip"
-      unzip <- "data/THREE-D_clean_microclimate_2019-2022.csv"
-      #Check its existence
-      if (file.exists(zip) & file.exists(unzip)) {
-        #Delete file if it exists
-        file.remove(zip)
-      }
-      unzip
-    },
+    command = download_zenodo_file(
+      source_name = "xiv_Three-D_clean_microclimate_2019-2022.csv"
+    ),
     format = "file"
   ),
 
-  tar_target(
-    name = gridded_climate_download,
-    command =  get_file(node = "pk4bg",
-                        file = "THREE_D_GriddedDailyClimateData2008-2022.csv",
-                        path = "data",
-                        remote_path = "Climate"),
-    format = "file"
-  ),
+  # gridded climate - read from local file (not available online)
+  # tar_target(
+  #   name = gridded_climate_download,
+  #   command =  get_file(node = "pk4bg",
+  #                       file = "THREE_D_GriddedDailyClimateData2008-2022.csv",
+  #                       path = here::here("data"),
+  #                       remote_path = "Climate"),
+  #   format = "file"
+  # ),
 
   # biomass
   tar_target(
     name = biomass_download,
-    command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_biomass_2020-2022.csv",
-                        path = "data",
-                        remote_path = "Vegetation"),
+    command = download_zenodo_file(
+      source_name = "iii_Three-D_clean_aboveground_biomass_2020-2022.csv"
+    ),
     format = "file"
   ),
 
   # productivity
   tar_target(
     name = productivity_download,
-    command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_productivity_2022.csv",
-                        path = "data",
-                        remote_path = "Vegetation"),
+    command = download_zenodo_file(
+      source_name = "iv_Three-D_clean_aboveground_productivity_consumption_2022.csv"
+    ),
     format = "file"
   ),
 
   # cover
   tar_target(
     name = cover_download,
-    command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_cover_2019-2022.csv",
-                        path = "data",
-                        remote_path = "Vegetation"),
+    command = download_zenodo_file(
+      source_name = "vii_Three-D_clean_community_cover_2019-2022.csv"
+    ),
     format = "file"
   ),
 
   # height
   tar_target(
     name = height_download,
-    command =  get_file(node = "pk4bg",
-                        file = "Three-D_clean_height_2019_2020.csv",
-                        path = "data",
-                        remote_path = "Vegetation"),
+    command = download_zenodo_file(
+      source_name = "ix_Three-D_clean_vegetation_structure_2019-2022.csv"
+    ),
     format = "file"
   ),
 
-  # soil
+  # species list
   tar_target(
-    name = soil_download,
-    command =  get_file(node = "pk4bg",
-                        file = "THREE-D_Soil_2019-2020.csv",
-                        path = "data",
-                        remote_path = "Soil"),
+    name = sp_list_download,
+    command = download_zenodo_file(
+      source_name = "vii_Three-D_clean_species_list.csv"
+    ),
     format = "file"
   ),
 
@@ -93,7 +71,7 @@ download_plan <- list(
     name = trait_download,
     command =  get_file(node = "fcbw4",
                         file = "PFTC6_clean_ElevationGradient_GlobalChangeExperiment_morphological_traits_2022.csv",
-                        path = "data",
+                        path = here::here("data"),
                         remote_path = "i. trait_data"),
     format = "file"
   ),
@@ -104,7 +82,7 @@ download_plan <- list(
     name = ellenberg_download,
     command =  {
       url <- "https://zenodo.org/records/7427088/files/Indicator.values-tables-2022-11-07-Zenodo.v2.xlsx?download=1"
-      destfile <- "data/ellenberg.xlsx"  # Local file name
+      destfile <- here::here("data", "ellenberg.xlsx")  # Local file name
       download.file(url, destfile, mode = "wb")
       # print path to file
       destfile
@@ -117,7 +95,7 @@ download_plan <- list(
     name = disturbance_download,
     command =  {
       url <- "https://zenodo.org/records/7116957/files/disturbance_indicator_values.csv?download=1"
-      destfile <- "data/disturbance_indicator_values.csv"  # Local file name
+      destfile <- here::here("data", "disturbance_indicator_values.csv")  # Local file name
       download.file(url, destfile, mode = "wb")
       # print path to file
       destfile
@@ -129,12 +107,12 @@ download_plan <- list(
   # climate
   tar_target(
     name = climate_raw,
-    command = fread(climate_unzip)
+    command = fread(climate_download)
   ),
 
   tar_target(
     name = gridded_climate_raw,
-    command = fread(file = gridded_climate_download)
+    command = fread(file = here::here("data", "THREE_D_GriddedDailyClimateData2008-2022.csv"))
   ),
 
   # biomass
@@ -163,18 +141,12 @@ download_plan <- list(
 
   tar_target(
     name = sp_list,
-    command = read_csv(file = "data/Three-D_clean_taxonomy.csv")
+    command = read_csv(file = sp_list_download)
   ),
 
   tar_target(
     name = metaTurfID,
     command = create_threed_meta_data()
-  ),
-
-  # soil
-  tar_target(
-    name = soil_raw,
-    command = read_csv(file = trait_download)
   ),
 
   # traits

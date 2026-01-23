@@ -20,6 +20,11 @@ execute:
   echo: false
 bibliography: bibliography.bib
 csl: ecology-letters.csl
+crossref:
+  fig-prefix: "S"
+  tbl-prefix: "S"
+  fig-title: "Supplementary Figure"
+  tbl-title: "Supplementary Table"
 editor: 
   markdown: 
     wrap: sentence
@@ -44,9 +49,9 @@ library(patchwork)
 library(ggpubr)
 ```
 
-## Methods
+## Environmental data
 
-### Supplementary Figure S1: Temperature effects on the microclimate
+### Temperature effects on the microclimate
 
 ```{r}
 #| label: fig-daily-climate
@@ -59,7 +64,8 @@ daily_climate_figure
 
 ```
 
-### Supplementary Table S1: Stats for temperature effects on the microclimate
+
+### Stats for temperature effects on the microclimate
 
 ```{r}
 #| label: tbl-climate-test
@@ -71,7 +77,143 @@ microclimate_stats
 
 ```
 
-### Supplementary Figure S2: Climate and global change drivers
+### Environmantal variables for the study sites
+
+```{r}
+#| label: method
+#| echo: false
+#| warning: false
+
+tar_load(daily_temp)
+
+daily_temp2 <- as.data.frame(daily_temp)
+
+temp <- daily_temp2 |>
+      mutate(month = month(date),
+             year = year(date)) %>%
+      filter(month %in% c(5, 6, 7, 8, 9),
+             year %in% c(2020, 2021),
+             # only controls
+             Nlevel %in% c(1, 2, 3),
+             grazing == "Control") |> 
+  group_by(destSiteID, origSiteID, variable, warming, .drop = TRUE) %>%
+  summarise(mean = round(mean(value), 2),
+            se = round(sd(value)/sqrt(n()), 1)) |> 
+  filter(!c(origSiteID == "Alpine" & warming == "Warming")) |> 
+  mutate(siteID = case_when(destSiteID == "Lia" ~ "Alpine",
+                            destSiteID == "Joa" ~ "Sub-alpine",
+                            destSiteID == "Vik" ~ "Lowland"),
+         siteID = factor(siteID, levels = c("Alpine", "Sub-alpine", "Lowland")))
+
+ta <- temp |> 
+  filter(variable == "air") |> 
+  arrange(siteID)
+  
+
+tar_load(consumption)
+prod <- consumption |> 
+  group_by(siteID) |> 
+  summarise(mean = round(mean(Ungrazed), 2),
+            se = round(sd(Ungrazed)/sqrt(n()), 1))
+
+cons <- consumption |> 
+  group_by(siteID) |> 
+  summarise(mean = round(mean(Consumption), 2),
+            se = round(sd(Consumption)/sqrt(n()), 1))
+
+tar_load(biomass_div)
+div <- biomass_div |> 
+  filter(warming == "Ambient", grazing == "Control", Namount_kg_ha_y == 0) |>
+  group_by(origSiteID) |> 
+  summarise(mean = round(mean(final_richness), 2), 
+            se = round(sd(final_richness)/sqrt(n()), 2))
+
+# Create table with site characteristics
+# Ensure siteID names are consistent (Lowland -> Boreal)
+ta_table <- ta |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, temp_mean = mean, temp_se = se)
+
+prod_table <- prod |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, prod_mean = mean, prod_se = se)
+
+cons_table <- cons |> 
+  mutate(siteID = case_when(
+    siteID == "Lowland" ~ "Boreal",
+    TRUE ~ as.character(siteID)
+  )) |>
+  select(siteID, cons_mean = mean, cons_se = se)
+
+div_table <- div |>
+  mutate(siteID = case_when(
+    origSiteID == "Alpine" ~ "Alpine",
+    origSiteID == "Sub-alpine" ~ "Sub-alpine",
+    TRUE ~ as.character(origSiteID)
+  )) |>
+  select(siteID, div_mean = mean, div_se = se)
+
+site_table <- data.frame(
+  Site = c("Alpine", "Sub-alpine", "Boreal"),
+  stringsAsFactors = FALSE
+) |>
+  # Add air temperature
+  left_join(ta_table, by = c("Site" = "siteID")) |>
+  # Add precipitation (hardcoded values from text)
+  mutate(
+    Precipitation_mm = c(2089, 1256, 1292)
+  ) |>
+  # Add productivity
+  left_join(prod_table, by = c("Site" = "siteID")) |>
+  # Add consumption
+  left_join(cons_table, by = c("Site" = "siteID")) |>
+  # Add species richness
+  left_join(div_table, by = c("Site" = "siteID")) |>
+  # Format values as strings with ± SE
+  mutate(
+    `Air temperature (°C)` = paste0(temp_mean, " ± ", temp_se),
+    `Precipitation (mm)` = as.character(Precipitation_mm),
+    `Annual productivity (g m^-2^ y^-1^)` = paste0(prod_mean, " ± ", prod_se),
+    `Grazing consumption (g m^-2^ y^-1^)` = paste0(cons_mean, " ± ", cons_se),
+    `Species richness` = ifelse(is.na(div_mean), NA_character_, paste0(div_mean, " ± ", div_se))
+  ) |>
+  # Select only needed columns in desired order
+  select(Site, `Air temperature (°C)`, `Precipitation (mm)`,
+         `Annual productivity (g m^-2^ y^-1^)`, `Grazing consumption (g m^-2^ y^-1^)`,
+         `Species richness`)
+
+```
+
+```{r}
+#| label: tbl-site-characteristics
+#| echo: false
+#| tbl-cap: "Environmental and biotic characteristics of the study sites. Shown are mean ± SE summer air temperature, annual precipitation, annual productivity, grazing consumption and species richness. Air temperature is the average summer temperature (May-September) measured in situ between 2019-2022. Precipitation values are from modeled climate data (2008-2021) by the Norwegian Meteorological Institute. Note that species richness not available for the boreal site, because these plots are transplants from the sub-alpine community."
+
+site_table |>
+  gt() |>
+  cols_label(
+    `Air temperature (°C)` = md("Air temperature (°C)"),
+    `Precipitation (mm)` = md("Precipitation (mm)"),
+    `Annual productivity (g m^-2^ y^-1^)` = md("Annual productivity (g m<sup>-2</sup> y<sup>-1</sup>)"),
+    `Grazing consumption (g m^-2^ y^-1^)` = md("Grazing consumption (g m<sup>-2</sup> y<sup>-1</sup>)"),
+    `Species richness` = md("Species richness")
+  ) |>
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_column_labels()
+  ) |>
+  cols_align(align = "left", columns = Site) |>
+  cols_align(align = "center", columns = -Site)
+
+```
+
+### Climate and global change drivers
 
 ```{r}
 #| label: fig-climate
@@ -81,37 +223,60 @@ tar_load(climate_figure)
 climate_figure
 ```
 
-### Supplementary Table S2: Stats for climate and global change drivers
+### Stats for climate and global change drivers
 
 ```{r}
 #| label: tbl-climate
-#| tbl-cap: "Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on air, ground and soil temperature and soilmoisture at the alpine and sub-alpine communities. Shown are sum of Squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
+#| tbl-cap: "Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on air, ground and soil temperature and soilmoisture at the alpine and sub-alpine communities. Shown are Sum of Squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
 
 tar_load(climate_stats)
 climate_stats
 
 ```
 
-### Supplementary Figure S3: Calculating community biomass
+
+## Biomass estimation
+
+### Model comparision for estimated community biomass
+
+```{r}
+#| label: tbl-biomass-model-comparison
+#| tbl-cap: "Model comparison for the relationship between estimated and collected community biomass. Shown are AIC, delta AIC, and R²."
+
+tar_load(biomass_estimation_model_comparison)
+biomass_estimation_model_comparison$aic_comparison |>
+  gt() |>
+  fmt_number(columns = c(AIC), decimals = 1) |>
+  fmt_number(columns = c(delta_AIC), decimals = 3) |>
+  fmt_number(columns = c(R2), decimals = 3) |>
+  cols_label(delta_AIC = "ΔAIC", R2 = "R²") |>
+  tab_style(
+    style = list(cell_text(weight = "bold")),
+    locations = cells_column_labels()
+  )
+
+```
+
+### Estimating community biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: "Relationship between collected and estimated standing biomass in the unfertilized and unclipped control plots. Standing biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red). The point size indicates the nitrogen addition level.The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
+#| fig-cap: "Relationship between collected and estimated community biomass in the unfertilized and unclipped control plots. Community biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red) and the point size the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. The line type indicate model predictions for 0 (solid) and 100 kg N ha^-1^ y^-1^ (dashed)."
 
 
 tar_read(standing_biomass_back_fig)
 
 ```
 
-### Supplementary Table S3: Model output for estimated community biomass
+### Model output for estimated community biomass
 
 ```{r}
 #| label: tbl-standing-biomass-model-output
 #| echo: false
 #| warning: false
-#| tbl-cap: "Model output for the relationship between estimated and collected standing biomass. Shown are estimates, standard error, t statistics and P value."
+#| tbl-cap: "Model output for the relationship between estimated and collected community biomass. Shown are estimates, standard error, t statistics and P value."
 
 tar_load(standing_biomass_model)
 
@@ -134,13 +299,16 @@ tidy(standing_biomass_model) |>
 
 ```
 
-### Supplementary Table S4: Model output for biomass and diversity models
+
+## Biomass-diversity relationship
+
+### Model output for biomass and diversity models
 
 ```{r}
 #| label: tbl-biomass-diversity-model-output
 #| echo: false
 #| warning: false
-#| tbl-cap: "Model output for the relationship between the global change drivers and standing biomass or the diversity indices. Shown are sum of squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
+#| tbl-cap: "Model output for the relationship between the global change drivers and community biomass or the diversity indices. Shown are sum of squares, degrees of freedom (df), F statistics and P value. Significant terms (P < 0.05) are in bold."
 
 tar_load(biomass_origin_anova_table)
 tar_load(diversity_origin_anova_table)
@@ -262,7 +430,7 @@ biomass_origin_anova_table |>
 
 ```
 
-### Supplementary Figure S4: Global change affects richness and evenness
+### Global change affects richness and evenness
 
 ```{r}
 #| label: fig-div-index
@@ -276,17 +444,17 @@ tar_read(div_index_figure)
 
 ```
 
-### Structural equation models
+## Structural equation models
 
-#### Supplementary Table S5: Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (clipping)
 
 ```{r}
-#| label: tbl-cut-final-stats
+#| label: tbl-cut-final-stats2
 #| echo: false
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via standing biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
 
 tar_load(cut_final_diversity)
 tar_load(cut_final_richness_evenness)
@@ -305,20 +473,22 @@ bind_rows(
              str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
            ))
 ) |> 
-  mutate(Response = diversity_index) |> 
-  select(Site, Response:Predictor, Std.Estimate, Std.Error, DF, P.Value) |> 
+  mutate(P.Value_num = P.Value,
+         is_significant = P.Value <= 0.05) |> 
   mutate(Std.Estimate = round(Std.Estimate, 2),
-           Std.Error = round(Std.Error, 2),
-           P.Value = if_else(P.Value <= 0.001, "≤ 0.001", as.character(round(P.Value, 3)))) |> 
+         Std.Error = round(Std.Error, 2),
+         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
+  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
   group_by(Site) |> 
   gt() |> 
+  cols_hide(columns = is_significant) |> 
   tab_style(
       style = list(
         cell_text(weight = "bold")
       ),
       locations = cells_body(
         columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
-        rows = P.Value <= 0.05
+        rows = is_significant
       )) |> 
   tab_style(
     style = list(
@@ -329,7 +499,7 @@ bind_rows(
 
 ```
 
-#### Supplementary Figure S5: SEM for species richness and evenness
+### SEM for species richness and evenness (clipping)
 
 ```{r}
 #| label: fig-cut-final-rich-even
@@ -337,7 +507,7 @@ bind_rows(
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on species richness and evenness for the a) and c) alpine and b) and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity index."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through community biomass on species richness and evenness for the a) and c) alpine and b) and d) sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and colour (black = significant and grey = non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity index."
 
 tar_load(cut_final_richness_evenness)
 
@@ -345,85 +515,8 @@ cut_final_richness_evenness[[1]]
 
 ```
 
-### Supplementary Figure S6: PCA separately for the alpine and sub-alpine site
 
-```{r}
-#| label: fig-trait-pca2
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-width: 12
-#| fig-height: 6
-#| fig-cap: "Multivariate community-weighted mean affinity responses to warming, clipping and and nitrogen addition, determined by a principal component analysis (PCA) at the a) alpine and b) sub-alpine sites. The colour represents the warming treatment (black = ambient, red = warming), the shape the clipping treatment (circle = control, square = medium, triangle = intensive clipping), and the point size indicates nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. Affinities include temperature, light, moisture, nutrients, reaction, and grazing disturbance. Arrows show trait loadings on the first two principal components."
-
-tar_load(affinity_pca_plot_single)
-
-affinity_pca_plot_single
-
-```
-
-### Supplementary Figure S7: SEM separately for the alpine and sub-alpine site
-
-```{r}
-#| label: fig-cut-affinity2
-#| echo: false
-#| message: false
-#| fig-width: 10
-#| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and cutting and indirectly through biomass on environmental affinity for the a) and c) alpine and b) and d) sub-alpine site. The PCA for the affinity was done separately for the alpine and sub-alpine site. The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = affinity."
-
-tar_load(cut_affinity2)
-
-cut_affinity2[[1]]
-
-```
-
-### Supplementary Figure S8: Environmentalf afinity distributions
-
-To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
-
-```{r}
-#| label: fig-affinity-distributions
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-width: 8
-#| fig-height: 10
-#| fig-cap: "Trait distributions for different treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values, as well as a mowing and grazing disturbance indicator. The colours indicate the different treatments: a) warming (ambient = black, warming = red), b) nitrogen addition levels, and c) clipping (control, medium, intensive)."
-
-# Load the individual plots
-tar_load(traits_warming_plot)
-tar_load(traits_nitrogen_plot)
-tar_load(traits_clipping_plot)
-
-# Combine the plots with tags
-(traits_warming_plot + labs(tag = "a) Warming")) +
-  (traits_nitrogen_plot + labs(tag = "b) Nitrogen")) +
-  (traits_clipping_plot + labs(tag = "c) Clipping")) +
-  plot_layout(ncol = 1, guides = "collect") &
-  theme(legend.position = "none",
-        legend.box = "vertical",
-        plot.tag.position = c(0.12, 1.08),
-        plot.tag = element_text(size = 12, hjust = 0, vjust = 1),
-        plot.margin = margin(t = 10, r = 5, b = 5, l = 5))
-
-```
-
-### Supplementary Table S6: Environmental affinity distributions statistics
-
-```{r}
-#| label: tbl-trait-stats
-#| echo: false
-#| warning: false
-#| tbl-cap: "Statistical results for trait responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and biomass on plant height and Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, mowing, and grazing disturbance) at the alpine and sub-alpine sites. Significant effects (P ≤ 0.05) are shown in bold."
-
-tar_load(trait_stats_table)
-
-trait_stats_table
-
-```
-
-#### Supplementary Figure S10: SEMs for natural grazing
+### SEMs for natural grazing
 
 ```{r}
 #| label: fig-graz-final-all-diversity
@@ -431,10 +524,94 @@ trait_stats_table
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05). The colours shows the direction of the effect (black = positive and grey = negative). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing and indirectly through community biomass on diversity, richness, and evenness for the alpine (a, c, e) and the sub-alpine site (b, d, f). The numbers indicate the regression coefficients and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and colour (black = significant and grey = non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
 
 tar_load(graz_final_all_div)
 
 graz_final_all_div[[1]]
+
+```
+
+### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (grazing)
+
+```{r}
+#| label: tbl-graz-final-stats
+#| echo: false
+#| message: false
+#| fig-width: 10
+#| fig-height: 10
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+
+tar_load(graz_final_all_div)
+
+graz_final_all_div[[2]] |> 
+  mutate(diversity_index = case_when(
+           str_detect(Type, "diversity") ~ "diversity",
+           str_detect(Type, "richness") ~ "richness",
+           str_detect(Type, "evenness") ~ "evenness"
+         ),
+         Site = case_when(
+           str_detect(Type, "Alpine") & !str_detect(Type, "Sub-alpine") ~ "Alpine",
+           str_detect(Type, "Sub-alpine") ~ "Sub-alpine"
+         )) |> 
+  mutate(P.Value_num = P.Value,
+         is_significant = P.Value <= 0.05) |> 
+  mutate(Std.Estimate = round(Std.Estimate, 2),
+         Std.Error = round(Std.Error, 2),
+         P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
+  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
+  group_by(Site) |> 
+  gt() |> 
+  cols_hide(columns = is_significant) |> 
+  tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        rows = is_significant
+      )) |> 
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+      ),
+    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    )
+
+```
+
+## Environmental affinities
+
+### Environmentalf affinity distributions
+
+To understand how traits respond to the different global change drivers, we analyzed the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
+
+```{r}
+#| label: fig-affinity-distributions
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 5
+#| fig-cap: "Trait distributions for plots with different clipping treatments at the alpine (upper row) and sub-alpine site (bottom row). Shown are the trait distributions for plant height and Ellenberg light, temperature, nutrient, moisture, salinity and reaction indicator values, as well as a mowing and grazing disturbance indicator. The colours indicate different levels of clipping."
+
+# Load the individual plots
+tar_load(traits_clipping_plot)
+
+traits_clipping_plot
+
+```
+
+### Environmental affinity distributions statistics
+
+```{r}
+#| label: tbl-trait-stats
+#| echo: false
+#| warning: false
+#| tbl-cap: "Statistical results for trait responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, mowing, and grazing disturbance) at the alpine and sub-alpine sites. Significant effects (P ≤ 0.05) are shown in bold."
+
+tar_load(trait_stats_table)
+
+trait_stats_table
 
 ```

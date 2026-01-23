@@ -20,15 +20,9 @@ tar_visnetwork()
 #                        hide_code = TRUE,
 #                        path_output = "test_file.html")
 
-ggsave("output/Fig2_sem_fig.png", sem_fig, dpi = 300, height = 4, width = 10)
-ggsave("output/Fig3_biomass_div.png", standingB_div_figure, dpi = 300, height = 6, width = 6)
-ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6, width = 6)
-ggsave("output/Fig4_grazing_div.png", grazing_div_figure, dpi = 300, height = 6, width = 6)
 
 
-ggsave("output/FigSx_origin.png", SEM_origin_fig, dpi = 300, height = 8, width = 10)
-ggsave("output/FigSx_div.png", SEM_diversity_fig, dpi = 300, height = 8, width = 10)
-
-ggsave("output/Fig5_traits.png", traits_figure, dpi = 300, height = 8, width = 10)
-
-ggsave("output/Prod_cons.png", productivity_consumption_figure, dpi = 300, height = 4, width = 8)
+ggsave("output/Fig3_biomass_div.png", bio_div_figure, dpi = 300, height = 6, width = 7)
+ggsave("output/Fig4_sem_fig.png", cut_final_diversity[[1]], dpi = 300, height = 4, width = 10)
+ggsave("output/Fig5_standingB_div.png", standingB_div_final_figure, dpi = 300, height = 5, width = 8)
+#ggsave("output/Fig6_toenail.png", , dpi = 300, height = 12, width = 8)

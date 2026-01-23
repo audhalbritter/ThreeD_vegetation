@@ -118,10 +118,10 @@ si_figure_plan <- list(
     name = annual_productivity,
     command = productivity_raw |>
       # calculate productivity in g per m^2
-      mutate(productivity_g_m2 = productivity * 10000 / area_cm) |>
+      mutate(productivity_g_m2 = productivity * 10000 / area_cm2) |>
       # productivity per day
       mutate(productivity_g_m2_d = productivity_g_m2 / duration) |>
-      mutate(siteID = recode(siteID, "Vik" = "Lowland", "Joa" = "Sub-alpine", "Lia" = "Alpine"),
+      mutate(siteID = recode(destSiteID, "Vikesland" = "Lowland", "Joasete" = "Sub-alpine", "Liahovden" = "Alpine"),
              siteID = factor(siteID, levels = c("Lowland", "Sub-alpine", "Alpine")),
              treatment = case_match(treatment,
                                     "Control" ~ "Grazed",
@@ -197,7 +197,7 @@ si_figure_plan <- list(
       new_data <- crossing(dat |>
                              ungroup() |>
                              select(biomass_remaining_calc),
-                           tibble(Nitrogen_log = c(0, 4.62)))
+                           tibble(Nitrogen_log = c(0, log(100 + 1))))
 
       prediction <- augment(SB_back_model_22, newdata = new_data)
 
@@ -213,7 +213,7 @@ si_figure_plan <- list(
         scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
                              breaks = c(0, 1, 2, 3, 4),
                              labels = c("0", "25", "50", "75", "100")) +
-        guides(linetype = FALSE) +
+        guides(linetype = "none") +
         labs(x = "Cover x height",
              y = bquote(Estimated~standing~biomass~(g~m^-2))) +
         theme_bw()
@@ -315,6 +315,19 @@ si_figure_plan <- list(
     name = div_index_figure,
     command = {
 
+      # variance explained labels
+      richness_r2 <- diversity_origin_output |>
+        filter(diversity_index == "richness") |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "\nAdj R² = ", round(adj.r.squared, 2)))
+
+      evenness_r2 <- diversity_origin_output |>
+        filter(diversity_index == "evenness") |>
+        transmute(origSiteID,
+                  r2_label = paste0("R² = ", round(r.squared, 2),
+                                   "\nAdj R² = ", round(adj.r.squared, 2)))
+
       ### richness by origin
       rich_text2 <- diversity_origin_anova_table |>
         filter(diversity_index == "richness") |>
@@ -367,7 +380,13 @@ si_figure_plan <- list(
                                 slice(3),
                               by = c("origSiteID")),
                   aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -4.6, label = term),
-                  size = 3, colour = "grey60", nudge_x = 50)
+                  size = 3, colour = "grey60", nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = richness_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3, colour = text_colour)
       
 
       ### evenness by origin
@@ -432,7 +451,13 @@ si_figure_plan <- list(
                                   slice(4),
                               by = c("origSiteID")),
                     aes(x = -Inf, y = -Inf, hjust = -0.05, vjust = -6.2, label = term),
-                    size = 3, colour = text_colour, nudge_x = 50)
+                    size = 3, colour = text_colour, nudge_x = 50) +
+        # add R2 labels
+        geom_text(data = evenness_r2,
+                  inherit.aes = FALSE,
+                  aes(x = Inf, y = Inf, label = r2_label, group = origSiteID),
+                  hjust = 1.05, vjust = 1.2,
+                  size = 3, colour = text_colour)
 
       (rich + even) + plot_layout(guides = "collect") &
         theme(legend.position = "top",
