@@ -65,16 +65,6 @@ cut_final_diversity[[1]]
 
 Grazing had similar but weaker effects on community biomass, diversity, species richness and evenness as clipping (Supplementary Figure S6, Table S8).
 
-```{r}
-#| label: fig-bio-div
-#| echo: false
-#| warning: false
-#| fig-height: 5
-#| fig-cap: "Relationship of change in community biomass and Shannon diversity at the alpine and sub-alpine site. These are the raw data used in the SEMs. The colors indicate ambient (black) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, and triangle = intensive clipping). The size of the symbols indicate the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
-
-tar_read(standingB_div_final_figure)
-```
-
 ```{=html}
 <!-- Unsure how to explain these changes in the distributions. I should talk about communities, but mention light demanding species etc. 
 Also I tried to discuss the more important affinities and patterns first (light, reaction). How much focus we want on the other once. 
