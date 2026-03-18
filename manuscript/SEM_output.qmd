@@ -43,7 +43,7 @@ tar_read(bio_div_figure)
 
 ### Do global change drivers operate on diversity and community composition through the same mechanisms?
 
-We tested if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely community biomass, using structural equation models. As we found with the regression models, at both sites, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b; Supplementary Table S7). Also as predicted, community biomass had a net negative effect on diversity, albeit weak and non-significant at the sub-alpine site (@fig-cut-final-diversity; @fig-bio-div). However, contrary to our prediction, in neither site did all three global change drivers operate on diversity solely indirectly through community biomass. In the alpine, our prediction was largely met, with nitrogen addition and clipping having only indirect effects on diversity, but warming had a substantial positive direct effect on diversity as well as a negative effect mediated through community biomass. In contrast, at the sub-alpine site only clipping operated indirectly through community biomass. Warming and nitrogen addition had primarily direct negative effects on diversity. Interestingly, warming had contrasting direct effects on diversity at the two sites.
+We tested if warming, nitrogen addition and clipping operate on Shannon diversity through the same mechanisms, namely community biomass, using structural equation models. As we found with the regression models, at both sites, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a and b; Supplementary Table S7). Also as predicted, community biomass had a net negative effect on diversity, albeit weak and non-significant at the sub-alpine site (@fig-cut-final-diversity; Supplement Figure XXX bio-div). However, contrary to our prediction, in neither site did all three global change drivers operate on diversity solely indirectly through community biomass. In the alpine, our prediction was largely met, with nitrogen addition and clipping having only indirect effects on diversity, but warming had a substantial positive direct effect on diversity as well as a negative effect mediated through community biomass. In contrast, at the sub-alpine site only clipping operated indirectly through community biomass. Warming and nitrogen addition had primarily direct negative effects on diversity. Interestingly, warming had contrasting direct effects on diversity at the two sites.
 
 <!-- I made a separate paragraph for richness and evenness. Should this one be integrated with the previous one or is it fine here? -->
 
@@ -92,9 +92,9 @@ tar_load(traits_warming_plot)
 tar_load(traits_nitrogen_plot)
 
 # Combine the plots with tags
-(traits_warming_plot + labs(tag = "a) Warming")) +
-  (traits_nitrogen_plot + labs(tag = "b) Nitrogen")) +
-  (traits_biomass_plot + labs(tag = "c) Community biomass")) +
+(traits_biomass_plot + labs(tag = "a) Community biomass")) +
+(traits_warming_plot + labs(tag = "b) Warming")) +
+(traits_nitrogen_plot + labs(tag = "c) Nitrogen")) +
   plot_layout(ncol = 1, guides = "collect") &
   theme(legend.position = "none",
         legend.box = "vertical",
