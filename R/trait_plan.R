@@ -120,6 +120,36 @@ trait_plan <- list(
   
   # ),
 
+  # Proportion of total cover accounted for by species with Ellenberg indicator values,
+  # per plot and indicator, then summarised as mean and range across plots
+  tar_target(
+    name = ellenberg_coverage,
+    command = {
+      ellenberg_indicators <- c("light", "temperature", "moisture", "nutrients",
+                                "reaction", "grazing_pressure")
+
+      trait_impute |>
+        ungroup() |>
+        filter(trait_trans %in% ellenberg_indicators) |>
+        # Collapse to one row per species x plot x indicator
+        # (trait_impute has multiple rows per species x plot x trait from bootstrapping)
+        distinct(turfID, origSiteID, species, trait_trans, cover, sum_abun) |>
+        # Sum cover of all species that have each indicator per plot
+        group_by(turfID, origSiteID, trait_trans) |>
+        summarise(
+          cover_with_indicator = sum(cover),
+          sum_abun = first(sum_abun),
+          .groups = "drop"
+        ) |>
+        mutate(prop_cover = cover_with_indicator / sum_abun) |>
+        # Summarise across plots
+        summarise(
+          mean_prop = mean(prop_cover),
+          se_prop   = sd(prop_cover) / sqrt(n())
+        )
+    }
+  ),
+
   # # trait imputation plot
 
   # tar_target(
