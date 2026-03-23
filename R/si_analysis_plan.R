@@ -169,12 +169,51 @@ si_analysis_plan <- list(
   tar_target(
     name = microclimate_stats,
     command = make_microclimate_stats(as.data.frame(daily_temp))
-  )
+  ),
 
   # tar_target(
   #   name = microclimate_save,
   #   command = microclimate_stats |>
   #     gtsave("output/microclimate_stats.png", expand = 10)
   # )
+
+  # Species gained or lost under warming, compared against the full site-level
+  # species pool of all ambient or all warming plots
+  # (ungrazed, unfertilized plots only, year 2022)
+  tar_target(
+    name = species_turnover_warming,
+    command = {
+      presence <- cover_total |>
+        filter(
+          year == 2022,
+          grazing == "Control",
+          Namount_kg_ha_y == 0
+        ) |>
+        distinct(origSiteID, warming, species)
+
+      # Full species pool across all ambient plots per site
+      ambient_pool <- presence |>
+        filter(warming == "Ambient") |>
+        select(origSiteID, species)
+
+      # Full species pool across all warming plots per site
+      warming_pool <- presence |>
+        filter(warming == "Warming") |>
+        select(origSiteID, species)
+
+      # Species lost: in ambient pool but absent from all warming plots at that site
+      lost <- ambient_pool |>
+        anti_join(warming_pool, by = c("origSiteID", "species")) |>
+        mutate(status = "lost")
+
+      # Species gained: in warming pool but absent from all ambient plots at that site
+      gained <- warming_pool |>
+        anti_join(ambient_pool, by = c("origSiteID", "species")) |>
+        mutate(status = "gained")
+
+      bind_rows(lost, gained) |>
+        arrange(origSiteID, status, species)
+    }
+  )
 
 )

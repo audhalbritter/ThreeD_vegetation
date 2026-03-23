@@ -189,10 +189,12 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
                   label = round(sem_results$coefficients$Std.Estimate, 3),
                   P.Value = sem_results$coefficients$P.Value) |>
     mutate(
-           # Linetype based on direction:
-           #linetype = if_else(label > 0, 1, 3),
-           # Colour based on P-value:
-           colour = if_else(P.Value <= 0.05, "grey30", "grey80"),
+           # Colour by direction: blue (negative) or orange (positive)
+           colour = if_else(label > 0,
+                            colorBlindness::Blue2DarkOrange12Steps[9],  # orange
+                            colorBlindness::Blue2DarkOrange12Steps[1]),   # blue
+           # Linetype: solid for significant, dashed for non-significant
+           linetype = if_else(P.Value <= 0.05, "solid", "dashed"),
            # Add asterisks for significance:
            # * for p < 0.05, ** for p < 0.01, *** for p < 0.001
            significance_stars = case_when(
@@ -268,29 +270,46 @@ make_SEM_figure <- function(sem_results, type, landuse, col, diversity_type = "d
   
   nodes <- tibble(
     name = all_nodes,
-    # Box fill colors (white/transparent for all nodes)
-    fill = "#ffffff00",
-    # Box outline color (white for no visible outline)
+    # Transparent rect: arrowheads connect at rect edge with nothing covering them
+    fill  = "#ffffff00",
     color = "#ffffff00",
     alpha = 1,
+    # geom_text = TRUE tells tidySEM to use geom_text instead of geom_label,
+    # so node names are plain text with no white background box.
+    # This is the only reliable way to keep arrowheads visible regardless of
+    # figure size, since geom_label size (mm) cannot be matched to rect_width
+    # (coordinate units) without knowing the output dimensions.
+    geom_text = TRUE,
     # Text colors
     label_color = case_when(
-      name == "warming" ~ col[2],      # color 2 (red)
-      name == "nitrogen" ~ col[4],     # color 4 (green)
-      name %in% c("clipping", "grazing") ~ col[3],  # color 3 (yellow)
-      name %in% c("biomass", "Δbiomass") ~ col[5],  # color 5 (blue)
-      name %in% c(diversity_type, paste0("Δ", diversity_type)) ~ "#845326",  # pink for diversity
-      TRUE ~ col[1]                    # default color
+      name == "warming" ~ col[2],
+      name == "nitrogen" ~ col[4],
+      name %in% c("clipping", "grazing") ~ col[3],
+      name %in% c("biomass", "Δbiomass") ~ col[5],
+      name %in% c(diversity_type, paste0("Δ", diversity_type)) ~ "#845326",
+      TRUE ~ col[1]
     ),
     label_size = 5
   )
-  
+
   # Plot SEM with tidySEM
   # Use labels with significance stars
   paths_for_plot <- paths |>
     mutate(label = label_with_stars)
-  
-  plot_model <- prepare_graph(edges = paths_for_plot, nodes = nodes, layout = layout)
+
+  # rect_width > text width and rect_height ≈ text height + small margin.
+  # Single-line text is much wider than tall, so rect_height must be much
+  # smaller than rect_width to get even padding on all sides.
+  plot_model <- prepare_graph(
+    edges     = paths_for_plot,
+    nodes     = nodes,
+    layout    = layout,
+    rect_width  = 1.4,
+    rect_height = 0.35,
+    spacing_x   = 2,
+    spacing_y   = 2
+  )
+
   plot(plot_model)
 
 }

@@ -1,75 +1,10 @@
 ---
-title: "Do multiple global change drivers impacts montane grasslands through the same mechanisms?"
-author: 
-  - name: Aud H. Halbritter
-    orcid: 0000-0003-2597-6328
-    email: aud.halbritter@uib.no
-    affiliations:
-      - name: Department of Biological Sciences, University of Bergen 
-        city: Bergen
-        address: Postbox 7803
-        country: Norway
-        postal-code: N-5020
-  - name: Deborah Goldberg
-    orcid: 0000-0002-7950-0432
-    affiliations:
-      - name: Department of Ecology and Evolutionary Biology, University of Michigan
-        city: Ann Arbor, MI
-        country: USA
-  - name: Kari Klanderud
-    affiliations:
-      - name: Faculty of Environmental Sciences and Natural Resource, Norwegian University of Life Sciences
-        city: As
-        country: Norway
-  - name: Richard J. Telford
-    orcid: 0000-0003-4651-4798
-    affiliations:
-      - name: Department of Biological Sciences, University of Bergen
-        city: Bergen
-        country: Norway
-  - name: Jake M. Alexander
-    orcid: 0000-0003-2226-7913
-    affiliations:
-      - name: Institute of Integrative Biology, ETH Zürich
-        city: Zurich
-        country: Switzerland
-  - name: Gunnar Austrheim
-    orcid: 0000-0002-3909-6666
-    affiliations:
-      - name: Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology
-        city: Trondheim
-        country: Norway
-  - name: Vigdis Vandvik
-    orcid: 0000-0003-4651-4798
-    affiliations:
-      - name: Department of Biological Sciences, University of Bergen
-        city: Bergen
-        country: Norway
-        
+title: "Does community biomass mediate the impacts of different global change drivers in montane grasslands?"
 format:
     html:
       self-contained: true
     docx: default
 editor: visual
-abstract: >
-  Biodiversity is under threat from multiple global change drivers including climate warming, atmospheric nitrogen deposition, and land-use change such as grazing regimes.
-  Several of these drivers affect biodiversity through the same underlying mechanism, namley community biomass.
-  We hyopothesise that by using community biomass as a common curency we can simplify the direct and indirect effects of multiple global change drivers.
-  We test this prediction in a replicated field experiment in and alpine and sub-alpine grassland, manipulating three common global change drivers: climate warming, nitrogen deposition, grazing, and mimick grazing by clipping. 
-  We found that the three global change drivers affect community biomass and diversity, but the impact depended on the site and the limiting resources.
-  The three global change drivers operated indeed on diversity through commuity biomass, but only at the alpine site where the grassland was both temperature and nutrient limited.
-  Using environmental affinities to describe change in envrionmental niches of these communities reveiled that warming and nitrogen addition led to communities with higher competitive ability for nutrients and light.
-  At the sub-alpine community, warming led to less shade tolerant and moisture communities, while high levels of nitrogen addition led to more acidic conditoins. 
-  Overall, our study showed that global change drivers operate through similar mechanisms when resources are limited.
-
-keywords:
-  - adaptive management
-  - biodiversity
-  - climate change
-  - productivity
-  - land-use change
-  - mountains
-  - pollution
 
 bibliography: bibliography.bib
 

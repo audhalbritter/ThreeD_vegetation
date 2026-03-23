@@ -284,7 +284,7 @@ figure_plan <- list(
         theme(
           legend.position = "top",
           legend.box = "vertical",
-          text = element_text(size = 12)
+          text = element_text(size = 13)
         )
     }
   )
