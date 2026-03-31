@@ -20,7 +20,7 @@ library(patchwork)
 
 # Results
 
-### Global change drivers affect community biomass and diversity differently between the alpine and sub-alpine community
+### Global change drivers affect biomass and diversity differently between the alpine and sub-alpine community
 
 As expected, in both plant communities, warming (W) and nitrogen addition (N) significantly increased community biomass, while clipping (C) reduced biomass (@fig-1-biomass-diversity a; Supplementary Table S6). At the alpine community, biomass was co-limited by warming and nitrogen addition (WxN interaction) such that either warming alone or the highest N level alone had similar biomass and effects of the two treatments were additive. In contrast, at the sub-alpine community the effects of warming and nitrogen addition were non-additive, and the effect of warming was similar to a medium level of nitrogen addition (ca. 25 kg N ha^-1^ y^-1^ ). Finally, the three global change drivers explained the variation in community biomass better in the alpine than the sub-alpine community (see R^2^ and Adj. R^2^ in @fig-1-biomass-diversity).
 
