@@ -239,8 +239,6 @@ tranformation_plan <- list(
     }
   ),
 
-
-  ### Needed?
   # Estimate consumption from standing biomass
   # (from species cover and height)
   tar_target(

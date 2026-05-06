@@ -99,18 +99,6 @@ analysis_plan <- list(
         unnest(glance) |>
         filter(mod == "interaction") |>
         select(origSiteID:adj.r.squared, AIC) |>
-
-      # run_full_model_v3_origin(dat = dd,
-      #                   group = c("origSiteID", "diversity_index"),
-      #                   response = value,
-      #                   grazing_var = grazing_num,
-      #                   biomass = final_bio) |>
-      #   # make long table
-      #   pivot_longer(cols = -c(origSiteID, diversity_index, data),
-      #                names_sep = "_",
-      #                names_to = c(".value", "mod", "names")) |>
-      #   unnest(glance) |>
-      #   select(diversity_index:adj.r.squared, AIC) |>
         mutate(diversity_index = case_match(diversity_index,
                                             "final_richness" ~ "richness",
                                             "final_diversity" ~ "diversity",
@@ -125,7 +113,7 @@ analysis_plan <- list(
     command = diversity_model_all_origin |>
       group_by(origSiteID,diversity_index) |> 
       #filter(mod == "interaction")
-      # select parsimonious model (by HAND!!!)
+      # select parsimonious model
       filter(names == "linear")
       # Use quadratic model for Sub-alpine diversity, linear for everything else
       # filter(case_when(
