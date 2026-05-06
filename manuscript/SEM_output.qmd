@@ -53,7 +53,7 @@ We found similar patterns for the direct and indirect effects of the global chan
 #| message: false
 #| fig-width: 10
 #| fig-height: 5
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and clipping on Shannon diversity, as well as their indirect effects through community biomass for the a) alpine and b) sub-alpine communities. The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative),  and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype  (solid = significant and dashed = non-significant). Each driver, mediator and predictor are coloured differently: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and clipping on Shannon diversity, as well as their indirect effects through community biomass for the a) alpine and b) sub-alpine communities. The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative),  and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype  (solid = significant and dashed = non-significant)."
 
 tar_load(cut_final_diversity)
 

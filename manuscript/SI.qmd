@@ -520,7 +520,7 @@ bind_rows(
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and clipping on species richness and evenness, as well as their indirect effects through community biomass for the a) and c) alpine and b) and d) sub-alpine community. The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative), and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype (solid = significant and dashed = non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = clipping, blue = biomass, brown = diversity index."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and clipping on species richness and evenness, as well as their indirect effects through community biomass for the a) and c) alpine and b) and d) sub-alpine community. The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative), and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype (solid = significant and dashed = non-significant)."
 
 tar_load(cut_final_richness_evenness)
 
@@ -537,7 +537,7 @@ cut_final_richness_evenness[[1]]
 #| message: false
 #| fig-width: 10
 #| fig-height: 15
-#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing on diversity, richness, and evenness, as well as their indirect effects through community biomass for the alpine (a, c, e) and the sub-alpine community (b, d, f). The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative), and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype (solid = significant and dashed = non-significant). Each driver, mediator and predictor are coloured in a separate colour: red = warming, green = nitrogen, yellow = grazing, blue = biomass, brown = diversity indices."
+#| fig-cap: "Structural equation model showing the direct effects of the global change drivers, warming, nitrogen addition and grazing on diversity, richness, and evenness, as well as their indirect effects through community biomass for the alpine (a, c, e) and the sub-alpine community (b, d, f). The numbers indicate the regression coefficients, the colour the direction (orange = positive, turquoise = negative), and the thickness of the line relates to the strength of the effect. Significant effects are indicated by asterisks (*** for P value < 0.001, ** for 0.001 ≤ P-value < 0.01, and * for 0.01 ≤ P-value < 0.05) and linetype (solid = significant and dashed = non-significant)."
 
 tar_load(graz_final_all_div)
 
