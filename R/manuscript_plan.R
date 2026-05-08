@@ -3,10 +3,23 @@
 manuscript_plan <- list(
 
   tar_target(
+    name = manuscript_stat_files,
+    command = c(
+      "manuscript/title_page.qmd",
+      "manuscript/abstract.qmd",
+      "manuscript/introduction.qmd",
+      "manuscript/methods.qmd",
+      "manuscript/SEM_output.qmd",
+      "manuscript/discussion.qmd"
+    ),
+    format = "file"
+  ),
+
+  tar_target(
     name = manuscript_stats,
     command = {
       source("R/functions/manuscript_stats.R", local = TRUE)
-      count_manuscript_stats()
+      count_manuscript_stats(manuscript_files = manuscript_stat_files)
     }
   ),
 

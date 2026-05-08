@@ -1,4 +1,4 @@
-count_manuscript_stats <- function() {
+count_manuscript_stats <- function(manuscript_files = NULL) {
   library(stringr)
   library(dplyr)
   library(tibble)
@@ -47,15 +47,20 @@ count_manuscript_stats <- function() {
     length(tokens[tokens != ""])
   }
 
-  # File layout for merged manuscript (excluding SI)
-  title_file <- "manuscript/title_page.qmd"
-  abstract_file <- "manuscript/abstract.qmd"
-  main_text_files <- c(
+  # File layout for merged manuscript (excluding SI).
+  # If manuscript_files is provided by targets, use it to ensure proper dependency tracking.
+  default_files <- c(
+    "manuscript/title_page.qmd",
+    "manuscript/abstract.qmd",
     "manuscript/introduction.qmd",
     "manuscript/methods.qmd",
     "manuscript/SEM_output.qmd",
     "manuscript/discussion.qmd"
   )
+  files <- if (is.null(manuscript_files)) default_files else manuscript_files
+  title_file <- files[grepl("title_page\\.qmd$", files)][1]
+  abstract_file <- files[grepl("abstract\\.qmd$", files)][1]
+  main_text_files <- files[grepl("(introduction|methods|SEM_output|discussion)\\.qmd$", files)]
   all_ms_files <- c(title_file, abstract_file, main_text_files)
 
   # Running title characters
