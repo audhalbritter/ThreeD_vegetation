@@ -35,12 +35,12 @@ All data underlying these analyses (including raw and processed data) are openly
 
 **Manuscript stats:**
 
--   words: abstract (`r manuscript_stats$abstract_words`), main text (`r manuscript_stats$main_text_words`) (excluding abstract, acknowledgements, references, table and figure legends)
+-   \# words: abstract (`r manuscript_stats$abstract_words`), main text, excluding abstract, acknowledgements, references, table and figure legends (`r manuscript_stats$main_text_words`)
 
--   references: `r manuscript_stats$n_references`
+-   \# references: `r manuscript_stats$n_references`
 
--   figures: `r manuscript_stats$n_figures_main_text`
+-   \# figures: `r manuscript_stats$n_figures_main_text`
 
--   tables: `r manuscript_stats$n_tables_main_text`
+-   \# tables: `r manuscript_stats$n_tables_main_text`
 
 **\*Corresponding author:** Aud Helen Halbritter; Address: Terrestrial Ecology, University of Bergen, Postbox 7803, 5020 Bergen, Norway; Email: [aud.halbritter\@uib.no](mailto:aud.halbritter@uib.no){.email}
