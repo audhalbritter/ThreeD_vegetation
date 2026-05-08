@@ -2,6 +2,14 @@
 
 manuscript_plan <- list(
 
+  tar_target(
+    name = manuscript_stats,
+    command = {
+      source("R/functions/manuscript_stats.R", local = TRUE)
+      count_manuscript_stats()
+    }
+  ),
+
   # manuscript
   tar_quarto(name = ms,
     path = "manuscript/main_manuscript.qmd"),
