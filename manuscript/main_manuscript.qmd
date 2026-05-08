@@ -17,6 +17,10 @@ execute:
   out-width: '100%'
 ---
 
+{{< include title_page.qmd >}}
+
+{{< include abstract.qmd >}}
+
 {{< include introduction.qmd >}}
 
 {{< include methods.qmd >}}

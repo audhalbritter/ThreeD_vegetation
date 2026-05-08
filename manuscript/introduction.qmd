@@ -14,22 +14,6 @@ library(tarchetypes)
 
 ```
 
-Aud H. Halbritter^1\*^, Deborah Goldberg^2^, Kari Klanderud^3^, Richard J. Telford^1^, Jake M. Alexander^4^, Gunnar Austrheim^5^, Vigdis Vandvik^1^
-
-^1^ Department of Biological Sciences, University of Bergen, Bergen, Norway\
-^2^ Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA\
-^3^ Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway\
-^4^ Institute of Integrative Biology, ETH Zürich, Zurich, Switzerland\
-^5^ Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Trondheim, Norway
-
-\* Corresponding author: aud.halbritter\@uib.no
-
-**Abstract**
-
-Biodiversity is under pressure from multiple global change drivers including climate change, pollution, and land-use change. Theory suggests that several of these drivers affect plant diversity through their impacts on plant community biomass. We hypothesize that by using community biomass as a common currency, we can arrive at a more synthetic understanding of the direct and indirect effects of multiple global change drivers on plant diversity. We test this prediction in a replicated field experiment in alpine and sub-alpine grasslands, simulating the effects of climate warming, nitrogen addition, and grazing. Our study showed that the three global change drivers operated indeed on diversity through community biomass, but the response was stronger in the temperature and nutrient limited alpine site. At the warmer sub-alpine site, the direct effects of warming and nitrogen addition can override the biomass-mediated effects. Using environmental affinities to describe the change in environmental niches of the plant communities revealed a useful approach to understand the underlying mechanisms.
-
-**Keywords:** adaptive management, biodiversity, climate change, productivity, land-use change, mountains, pollution
-
 ## Introduction
 
 Anthropogenic global changes such as land-use change, resource exploitation, climate change, invasive alien species, and pollution pose major and accelerating threats to biodiversity and ecosystem functioning [@Ipbes2019-sd]. These global change drivers do not act in isolation but occur simultaneously and often interact in complex ways so that their cumulative impacts may exceed the sum of single drivers [@oliver2014interactions; @Komatsu2019-yr; @rillig2019role; @Speiser2022-st; @xue2024number; @fig-concept a]. Given these complexities, forecasting changes to biodiversity require an understanding of the mechanisms underlying the multifactorial and interactive nature of anthropogenic global change drivers.
