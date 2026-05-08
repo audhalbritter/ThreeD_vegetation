@@ -152,28 +152,11 @@ trait_plan <- list(
 
   # # trait imputation plot
 
-  # tar_target(
-  #   name = trait_names,
-  #   command = c(
-  #     "plant_height_log_cm" = "Height cm",
-  #     "dry_mass_g_log" = "Dry mass g",
-  #     "leaf_area_log_cm2" = "Area cm2",
-  #     "leaf_thickness_log_mm" = "Thickness mm",
-  #     "ldmc" = "LDMC",
-  #     "sla_cm2_g" = "SLA cm2/g")
-  # ),
-
   tar_target(
     name = imputation_plot,
     command = {
 
         trait_names <- c(
-      "plant_height_log_cm" = "Height cm",
-      "dry_mass_g_log" = "Dry mass g",
-      "leaf_area_cm2_log" = "Area cm2",
-      "leaf_thickness_mm_log" = "Thickness mm",
-      "ldmc" = "LDMC",
-      "sla_cm2_g" = "SLA cm2/g",
       "temperature" = "Temperature",
       "light" = "Light",
       "moisture" = "Moisture",

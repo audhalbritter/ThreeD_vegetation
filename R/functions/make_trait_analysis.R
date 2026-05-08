@@ -132,7 +132,8 @@ make_trait_impute <- function(cover_total, trait_raw, affinity){
   # add affinities
   trait <- trait_wide |>
     tidylog::left_join(affinity, by = "species") |> 
-    pivot_longer(cols = c(plant_height_cm_log:sla_cm2_g, light:grazing_pressure),
+    tidylog::select(-c(plant_height_cm_log:sla_cm2_g)) |>
+    pivot_longer(cols = c(light:grazing_pressure),
                  names_to = "trait_trans",
                  values_to = "value_trans") |>
 
@@ -165,12 +166,6 @@ fancy_trait_name_dictionary <- function(dat){
 
   dat %>%
     mutate(trait_fancy = case_match(trait_trans,
-                                    "plant_height_cm_log" ~ "Height cm",
-                                    "dry_mass_g_log" ~ "Dry mass g",
-                                    "leaf_area_cm2_log" ~ "Area cm2",
-                                    "leaf_thickness_mm_log" ~ "Thickness mm",
-                                    "ldmc" ~ "LDMC g/g",
-                                    "sla_cm2_g" ~ "SLA cm2/g",
                                     "light" ~ "Light",
                                     "temperature" ~ "Temperature",
                                     "nutrients" ~ "Nutrients",
@@ -180,12 +175,6 @@ fancy_trait_name_dictionary <- function(dat){
                                     "mowing_frequency" ~ "Mowing",
                                     "grazing_pressure" ~ "Grazing")) |>
     mutate(figure_names = case_match(trait_trans,
-                                     "plant_height_cm_log" ~ "Plant~height~(cm)",
-                                     "dry_mass_g_log" ~ "Leaf~dry~mass~(g)",
-                                     "leaf_area_cm2_log" ~ "Leaf~area~(cm^2)",
-                                     "leaf_thickness_mm_log" ~ "Leaf~thickness~(mm)",
-                                     "ldmc" ~ "LDMC~(gg^{-1})",
-                                     "sla_cm2_g" ~ "SLA~(cm^2*g^{-1})",
                                      "light" ~ "Light",
                                      "temperature" ~ "Temperature",
                                      "nutrients" ~ "Nutrients",
@@ -195,13 +184,7 @@ fancy_trait_name_dictionary <- function(dat){
                                     "mowing_frequency" ~ "Mowing",
                                     "grazing_pressure" ~ "Grazing")) |>
     mutate(figure_names = factor(figure_names,
-                                 levels = c("Plant~height~(cm)",
-                                            "Leaf~dry~mass~(g)",
-                                            "Leaf~area~(cm^2)",
-                                            "Leaf~thickness~(mm)",
-                                            "SLA~(cm^2*g^{-1})",
-                                            "LDMC~(gg^{-1})",
-                                            "Light",
+                                 levels = c("Light",
                                             "Temperature",
                                             "Nutrients",
                                             "Moisture",
