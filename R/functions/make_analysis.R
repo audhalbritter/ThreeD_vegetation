@@ -9,22 +9,15 @@ run_full_model <- function(dat, group, response, grazing_var) {
     ) |>
     group_by(across(all_of({{ group }}))) |>
     nest() |>
-    # run linear, log and quadratic model with interactions and only single effects
+    # Linear, log(N), and quadratic N forms; three-way interactions only (callers drop additive models).
     mutate(
       model_interaction_linear = map(data, ~ lm(.response ~ warming * .grazing * Namount_kg_ha_y, data = .)),
-      model_single_linear = map(data, ~ lm(.response ~ warming + .grazing + Namount_kg_ha_y, data = .)),
       model_interaction_log = map(data, ~ lm(.response ~ warming * .grazing * Nitrogen_log, data = .)),
-      model_single_log = map(data, ~ lm(.response ~ warming + .grazing + Nitrogen_log, data = .)),
       model_interaction_quadratic = map(data, ~ lm(.response ~ warming * .grazing * poly(Namount_kg_ha_y, 2), data = .)),
-      model_single_quadratic = map(data, ~ lm(.response ~ warming + .grazing + poly(Namount_kg_ha_y, 2), data = .)),
 
-      # get aic and r squared
       glance_interaction_linear = map(.x = model_interaction_linear, .f = ~ safely(glance)(.x)$result),
-      glance_single_linear = map(.x = model_single_linear, .f = ~ safely(glance)(.x)$result),
       glance_interaction_log = map(.x = model_interaction_log, .f = ~ safely(glance)(.x)$result),
-      glance_single_log = map(.x = model_single_log, .f = ~ safely(glance)(.x)$result),
-      glance_interaction_quadratic = map(.x = model_interaction_quadratic, .f = ~ safely(glance)(.x)$result),
-      glance_single_quadratic = map(.x = model_single_quadratic, .f = ~ safely(glance)(.x)$result)
+      glance_interaction_quadratic = map(.x = model_interaction_quadratic, .f = ~ safely(glance)(.x)$result)
     )
 }
 
