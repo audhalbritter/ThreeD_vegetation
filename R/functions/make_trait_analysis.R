@@ -199,6 +199,9 @@ fancy_trait_name_dictionary <- function(dat){
 #do the bootstrapping
 make_bootstrapping <- function(trait_impute){
 
+  # trait_np_bootstrap() uses slice_sample() each replicate — must fix RNG here,
+  # not only before trait_fill(), or F/P from lm(mean ~ ...) will drift between runs.
+  set.seed(2526)
   CWM <- trait_np_bootstrap(trait_impute, nrep = 100, sample_size = 200)
 
   trait_mean <- trait_summarise_boot_moments(CWM) |>
