@@ -21,10 +21,10 @@ execute:
 bibliography: bibliography.bib
 csl: ecology-letters.csl
 crossref:
-  fig-prefix: "S"
-  tbl-prefix: "S"
-  fig-title: "Supplementary Figure"
-  tbl-title: "Supplementary Table"
+  fig-prefix: "Figure S"
+  tbl-prefix: "Table S"
+  fig-title: "Figure S"
+  tbl-title: "Table S"
 editor: 
   markdown: 
     wrap: sentence
@@ -100,9 +100,9 @@ temp <- daily_temp2 |>
   summarise(mean = round(mean(value), 2),
             se = round(sd(value)/sqrt(n()), 1)) |> 
   filter(!c(origSiteID == "Alpine" & warming == "Warming")) |> 
-  mutate(siteID = case_when(destSiteID == "Lia" ~ "Alpine",
-                            destSiteID == "Joa" ~ "Sub-alpine",
-                            destSiteID == "Vik" ~ "Lowland"),
+  mutate(siteID = case_when(destSiteID == "Liahovden" ~ "Alpine",
+                            destSiteID == "Joasete" ~ "Sub-alpine",
+                            destSiteID == "Vikesland" ~ "Lowland"),
          siteID = factor(siteID, levels = c("Alpine", "Sub-alpine", "Lowland")))
 
 ta <- temp |> 
