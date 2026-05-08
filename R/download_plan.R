@@ -100,11 +100,6 @@ download_plan <- list(
     command = fread(climate_download)
   ),
 
-  tar_target(
-    name = gridded_climate_raw,
-    command = fread(file = here::here("data", "THREE_D_GriddedDailyClimateData2008-2022.csv"))
-  ),
-
   # biomass
   tar_target(
     name = biomass_raw,
