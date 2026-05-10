@@ -444,19 +444,6 @@ tar_read(div_index_figure)
 
 ```
 
-### Relationship of change in community biomass and Shannon diversity
-
-```{r}
-#| label: fig-bio-div
-#| echo: false
-#| warning: false
-#| fig-height: 5
-#| fig-cap: "Relationship of change in community biomass and Shannon diversity at the alpine and sub-alpine site. These are the raw data used in the SEMs. The colours indicate ambient (black) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, and triangle = intensive clipping). The size of the symbols indicate the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
-
-tar_read(standingB_div_final_figure)
-```
-
-
 ## Structural equation models
 
 ### Statistics for SEMs for Shannon diversity, species richness and evenness at the alpine and sub-alpine site (clipping)
@@ -627,4 +614,16 @@ tar_load(trait_stats_table)
 
 trait_stats_table
 
+```
+
+### Relationship of change in community biomass and Shannon diversity
+
+```{r}
+#| label: fig-bio-div
+#| echo: false
+#| warning: false
+#| fig-height: 5
+#| fig-cap: "Relationship of change in community biomass and Shannon diversity at the alpine and sub-alpine site. These are the raw data used in the SEMs. The colours indicate ambient (black) and warm conditions (red) and the shapes show the different clipping treatments (circle = control, square = medium, and triangle = intensive clipping). The size of the symbols indicate the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
+
+tar_read(standingB_div_final_figure)
 ```
