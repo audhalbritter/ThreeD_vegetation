@@ -77,7 +77,7 @@ microclimate_stats
 
 ```
 
-### Environmantal variables for the study sites
+### Environmental variables for the study sites
 
 ```{r}
 #| label: method
@@ -237,7 +237,7 @@ climate_stats
 
 ## Biomass estimation
 
-### Model comparision for estimated community biomass
+### Model comparison for estimated community biomass
 
 ```{r}
 #| label: tbl-biomass-model-comparison
@@ -454,7 +454,7 @@ tar_read(div_index_figure)
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and cutting and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, df, and P value. Variables in bold have a significant P value."
 
 tar_load(cut_final_diversity)
 tar_load(cut_final_richness_evenness)
@@ -478,7 +478,14 @@ bind_rows(
   mutate(Std.Estimate = round(Std.Estimate, 2),
          Std.Error = round(Std.Error, 2),
          P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
-  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
+  select(
+    Site, Response, Predictor,
+    `Std. Estimate` = Std.Estimate,
+    `Std. Error` = Std.Error,
+    df = DF,
+    `P value` = P.Value,
+    is_significant
+  ) |> 
   group_by(Site) |> 
   gt() |> 
   cols_hide(columns = is_significant) |> 
@@ -487,14 +494,14 @@ bind_rows(
         cell_text(weight = "bold")
       ),
       locations = cells_body(
-        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        columns = c(Response, Predictor, `Std. Estimate`, `Std. Error`, df, `P value`),
         rows = is_significant
       )) |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
       ),
-    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    locations = cells_column_labels(columns = c(Response, Predictor, `Std. Estimate`, `Std. Error`, df, `P value`))
     )
 
 ```
@@ -540,7 +547,7 @@ graz_final_all_div[[1]]
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, standard estimate, standard error, degrees of freedome (DF) and P value. Variables in bold have a significant P value."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, df, and P value. Variables in bold have a significant P value."
 
 tar_load(graz_final_all_div)
 
@@ -559,7 +566,14 @@ graz_final_all_div[[2]] |>
   mutate(Std.Estimate = round(Std.Estimate, 2),
          Std.Error = round(Std.Error, 2),
          P.Value = if_else(P.Value_num <= 0.001, "≤ 0.001", as.character(round(P.Value_num, 3)))) |> 
-  select(Site, Response, Predictor, Std.Estimate, Std.Error, DF, P.Value, is_significant) |> 
+  select(
+    Site, Response, Predictor,
+    `Std. Estimate` = Std.Estimate,
+    `Std. Error` = Std.Error,
+    df = DF,
+    `P value` = P.Value,
+    is_significant
+  ) |> 
   group_by(Site) |> 
   gt() |> 
   cols_hide(columns = is_significant) |> 
@@ -568,21 +582,21 @@ graz_final_all_div[[2]] |>
         cell_text(weight = "bold")
       ),
       locations = cells_body(
-        columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value),
+        columns = c(Response, Predictor, `Std. Estimate`, `Std. Error`, df, `P value`),
         rows = is_significant
       )) |> 
   tab_style(
     style = list(
       cell_text(weight = "bold")
       ),
-    locations = cells_column_labels(columns = c(Response, Predictor, Std.Estimate, Std.Error, DF, P.Value))
+    locations = cells_column_labels(columns = c(Response, Predictor, `Std. Estimate`, `Std. Error`, df, `P value`))
     )
 
 ```
 
 ## Environmental affinities
 
-### Environmentalf affinity distributions
+### Environmental affinity distributions
 
 To understand how traits respond to the different global change drivers, we analysed the effects of warming, nitrogen addition, clipping, and community biomass on plant height and Ellenberg indicator values (@tbl-trait-stats).
 
