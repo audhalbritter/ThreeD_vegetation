@@ -202,7 +202,22 @@ make_microclimate_stats <- function(daily_temp){
            year = year(date)) |>
     filter(month %in% c(5, 6, 7, 8, 9),
            grazing == "Control",
-           Namount_kg_ha_y == 0)
+           Namount_kg_ha_y == 0) |>
+    mutate(
+      variable = factor(
+        case_when(
+          as.character(variable) == "air" ~ "Air",
+          as.character(variable) == "ground" ~ "Ground",
+          as.character(variable) == "soil" ~ "Soil",
+          as.character(variable) == "soilmoisture" ~ "Soil moisture",
+          TRUE ~ paste0(
+            toupper(substr(as.character(variable), 1, 1)),
+            substr(as.character(variable), 2, nchar(as.character(variable)))
+          )
+        ),
+        levels = c("Air", "Ground", "Soil", "Soil moisture")
+      )
+    )
 
   warming |>
     group_by(origSiteID, variable) |>
