@@ -1,5 +1,5 @@
 ---
-title: "Does community biomass mediate the impacts of different global change drivers in montane grasslands?"
+title: "Community biomass partly mediates effects of global change on diversity in montane grasslands"
 format:
     html:
       self-contained: true
@@ -16,6 +16,10 @@ execute:
   error: true
   out-width: '100%'
 ---
+
+{{< include title_page.qmd >}}
+
+{{< include abstract.qmd >}}
 
 {{< include introduction.qmd >}}
 

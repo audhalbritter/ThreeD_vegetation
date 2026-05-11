@@ -53,60 +53,6 @@ tranformation_plan <- list(
     }
   ),
 
-  # gridded climate data
-  # monthly
-  tar_target(
-    name = monthly_climate,
-    command = {
-      setDT(gridded_climate_raw)
-
-      clim_sub <- gridded_climate_raw[variable %in% c("temperature", "precipitation")]
-
-      clim_sub[, year := year(date)]
-      clim_sub[, date_month := dmy(paste0("15-", format(date, "%b.%Y")))]
-
-      monthly_summary <- clim_sub[
-        ,
-        .(
-          sum = sum(value, na.rm = TRUE),
-          value = mean(value, na.rm = TRUE)
-        ),
-        by = .(year, date_month, variable, siteID)
-      ]
-
-      monthly_summary[variable == "precipitation", value := sum]
-
-      monthly_summary[, sum := NULL]
-    }
-  ),
-
-  # annual precipitation and summer temperature
-  tar_target(
-    name = annual_climate,
-    command = {
-      setDT(monthly_climate)
-      monthly_climate[, month := month(date_month)]
-
-      clim_filtered <- monthly_climate[
-        (variable == "temperature" & month %in% 6:9) | variable == "precipitation"
-      ]
-
-      clim_summary <- clim_filtered[
-        ,
-        .(
-          se = sd(value, na.rm = TRUE) / sqrt(.N),
-          sum = sum(value, na.rm = TRUE),
-          value = mean(value, na.rm = TRUE)
-        ),
-        by = .(year, siteID, variable)
-      ]
-
-      clim_summary[variable == "precipitation", value := sum]
-      clim_summary[, sum := NULL]
-    }
-  ),
-
-
   # biomass
   # (scale to m2, 2022 and prettify dataset)
   tar_target(
@@ -239,8 +185,6 @@ tranformation_plan <- list(
     }
   ),
 
-
-  ### Needed?
   # Estimate consumption from standing biomass
   # (from species cover and height)
   tar_target(

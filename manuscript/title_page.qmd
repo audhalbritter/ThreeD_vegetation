@@ -1,0 +1,46 @@
+```{r}
+#| label: setup-title-page-stats
+#| echo: false
+#| message: false
+library(targets)
+tar_load(manuscript_stats)
+```
+
+## Author contributions
+
+We follow the CreDiT taxonomy [@noauthor_2019-bh] with degree of contribution, and recognize the following author contributions, Conceptualization (co), Data curation (da), Formal analysis (fo), Funding acquisition (fu), Investigation (in), Methodology (me), Project administration (pr), Resources (re), Software (so), Supervision (su), Validation (va), Visualization (vi), Writing -- original draft (wo), and Writing -- review & editing (wr), as follows: AHH: lead (da, fo, in, pr, su, va, vi, wo, wr), equal (co, fu, me); DG: equal (co, fu, me, wo, wr); KK: equal (in, me, wr); RJT: equal (me, wr), supporting (fo, va, vi); JMA equal (wr), supporting (co, me); GA: equal (wr), supporting (me); VV: equal (co, fu, in, su, me, wo, wr).
+
+## Data and code availability
+
+All data underlying these analyses (including raw and processed data) are openly available on Zenodo [@Halbritter2025_zenodo_threeD_v002]. All code for downloading the data from Zenodo, data transformation, analyses and producing this manuscript are available on GitHub [@Halbritter2024_github_threeD_vegetation]. The whole workflow is (hope-) fully reproducible by using a target pipeline [@landau2021] and a reproducible environment via renv [@ushey2023]. The Readme file contains a full guidline for how to run reproduce the worflow. The final version of the GitHub repository will be versioned on Zenodo.
+
+**Title:** Community biomass partly mediates effects of global change on diversity in montane grasslands
+
+**Authors:** Aud H. Halbritter^1\*^, Deborah Goldberg^2^, Kari Klanderud^3^, Richard J. Telford^1^, Jake M. Alexander^4^, Gunnar Austrheim^5^, Vigdis Vandvik^1^
+
+**Affiliations:**
+^1^ Department of Biological Sciences, University of Bergen, Bergen, Norway\
+^2^ Department of Ecology and Evolutionary Biology, University of Michigan, Ann Arbor, MI, USA\
+^3^ Faculty of Environmental Sciences and Natural Resource Management, Norwegian University of Life Sciences, Ås, Norway\
+^4^ Institute of Integrative Biology, ETH Zürich, Zurich, Switzerland\
+^5^ Department of Natural History, NTNU University Museum, Norwegian University of Science and Technology, Trondheim, Norway
+
+**Email:** AHH\*: [aud.halbritter\@uib.no](mailto:aud.halbritter@uib.no){.email}; DG: [degold\@umich.edu](mailto:degold@umich.edu){.email}; KK: [kari.klanderud\@nmbu.no](mailto:kari.klanderud@nmbu.no){.email}; RJT: [richard.telford\@uib.no](mailto:richard.telford@uib.no){.email}; JMA: [jake.alexander\@usys.ethz.ch](mailto:jake.alexander@usys.ethz.ch){.email}; GA: [gunnar.austrheim\@ntnu.no](mailto:gunnar.austrheim@ntnu.no){.email}; VV: [vigdis.vandvik\@uib.no](mailto:vigdis.vandvik@uib.no){.email}
+
+**Running title:** Biomass mediate global change responses (`r manuscript_stats$running_title_characters` out of 45 characters)
+
+**Keywords:** adaptive management, biodiversity, climate change, competitive exclusion, productivity, land-use change, mountains, plant-plant interactions, pollution, resource limitation
+
+**Type of article:** Letter (5000 words, 6 figures/tables)
+
+**Manuscript stats:**
+
+-   \# words: abstract (`r manuscript_stats$abstract_words`), main text, excluding abstract, acknowledgements, references, table and figure legends (`r manuscript_stats$main_text_words`)
+
+-   \# references: `r manuscript_stats$n_references`
+
+-   \# figures: `r manuscript_stats$n_figures_main_text`
+
+-   \# tables: `r manuscript_stats$n_tables_main_text`
+
+**\*Corresponding author:** Aud Helen Halbritter; Address: Terrestrial Ecology, University of Bergen, Postbox 7803, 5020 Bergen, Norway; Email: [aud.halbritter\@uib.no](mailto:aud.halbritter@uib.no){.email}

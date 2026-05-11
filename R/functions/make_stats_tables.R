@@ -195,48 +195,6 @@ make_diversity_stats <- function(diversity_anova_table){
 }
 
 
-
-make_nutrient_stats2 <- function(nutrients_anova_table){
-
-  nutrients <- round_numbers(nutrients_anova_table) |>
-    pivot_wider(names_from = origSiteID, values_from = c(sumsq, df, statistic, p.value)) |>
-    select(Elements = elements, Term = term, sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine, `sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`) |>
-    group_by(Elements)
-
-  nutrients |>
-    mutate(Elements = factor(Elements, levels = c("NH4-N", "NO3-N", "P", "K", "Ca", "Mg"))) |>
-    arrange(Elements) |>
-    gt() |>
-    tab_spanner(label = "Alpine", columns = c(2:5)) |>
-    cols_label(sumsq_Alpine = "Sum of Squares",
-               df_Alpine = "df",
-               statistic_Alpine = "F",
-               p.value_Alpine	= "P") |>
-    tab_spanner(label = "Sub-alpine", columns = c(6:9)) |>
-    cols_label(`sumsq_Sub-alpine` = "Sum of Squares",
-               `df_Sub-alpine` = "df",
-               `statistic_Sub-alpine` = "F",
-               `p.value_Sub-alpine`	= "P") |>
-    tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(sumsq_Alpine, df_Alpine, statistic_Alpine, p.value_Alpine),
-        rows = p.value_Alpine <= 0.05
-      )) |>
-    tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c(`sumsq_Sub-alpine`, `df_Sub-alpine`, `statistic_Sub-alpine`, `p.value_Sub-alpine`),
-        rows = `p.value_Sub-alpine` <= 0.05
-      ))  %>%
-    table_style(., font_size = 11)
-}
-
-
 make_microclimate_stats <- function(daily_temp){
 
   warming <- daily_temp |>
@@ -244,7 +202,22 @@ make_microclimate_stats <- function(daily_temp){
            year = year(date)) |>
     filter(month %in% c(5, 6, 7, 8, 9),
            grazing == "Control",
-           Namount_kg_ha_y == 0)
+           Namount_kg_ha_y == 0) |>
+    mutate(
+      variable = factor(
+        case_when(
+          as.character(variable) == "air" ~ "Air",
+          as.character(variable) == "ground" ~ "Ground",
+          as.character(variable) == "soil" ~ "Soil",
+          as.character(variable) == "soilmoisture" ~ "Soil moisture",
+          TRUE ~ paste0(
+            toupper(substr(as.character(variable), 1, 1)),
+            substr(as.character(variable), 2, nchar(as.character(variable)))
+          )
+        ),
+        levels = c("Air", "Ground", "Soil", "Soil moisture")
+      )
+    )
 
   warming |>
     group_by(origSiteID, variable) |>

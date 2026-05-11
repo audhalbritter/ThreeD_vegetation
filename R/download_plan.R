@@ -11,16 +11,6 @@ download_plan <- list(
     format = "file"
   ),
 
-  # gridded climate - read from local file (not available online)
-  # tar_target(
-  #   name = gridded_climate_download,
-  #   command =  get_file(node = "pk4bg",
-  #                       file = "THREE_D_GriddedDailyClimateData2008-2022.csv",
-  #                       path = here::here("data"),
-  #                       remote_path = "Climate"),
-  #   format = "file"
-  # ),
-
   # biomass
   tar_target(
     name = biomass_download,
@@ -108,11 +98,6 @@ download_plan <- list(
   tar_target(
     name = climate_raw,
     command = fread(climate_download)
-  ),
-
-  tar_target(
-    name = gridded_climate_raw,
-    command = fread(file = here::here("data", "THREE_D_GriddedDailyClimateData2008-2022.csv"))
   ),
 
   # biomass
