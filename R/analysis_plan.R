@@ -31,7 +31,7 @@ analysis_plan <- list(
   tar_target(
     name = biomass_origin_model,
     command = biomass_model_all_origin |>
-      # select parsimonious model (by HAND!!!)
+      # select log model, which is the best/equal fit
       filter(names == "log")
   ),
 
@@ -110,7 +110,7 @@ analysis_plan <- list(
     name = diversity_origin_model,
     command = diversity_model_all_origin |>
       group_by(origSiteID,diversity_index) |> 
-      # select parsimonious model
+      # select linear model, which is best fit or to be consistent
       filter(names == "linear")
   ),
 

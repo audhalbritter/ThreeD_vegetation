@@ -101,9 +101,8 @@ si_analysis_plan <- list(
                      names_to = c(".value", "names")) |>
         unnest(glance) |>
         select(variable:adj.r.squared, AIC) |>
-        # select best model (BY HAND!!!)
+        # select log model, because usually the best fit
         filter(names == "log")
-      #filter(AIC == min(AIC)) # normally one would do this
 
     }
 
