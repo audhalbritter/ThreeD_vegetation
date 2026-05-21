@@ -10,6 +10,10 @@ editor: visual
 library(targets)
 library(tarchetypes)
 
+if (!dir.exists("_targets") && dir.exists("../_targets")) {
+  targets::tar_config_set(store = normalizePath("../_targets", mustWork = TRUE))
+}
+
 tar_load(standing_biomass_model_output)
 
 ```
@@ -42,7 +46,7 @@ We characterized the environmental preference of the plant communities, using El
 
 ### Biomass estimation
 
-Community biomass was only collected in the unclipped and ungrazed subplots (n = 40). We used these data to estimate community biomass for all subplots in 2022, after 3 years of treatment. We first ran a linear regression for the subplots with collected community biomass as response and summed vascular plant cover x vegetation height and the main and interactive effects of warming and log transformed nitrogen addition as predictors. Then the AIC's from models with all combinations of these predictors were compared to find the most parsimonious model. The model with the lowest AIC contained vascular plant cover x height and log transformed nitrogen addition (R^2^ = `r round(standing_biomass_model_output$r.squared, 2)`), suggesting that nitrogen affected the relationship between vegetation volume and biomass; specifically we found denser vegetation in plots with more fertilisation (Figure S3, Table S4, S5). The regression coefficients from this model were then used to estimate community biomass (g m^-2^) from vascular plant cover x height in all subplots.
+Community biomass was only collected in the unclipped and ungrazed subplots (n = `r targets::tar_read("n_calibration_biomass_plots")`). We used these data to estimate community biomass for all subplots in 2022, after 3 years of treatment. We first ran a linear regression for the subplots with collected community biomass as response and summed vascular plant cover x vegetation height and the main and interactive effects of warming and log transformed nitrogen addition as predictors. Then the AIC's from models with all combinations of these predictors were compared to find the most parsimonious model. The model with the lowest AIC contained vascular plant cover x height and log transformed nitrogen addition (R^2^ = `r round(standing_biomass_model_output$r.squared, 2)`), suggesting that nitrogen affected the relationship between vegetation volume and biomass; specifically we found denser vegetation in plots with more fertilisation (Figure S3, Table S4, S5). The regression coefficients from this model were then used to estimate community biomass (g m^-2^) from vascular plant cover x height in all subplots.
 
 ### Statistical analysis
 
