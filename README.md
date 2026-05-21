@@ -65,6 +65,14 @@ This installs all packages listed in `renv.lock` into a **private library** for 
 
 If `restore()` fails (e.g. missing system libraries for `sf`), install those dependencies for your OS, then run `renv::restore()` again.
 
+**R 4.6:** The lockfile targets R 4.6. If `restore()` stops on `cli` or other compile errors, run once from the project root:
+
+```r
+source("other_scripts/bootstrap_renv_r46.R")
+```
+
+That installs current CRAN binaries (including `cli` 3.6.6), GitHub remotes, and rewrites `renv.lock` for R 4.6.
+
 ### 4. Run the targets pipeline
 
 From the **project root**:
