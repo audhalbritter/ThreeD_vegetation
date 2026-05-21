@@ -34,10 +34,13 @@ editor:
 #| label: set-up
 #| echo: false
 #| message: false
-# Set working directory to project root for targets
-if(!dir.exists("_targets")) {
-  setwd("..")
+
+# Quarto runs this file from manuscript/; the targets store lives in the project root.
+# Do not use setwd("..") — knitr resets the working directory after each chunk.
+if (!dir.exists("_targets") && dir.exists("../_targets")) {
+  targets::tar_config_set(store = normalizePath("../_targets", mustWork = TRUE))
 }
+
 library(targets)
 library(tarchetypes)
 library(tidyverse)
