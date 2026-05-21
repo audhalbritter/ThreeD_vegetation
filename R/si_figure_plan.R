@@ -208,7 +208,7 @@ si_figure_plan <- list(
                   colour = "grey60") +
         geom_point(aes(colour = warming, size = Nitrogen_log)) +
         annotate("text", x = 2000, y = 5,
-                 label = bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round))) +
+                 label = as.expression(bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round)))) +
         scale_colour_manual(values = warming_palette, name = "Warming") +
         scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
                              breaks = c(0, 1, 2, 3, 4),
