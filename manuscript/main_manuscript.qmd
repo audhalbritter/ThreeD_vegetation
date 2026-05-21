@@ -28,3 +28,12 @@ execute:
 {{< include SEM_output.qmd >}}
 
 {{< include discussion.qmd >}}
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+# Figures {.unnumbered}
+
+{{< include figures_main.qmd >}}
