@@ -109,11 +109,9 @@ si_analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, variable, data),
                      names_sep = "_",
-                     names_to = c(".value", "effects", "names")) |>
+                     names_to = c(".value", "names")) |>
         unnest(glance) |>
         select(variable:adj.r.squared, AIC) |>
-        # select only interaction models
-        filter(effects == "interaction") |>
         # select best model (BY HAND!!!)
         filter(names == "log")
       #filter(AIC == min(AIC)) # normally one would do this
