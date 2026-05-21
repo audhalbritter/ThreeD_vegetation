@@ -21,9 +21,8 @@ analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, data),
                      names_sep = "_",
-                     names_to = c(".value", "mod", "names")) |>
+                     names_to = c(".value", "names")) |>
         unnest(glance) |>
-        filter(mod == "interaction") |>
         select(origSiteID:adj.r.squared, AIC)
     }
   ),
@@ -32,7 +31,7 @@ analysis_plan <- list(
   tar_target(
     name = biomass_origin_model,
     command = biomass_model_all_origin |>
-      # select parsimonious model (by HAND!!!)
+      # select log model, which is the best/equal fit
       filter(names == "log")
   ),
 
@@ -95,9 +94,8 @@ analysis_plan <- list(
         # make long table
         pivot_longer(cols = -c(origSiteID, diversity_index, data),
                      names_sep = "_",
-                     names_to = c(".value", "mod", "names")) |>
+                     names_to = c(".value", "names")) |>
         unnest(glance) |>
-        filter(mod == "interaction") |>
         select(origSiteID:adj.r.squared, AIC) |>
         mutate(diversity_index = case_match(diversity_index,
                                             "final_richness" ~ "richness",
@@ -112,14 +110,8 @@ analysis_plan <- list(
     name = diversity_origin_model,
     command = diversity_model_all_origin |>
       group_by(origSiteID,diversity_index) |> 
-      #filter(mod == "interaction")
-      # select parsimonious model
+      # select linear model, which is best fit or to be consistent
       filter(names == "linear")
-      # Use quadratic model for Sub-alpine diversity, linear for everything else
-      # filter(case_when(
-      #   origSiteID == "Sub-alpine" & diversity_index == "diversity" ~ names == "quadratic",
-      #   TRUE ~ names == "linear"
-      # ))
   ),
 
   tar_target(

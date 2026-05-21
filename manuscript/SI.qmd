@@ -34,10 +34,13 @@ editor:
 #| label: set-up
 #| echo: false
 #| message: false
-# Set working directory to project root for targets
-if(!dir.exists("_targets")) {
-  setwd("..")
+
+# Quarto runs this file from manuscript/; the targets store lives in the project root.
+# Do not use setwd("..") — knitr resets the working directory after each chunk.
+if (!dir.exists("_targets") && dir.exists("../_targets")) {
+  targets::tar_config_set(store = normalizePath("../_targets", mustWork = TRUE))
 }
+
 library(targets)
 library(tarchetypes)
 library(tidyverse)
@@ -263,7 +266,7 @@ biomass_estimation_model_comparison$aic_comparison |>
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: "Relationship between collected and estimated community biomass in the unfertilized and unclipped control plots. Community biomass is estimated from the community data using *sum of cover x vegetation height*. This estimated biomass is then backtransformed to actual biomass using the biomass collected at peak growing season in the control plots. The colour indicates the warming treatment (ambient = black, warming = red) and the point size the nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation. The line type indicates model predictions for 0 (solid) and 100 kg N ha^-1^ y^-1^ (dashed)."
+#| fig-cap: "Calibration model for estimating community biomass showing the relationship between cover x height and harvested standing biomass in the unclipped and ungrazed controls. Grey lines show the fitted relationship at 0 (solid) and 100 (dashed) kg N ha^-1^ y^-1^. Point colour indicates warming (ambient = black, warming = red) and point size indicates nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
 
 
 tar_read(standing_biomass_back_fig)
@@ -278,10 +281,10 @@ tar_read(standing_biomass_back_fig)
 #| warning: false
 #| tbl-cap: "Model output for the relationship between estimated and collected community biomass. Shown are estimates, standard error, t statistics and P value."
 
-tar_load(standing_biomass_model)
+tar_load(SB_back_model_22)
 
 
-tidy(standing_biomass_model) |> 
+broom::tidy(SB_back_model_22) |> 
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
                            "biomass_remaining_calc" ~ "Biomass",

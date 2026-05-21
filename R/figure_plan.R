@@ -249,8 +249,14 @@ figure_plan <- list(
   tar_target(
     name = standingB_div_final_figure,
     command = {
-      biomass_div |>
-        filter(grazing != "Natural") |>
+      dat <- biomass_div |>
+        filter(grazing != "Natural")
+
+      n_legend <- dat |>
+        distinct(Namount_kg_ha_y, Nitrogen_log) |>
+        arrange(Namount_kg_ha_y)
+
+      dat |>
         ggplot(aes(x = log(final_bio), y = final_diversity)) +
         geom_point(
           aes(
@@ -258,7 +264,6 @@ figure_plan <- list(
             fill = warming,
             shape = grazing,
             stroke = 0.8,
-            # size = #Namount_kg_ha_y),
             size = Nitrogen_log
           ),
           alpha = 0.5
@@ -268,8 +273,8 @@ figure_plan <- list(
         scale_shape_manual(values = c(21, 22, 24), name = "Clipping") +
         scale_size_continuous(
           name = bquote(Log(Nitrogen) ~ kg ~ ha^-1 ~ y^-1),
-          breaks = c(0, 1, 2, 3, 4),
-          labels = c("0", "25", "50", "75", "100")
+          breaks = n_legend$Nitrogen_log,
+          labels = as.character(n_legend$Namount_kg_ha_y)
         ) +
         scale_linetype_manual(
           values = c("solid", "dashed"),
