@@ -281,10 +281,10 @@ tar_read(standing_biomass_back_fig)
 #| warning: false
 #| tbl-cap: "Model output for the relationship between estimated and collected community biomass. Shown are estimates, standard error, t statistics and P value."
 
-tar_load(standing_biomass_model)
+tar_load(SB_back_model_22)
 
 
-tidy(standing_biomass_model) |> 
+broom::tidy(SB_back_model_22) |> 
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
                            "biomass_remaining_calc" ~ "Biomass",
