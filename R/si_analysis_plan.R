@@ -2,26 +2,15 @@
 si_analysis_plan <- list(
 
   ## ESTIMATE STANDING BIOMASS
+  # Subplots with harvested biomass used to calibrate the 2022 back-transform (control, 2022).
   tar_target(
-    name = standing_biomass_data,
-    command = estimated_standing_biomass |>
-        select(-sum_cover, -height) |>
-        filter(year == 2022) |>
-        # join collected biomass from control plots
-        tidylog::left_join(measured_standing_biomass |>
-                             filter(grazing == "Control"))
+    name = n_calibration_biomass_plots,
+    command = prep_SB_back |>
+      filter(year == 2022, grazing == "Control", !is.na(biomass_remaining_coll)) |>
+      nrow()
   ),
 
-  tar_target(
-    name = standing_biomass_model,
-    command = {
-      # Linear model
-      fit <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = standing_biomass_data |>
-                  filter(grazing == "Control",
-                         year == 2022))
-    }
-  ),
-
+  # Summary of SB_back_model_22 (same fit as transformation_plan.R).
   tar_target(
     name = standing_biomass_model_output,
     command = summary(SB_back_model_22)
