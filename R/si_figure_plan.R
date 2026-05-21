@@ -191,8 +191,13 @@ si_figure_plan <- list(
       p.val <- pf(f.stat[1], f.stat[2], f.stat[3], lower.tail=FALSE)
       p.val.round <- if_else(p.val < 0.001, "<0.001", paste0("= ", as.character(round(p.val, 3))))
 
+      # Calibration subplots only (harvested control biomass in 2022).
       dat <- prep_SB_back |>
-        filter(year == 2022)
+        filter(year == 2022, grazing == "Control", !is.na(biomass_remaining_coll))
+
+      n_legend <- dat |>
+        distinct(Namount_kg_ha_y, Nitrogen_log) |>
+        arrange(Namount_kg_ha_y)
 
       new_data <- crossing(dat |>
                              ungroup() |>
@@ -210,12 +215,16 @@ si_figure_plan <- list(
         annotate("text", x = 2000, y = 5,
                  label = as.expression(bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round)))) +
         scale_colour_manual(values = warming_palette, name = "Warming") +
-        scale_size_continuous(name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
-                             breaks = c(0, 1, 2, 3, 4),
-                             labels = c("0", "25", "50", "75", "100")) +
+        scale_size_continuous(
+          name = bquote(Log(Nitrogen)~kg~ha^-1~y^-1),
+          breaks = n_legend$Nitrogen_log,
+          labels = as.character(n_legend$Namount_kg_ha_y)
+        ) +
         guides(linetype = "none") +
-        labs(x = "Cover x height",
-             y = bquote(Estimated~standing~biomass~(g~m^-2))) +
+        labs(
+          x = "Cover x height",
+          y = bquote(Collected~standing~biomass~(g~m^-2))
+        ) +
         theme_bw()
 
     }
