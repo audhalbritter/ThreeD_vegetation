@@ -67,6 +67,6 @@ model <- psem(
   )
 ```
 
-[Equation 1: Structural equation model used to test the direct effects of warming, nitrogen addition and clipping on diversity indices (e.g.Shannon diversity) and indirectly via community biomass.]{style="color: #808080; font-size: 0.9em;"}
+[Equation 1: Structural equation model used to test the direct effects of warming, nitrogen addition and clipping on diversity indices (e.g. Shannon diversity) and indirectly via community biomass.]{style="color: #808080; font-size: 0.9em;"}
 
 To understand the underlying mechanisms of how the three global change drivers affect the plant community composition, we described changes in the environmental niches of these communities in response to the treatments using Ellenberg indicator values (light, temperature, nutrients, reaction, and moisture) and one grazing disturbance indicator value (*hereafter* environmental affinities). We calculated the community weighted mean of each environmental affinity using the traitstrap package [@telford2021traitstrap; @maitner2023bootstrapping]. We then tested how warming, nitrogen addition (log transformed), and clipping affected each of the affinities. Separate linear models were run for each global change treatment with a normal error distribution.
