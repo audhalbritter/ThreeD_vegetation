@@ -29,7 +29,7 @@ All data underlying these analyses (including raw and processed data) are openly
 
 **Running title:** Biomass mediates global change responses (`r manuscript_stats$running_title_characters` out of 45 characters)
 
-**Keywords:** adaptive management, biodiversity, climate change, competitive exclusion, Ellenberg Indicator Values, productivity, land-use change, mountains, plant-plant interactions, pollution, resource limitation
+**Keywords:** adaptive management, biodiversity, competitive exclusion, Ellenberg Indicator Values, productivity, mountains, plant-plant interactions, pollution, resource limitation
 
 **Type of article:** Letter (5000 words, 6 figures/tables)
 
