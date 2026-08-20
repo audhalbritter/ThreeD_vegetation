@@ -12,7 +12,7 @@ We follow the CreDiT taxonomy [@noauthor_2019-bh] with degree of contribution, a
 
 ## Data and code availability
 
-All data underlying these analyses (including raw and processed data) are openly available on Zenodo [@Halbritter2025_zenodo_threeD_v002]. All code for downloading the data from Zenodo, data transformation, analyses and producing this manuscript are available on GitHub [@Halbritter2024_github_threeD_vegetation]. The whole workflow is (hope-) fully reproducible by using a target pipeline [@landau2021] and a reproducible environment via renv [@ushey2023]. The Readme file contains a full guidline for how to run reproduce the workflow. The final version of the GitHub repository will be versioned on Zenodo.
+All data underlying these analyses (including raw and processed data) are openly available on Zenodo [@Halbritter2025_zenodo_threeD_v002]. All code for downloading the data from Zenodo, data transformation, analyses and producing this manuscript are available on GitHub [@Halbritter2024_github_threeD_vegetation]. The whole workflow is (hope-) fully reproducible by using a target pipeline [@landau2021] and a reproducible environment via renv [@ushey2023]. The Readme file contains a full guideline for how to run and reproduce the workflow. The final version of the GitHub repository will be versioned on Zenodo.
 
 **Title:** Community biomass partly mediates effects of global change on diversity in montane grasslands
 
