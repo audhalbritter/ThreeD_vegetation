@@ -240,33 +240,13 @@ climate_stats
 
 ## Biomass estimation
 
-### Model comparison for estimated community biomass
-
-```{r}
-#| label: tbl-biomass-model-comparison
-#| tbl-cap: "Model comparison for the relationship between estimated and collected community biomass. Shown are AIC, delta AIC, and R²."
-
-tar_load(biomass_estimation_model_comparison)
-biomass_estimation_model_comparison$aic_comparison |>
-  gt() |>
-  fmt_number(columns = c(AIC), decimals = 1) |>
-  fmt_number(columns = c(delta_AIC), decimals = 3) |>
-  fmt_number(columns = c(R2), decimals = 3) |>
-  cols_label(delta_AIC = "ΔAIC", R2 = "R²") |>
-  tab_style(
-    style = list(cell_text(weight = "bold")),
-    locations = cells_column_labels()
-  )
-
-```
-
 ### Estimating community biomass
 
 ```{r}
 #| label: fig-bio-calc-coll
 #| echo: false
 #| warning: false
-#| fig-cap: "Calibration model for estimating community biomass showing the relationship between cover x height and harvested standing biomass in the unclipped and ungrazed controls. Grey lines show the fitted relationship at 0 (solid) and 100 (dashed) kg N ha^-1^ y^-1^. Point colour indicates warming (ambient = black, warming = red) and point size indicates nitrogen addition level. The nitrogen levels are log transformed, the numbers on the legend are on the original scale for ease of interpretation."
+#| fig-cap: "Calibration of community biomass from cover × height in unclipped, ungrazed (control) subplots. Points show harvested standing biomass against the vegetation-volume proxy (cover × height); the grey line is the fitted linear regression used to estimate biomass for all other subplots. Point colour indicates warming (ambient = black, warming = red) and point size indicates nitrogen addition (log-transformed; legend labels are on the original kg N ha^-1^ y^-1^ scale)."
 
 
 tar_read(standing_biomass_back_fig)
@@ -287,8 +267,7 @@ tar_load(SB_back_model_22)
 broom::tidy(SB_back_model_22) |> 
   mutate(term = case_match(term,
                            "(Intercept)" ~ "Intercept",
-                           "biomass_remaining_calc" ~ "Biomass",
-                           "Nitrogen_log" ~ "Log(Nitrogen)")) |>  
+                           "biomass_remaining_calc" ~ "Cover × height")) |>  
   select("Term" = term, "Estimate" = estimate, `Std. Error` = std.error, `t value` = statistic, `P value` = p.value) |>
   gt() |> 
   gt::fmt_number(columns = c(Estimate, `Std. Error`, `t value`), decimals = 2) |> 

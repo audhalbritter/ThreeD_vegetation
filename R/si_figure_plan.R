@@ -199,18 +199,20 @@ si_figure_plan <- list(
         distinct(Namount_kg_ha_y, Nitrogen_log) |>
         arrange(Namount_kg_ha_y)
 
-      new_data <- crossing(dat |>
-                             ungroup() |>
-                             select(biomass_remaining_calc),
-                           tibble(Nitrogen_log = c(0, log(100 + 1))))
-
-      prediction <- augment(SB_back_model_22, newdata = new_data)
+      prediction <- augment(
+        SB_back_model_22,
+        newdata = tibble(
+          biomass_remaining_calc = seq(
+            min(dat$biomass_remaining_calc, na.rm = TRUE),
+            max(dat$biomass_remaining_calc, na.rm = TRUE),
+            length.out = 100
+          )
+        )
+      )
 
       ggplot(dat,
              aes(x = biomass_remaining_calc, y = biomass_remaining_coll)) +
-        geom_line(data = prediction,
-                  aes(y = .fitted, group = Nitrogen_log, linetype = as.factor(Nitrogen_log)),
-                  colour = "grey60") +
+        geom_line(data = prediction, aes(y = .fitted), colour = "grey60") +
         geom_point(aes(colour = warming, size = Nitrogen_log)) +
         annotate("text", x = 2000, y = 5,
                  label = as.expression(bquote(R^2 == .(r.squared) ~ ", P" ~ .(p.val.round)))) +
@@ -220,7 +222,6 @@ si_figure_plan <- list(
           breaks = n_legend$Nitrogen_log,
           labels = as.character(n_legend$Namount_kg_ha_y)
         ) +
-        guides(linetype = "none") +
         labs(
           x = "Cover x height",
           y = bquote(Collected~standing~biomass~(g~m^-2))
