@@ -16,6 +16,25 @@ si_analysis_plan <- list(
     command = summary(SB_back_model_22)
   ),
 
+  # Mean Carex cover (% of summed vascular cover) across subplots at final survey (2022).
+  tar_target(
+    name = mean_carex_cover_pct,
+    command = cover_total |>
+      filter(year == 2022) |>
+      group_by(turfID) |>
+      summarise(
+        carex_cover = sum(cover[stringr::str_detect(species, "^Carex")], na.rm = TRUE),
+        total_cover = sum(cover, na.rm = TRUE),
+        carex_pct = if_else(
+          total_cover > 0,
+          100 * carex_cover / total_cover,
+          NA_real_
+        ),
+        .groups = "drop"
+      ) |>
+      summarise(mean_carex_pct = mean(carex_pct, na.rm = TRUE)) |>
+      pull(mean_carex_pct)
+  ),
 
   # MICROCLIMATE
   # run 3-way interaction model for climate
