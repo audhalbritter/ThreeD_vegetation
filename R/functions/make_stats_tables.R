@@ -391,7 +391,7 @@ make_trait_stats <- function(trait_statistical_analysis){
     tab_spanner(label = "Sub-alpine", columns = c(8:11)) |>
     # Label columns consistently
     cols_label(
-      trait_fancy = "Trait",
+      trait_fancy = "Affinity",
       # Alpine
       Alpine_sumsq = "Sum of Squares",
       Alpine_df = "df", 
