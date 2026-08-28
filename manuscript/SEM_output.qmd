@@ -12,7 +12,7 @@ Responses of Shannon diversity to the treatments differed considerably between t
 
 The three global change drivers affected species richness and evenness similarly to diversity (Figure S4, Table S5).
 
-### Do global change drivers operate on diversity and community composition through the same mechanisms?
+### Do global change drivers operate on diversity through the same mechanisms?
 
 We tested if warming, nitrogen addition and clipping operate on Shannon diversity through community biomass using SEMs. As we found with the regression models, in both communities, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a, b; Table S6). Also as predicted, increasing community biomass had a net negative effect on diversity, albeit weak and non-significant in the sub-alpine community (@fig-cut-final-diversity; Figure S4). However, contrary to our prediction, in none of the communities did all three global change drivers impact diversity solely indirectly through community biomass. In the alpine community, nitrogen addition and clipping had only indirect effects on diversity, whereas warming had a substantial positive direct effect on diversity in addition to the negative indirect effect mediated through community biomass. In the sub-alpine community only clipping operated solely indirectly through community biomass. Warming and nitrogen addition had primarily direct and negative effects on diversity. Interestingly, warming had the opposite direct effects on diversity in the two communities.
 
