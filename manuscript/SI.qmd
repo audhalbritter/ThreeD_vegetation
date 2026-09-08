@@ -636,13 +636,23 @@ graz_final_all_div[[2]] |>
 #| message: false
 #| warning: false
 #| fig-width: 8
-#| fig-height: 5
-#| fig-cap: "Distributions for species' environmental affinities (community weighted Ellenberg indicator values) at different levels of clipping at the alpine (upper row) and sub-alpine site (bottom row). Shown are the distributions for Ellenberg light, temperature, nutrient, moisture, and reaction indicator values, as well as a grazing disturbance indicator. The colours indicate different levels of clipping (control = grey, medium = yellow, intensive = tan). The stars show the level of significance (* for P ≤ 0.05, ** for P ≤ 0.01, *** for P ≤ 0.001)."
+#| fig-height: 12
+#| fig-cap: "Distributions for species' environmental affinities (community weighted Ellenberg indicator values) for clipping (a) and natural grazing (b) at the alpine (upper row) and sub-alpine site (bottom row). Shown are the distributions for Ellenberg light, temperature, nutrient, moisture, and reaction indicator values, as well as a grazing disturbance indicator. The colours indicate a) clipping levels (control = grey, medium = yellow, intensive = tan) and b) ungrazed control (grey) and natural grazing (yellow). The stars show the level of significance (* for P ≤ 0.05, ** for P ≤ 0.01, *** for P ≤ 0.001)."
 
-# Load the individual plots
 tar_load(traits_clipping_plot)
+tar_load(traits_natural_grazing_plot)
 
-traits_clipping_plot
+affinity_tag_theme <- theme(
+  legend.position = "bottom",
+  plot.tag.location = "margin",
+  plot.tag.position = "topleft",
+  plot.tag = element_text(size = 12, hjust = 0, vjust = 1),
+  plot.margin = margin(t = 18, r = 5, b = 5, l = 5)
+)
+
+(traits_clipping_plot + labs(tag = "a) Clipping") + affinity_tag_theme) /
+  (traits_natural_grazing_plot + labs(tag = "b) Grazing") + affinity_tag_theme) +
+  plot_layout(heights = c(1, 1))
 
 ```
 
@@ -652,7 +662,7 @@ traits_clipping_plot
 #| label: tbl-trait-stats
 #| echo: false
 #| warning: false
-#| tbl-cap: "Statistical results for environmental affinity responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, and community biomass (Term) on Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, and grazing disturbance; Affinity) at the alpine and sub-alpine sites. The table indicates the Sum of Squares, degrees of freedom (df), F statistics and P value.Significant effects (P ≤ 0.05) are shown in bold."
+#| tbl-cap: "Statistical results for environmental affinity responses to global change drivers. Shown are the effects of warming, nitrogen addition, clipping, natural grazing, and community biomass (Term) on Ellenberg indicator values (light, temperature, nutrients, moisture, reaction, and grazing disturbance; Affinity) at the alpine and sub-alpine sites. The table indicates the Sum of Squares, degrees of freedom (df), F statistics and P value. Significant effects (P ≤ 0.05) are shown in bold."
 
 tar_load(trait_stats_table)
 
