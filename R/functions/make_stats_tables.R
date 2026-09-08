@@ -357,6 +357,7 @@ make_trait_stats <- function(trait_statistical_analysis){
       term = case_when(
         term == "biomass_log" ~ "Log(Standing biomass)",
         term == "grazing_num" ~ "Clipping",
+        term == "grazing" ~ "Grazing",
         term == "Nitrogen_log" ~ "Log(Nitrogen addition)",
         term == "warmingWarming" ~ "Warming",
         TRUE ~ term
@@ -403,7 +404,11 @@ make_trait_stats <- function(trait_statistical_analysis){
       `Sub-alpine_statistic` = "F", 
       `Sub-alpine_p.value` = "P"
     ) |>
-    # Add row groups by treatment (reordered)
+    # Add row groups by treatment (same order as affinity figures)
+    tab_row_group(
+      label = "Biomass",
+      rows = treatment == "biomass"
+    ) |>
     tab_row_group(
       label = "Warming",
       rows = treatment == "warming"
@@ -414,14 +419,14 @@ make_trait_stats <- function(trait_statistical_analysis){
     ) |>
     tab_row_group(
       label = "Clipping", 
-      rows = treatment == "grazing"
+      rows = treatment == "clipping"
     ) |>
     tab_row_group(
-      label = "Biomass",
-      rows = treatment == "biomass"
+      label = "Grazing",
+      rows = treatment == "grazing"
     ) |>
     # Set the order of row groups
-    row_group_order(groups = c("Warming", "Nitrogen", "Clipping", "Biomass")) |>
+    row_group_order(groups = c("Biomass", "Warming", "Nitrogen", "Clipping", "Grazing")) |>
     # Bold significant p-values for each site
     tab_style(
       style = list(cell_text(weight = "bold")),
