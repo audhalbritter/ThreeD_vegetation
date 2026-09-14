@@ -105,7 +105,7 @@ daily_climate_figure
 
 ```{r}
 #| label: tbl-climate-test
-#| tbl-cap: "Results from linear regression of the effects of warming on air, ground, and soil temperature and soilmoisture at the alpine and sub-alpine communities for unfertilized and unclipped/grazed plots. Shown are regeresstion coefficients (estimates), standard error, t statistics and P value."
+#| tbl-cap: "Results from linear regression of the effects of warming on air, ground, and soil temperature and soil moisture at the alpine and sub-alpine communities for unfertilized and unclipped/grazed plots. Shown are regeresstion coefficients (estimates), standard error, t statistics and P value."
 
 
 tar_load(microclimate_stats)
@@ -263,7 +263,7 @@ climate_figure
 
 ```{r}
 #| label: tbl-climate
-#| tbl-cap: "Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on air, ground and soil temperature and soilmoisture at the alpine and sub-alpine communities. Shown are Sum of Squares, degrees of freedom (df), F statistics and P value. Significant terms (P ≤ 0.05) are in bold. The treatment terms are abbreviated as follows: W = warming, N = nitrogen addition, C = clipping; combined letters indicate interactions (e.g. WxC)"
+#| tbl-cap: "Anova table of the effects of warming, nitrogen addition, grazing, and their interactions on air, ground and soil temperature and soil moisture at the alpine and sub-alpine communities. Shown are Sum of Squares, degrees of freedom (df), F statistics and P value. Significant terms (P ≤ 0.05) are in bold. The treatment terms are abbreviated as follows: W = warming, N = nitrogen addition, C = clipping; combined letters indicate interactions (e.g. WxC)"
 
 tar_load(climate_stats)
 climate_stats

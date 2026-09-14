@@ -71,7 +71,7 @@ si_figure_plan <- list(
                                   facet_2 = "variable",
                                   dat2 = climate_prediction |>
                                     filter(variable != "soilmoisture")) +
-        labs(tags = "a)") +
+        labs(tag = "a)") +
         # add stats
         geom_text(data = clim |>
                     filter(variable != "soilmoisture") |>
@@ -84,14 +84,14 @@ si_figure_plan <- list(
       moisture <- make_climate_figure(dat1 = clim |>
                                         filter(variable == "soilmoisture"),
                                       x_axis = Nitrogen_log,
-                                      yaxislabel = "Soilmoisture in %",
+                                      yaxislabel = "Soil moisture in %",
                                       colourpalette = warming_palette,
                                       linetypepalette = c("solid", "dashed", "dotted"),
                                       shapepalette = c(16, 0, 2),
                                       facet_2 = "variable",
                                       dat2 = climate_prediction |>
                                         filter(variable == "soilmoisture")) +
-        labs(tags = "b)") +
+        labs(tag = "b)") +
         # add stats
         geom_text(data = clim |>
                     filter(variable == "soilmoisture") |>
@@ -158,7 +158,7 @@ si_figure_plan <- list(
           group_by(siteID, treatment, plot_nr) |>
           summarise(sum = sum(productivity_g_m2)) |>
           ggplot(aes(x = siteID, y = sum, fill = treatment)) +
-          geom_violin(draw_quantiles = c(0.5)) +
+          geom_violin(quantiles = 0.5, quantile.linetype = "solid") +
           scale_fill_manual(name = "", values = treatment_palette[c(3, 1)]) +
           labs(y = bquote(Annual~productivity~g~m^-2~y^-1),
                x = "",
@@ -169,7 +169,7 @@ si_figure_plan <- list(
       plot4 <- consumption |>
         ggplot(aes(x = siteID, y = Consumption)) +
         geom_hline(yintercept = 0, colour = "grey70") +
-        geom_violin(fill = treatment_palette[c(3)], draw_quantiles = c(0.5)) +
+        geom_violin(fill = treatment_palette[c(3)], quantiles = 0.5, quantile.linetype = "solid") +
         labs(y = bquote(Annual~biomass~consumption~g~m^-2~y-1),
              x = "",
              tag = "b)") +

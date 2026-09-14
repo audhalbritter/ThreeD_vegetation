@@ -283,7 +283,7 @@ make_climate_stats <- function(climate_anova_table){
                df_soil = "df",
                statistic_soil = "t",
                p.value_soil	= "P") |>
-    tab_spanner(label = "Soilmoisture", columns = c(14:17)) |>
+    tab_spanner(label = "Soil moisture", columns = c(14:17)) |>
     cols_label(sumsq_soilmoisture = "Sum of Squares",
                df_soilmoisture = "df",
                statistic_soilmoisture = "t",
