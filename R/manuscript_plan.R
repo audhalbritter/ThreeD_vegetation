@@ -10,7 +10,8 @@ manuscript_plan <- list(
       "manuscript/introduction.qmd",
       "manuscript/methods.qmd",
       "manuscript/SEM_output.qmd",
-      "manuscript/discussion.qmd"
+      "manuscript/discussion.qmd",
+      "manuscript/figures_main.qmd"
     ),
     format = "file"
   ),
