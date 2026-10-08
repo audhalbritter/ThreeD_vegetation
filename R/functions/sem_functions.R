@@ -163,9 +163,9 @@ run_SEM <- function(data, landuse){
       ),
       edge_linetype = dplyr::if_else(P.Value <= 0.05, "solid", "dashed"),
       significance_stars = dplyr::case_when(
-        P.Value < 0.001 ~ "***",
+        P.Value <= 0.001 ~ "***",
         P.Value < 0.01 ~ "**",
-        P.Value < 0.05 ~ "*",
+        P.Value <= 0.05 ~ "*",
         TRUE ~ ""
       ),
       label_txt = paste0(label, significance_stars),

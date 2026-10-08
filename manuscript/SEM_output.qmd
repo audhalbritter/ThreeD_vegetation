@@ -2,24 +2,68 @@
 editor: visual
 ---
 
+```{r}
+#| label: set-up-results
+#| echo: false
+#| message: false
+
+library(targets)
+library(dplyr)
+
+if (!dir.exists("_targets") && dir.exists("../_targets")) {
+  targets::tar_config_set(store = normalizePath("../_targets", mustWork = TRUE))
+}
+
+tar_load(biomass_origin_anova_table)
+tar_load(biomass_origin_output)
+tar_load(diversity_origin_anova_table)
+
+# Biomass WxN interaction P values
+p_wxn_alpine <- biomass_origin_anova_table |>
+  filter(origSiteID == "Alpine", term == "WxN") |>
+  pull(p.value)
+p_wxn_subalpine <- biomass_origin_anova_table |>
+  filter(origSiteID == "Sub-alpine", term == "WxN") |>
+  pull(p.value)
+
+# Biomass model R² and Adj. R²
+r2_bio_alpine <- biomass_origin_output |>
+  filter(origSiteID == "Alpine") |>
+  pull(r.squared)
+adj_r2_bio_alpine <- biomass_origin_output |>
+  filter(origSiteID == "Alpine") |>
+  pull(adj.r.squared)
+r2_bio_subalpine <- biomass_origin_output |>
+  filter(origSiteID == "Sub-alpine") |>
+  pull(r.squared)
+adj_r2_bio_subalpine <- biomass_origin_output |>
+  filter(origSiteID == "Sub-alpine") |>
+  pull(adj.r.squared)
+
+# Shannon diversity WxNxC interaction P value (alpine)
+p_wxnxc_div_alpine <- diversity_origin_anova_table |>
+  filter(origSiteID == "Alpine", diversity_index == "diversity", term == "WxNxC") |>
+  pull(p.value)
+```
+
 # Results
 
 ### Global change drivers affect biomass and diversity differently between the alpine and sub-alpine community
 
-As expected, community biomass significantly increased with both warming (W) and nitrogen addition (N) in both communities, while clipping (C) reduced biomass (@fig-1-biomass-diversity a; Table S6). In the alpine community, either warming alone or the highest N level alone had similar biomass and effects of the two treatments combined were superadditive (positive WxN interaction; *P = 0.002*; Table S6), suggesting biomass was co-limited by warming and nitrogen addition. In contrast, in the sub-alpine community, the effect of warming was similar to a medium level of nitrogen addition (ca. 25 kg N ha^-1^ y^-1^) and the effects of warming and nitrogen addition were marginally subadditive (negative WxN interaction; *P = 0.054*). The three global change drivers explained more variation in community biomass in the alpine than the sub-alpine community (alpine: R^2^ = 0.80, adj. R^2^ = 0.77; sub-alpine: R^2^ = 0.59, adj. R^2^ = 0.53).
+As expected in our grasslands, community biomass significantly increased with both warming (W) and nitrogen addition (N) in both communities, while clipping (C) reduced biomass (@fig-1-biomass-diversity a; Table S5). In the alpine community, either warming alone or the highest N level alone had similar biomass and effects of the two treatments combined were superadditive (positive WxN interaction; *P = `r round(p_wxn_alpine, 3)`*; Table S5), suggesting biomass was co-limited by warming and nitrogen addition. In contrast, in the sub-alpine community, the effect of warming was similar to a medium level of nitrogen addition (ca. 25 kg N ha^-1^ y^-1^) and the effects of warming and nitrogen addition were marginally subadditive (negative WxN interaction; *P = `r round(p_wxn_subalpine, 3)`*). The three global change drivers explained more variation in community biomass in the alpine than the sub-alpine community (alpine: R^2^ = `r round(r2_bio_alpine, 2)`, adjusted R^2^ = `r round(adj_r2_bio_alpine, 2)`; sub-alpine: R^2^ = `r round(r2_bio_subalpine, 2)`, adjusted R^2^ = `r round(adj_r2_bio_subalpine, 2)`).
 
-Responses of Shannon diversity to the treatments differed considerably between the two plant communities. In the alpine community, warming increased Shannon diversity over most of the nitrogen addition gradient, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity b; Table S6). Clipping partly mitigated this negative effect of warming on diversity at high nitrogen addition (WxNxC; *P = 0.014*; Table S6). In contrast, in the sub-alpine community, warming had a negative effect on diversity throughout the nitrogen addition gradient. High levels of nitrogen addition (\> 25 kg N ha^-1^ y^-1^) in particular decreased diversity in both communities. There was no effect of clipping or interactive effects in the sub-alpine community.
+Responses of Shannon diversity to the treatments differed considerably between the two plant communities. In the alpine community, warming increased Shannon diversity over most of the nitrogen addition gradient, but decreased diversity at nitrogen levels above 25 kg N ha^-1^ y^-1^ (@fig-1-biomass-diversity b; Table S5). Clipping partly mitigated this negative effect of warming on diversity at high nitrogen addition (WxNxC; *P = `r round(p_wxnxc_div_alpine, 3)`*; Table S5). In contrast, in the sub-alpine community, warming had a negative effect on diversity throughout the nitrogen addition gradient. High levels of nitrogen addition (\> 25 kg N ha^-1^ y^-1^) in particular decreased diversity in both communities. There was no effect of clipping or interactive effects in the sub-alpine community.
 
-The three global change drivers affected species richness and evenness similarly to diversity (Figure S4, Table S6).
+The three global change drivers affected species richness and evenness similarly to diversity (Figure S4, Table S5).
 
-### Do global change drivers operate on diversity and community composition through the same mechanisms?
+### Do global change drivers operate on diversity through the same mechanisms?
 
-We tested if warming, nitrogen addition and clipping operate on Shannon diversity through community biomass using SEMs. As we found with the regression models, in both communities, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a, b; Table S7). Also as predicted, increasing community biomass had a net negative effect on diversity, albeit weak and non-significant in the sub-alpine community (@fig-cut-final-diversity; Figure S4). However, contrary to our prediction, in none of the communities did all three global change drivers impact diversity solely indirectly through community biomass. In the alpine community, with nitrogen addition and clipping had only indirect effects on diversity, whereas warming had a substantial positive direct effect on diversity in addition to the negative indirect effect mediated through community biomass. In the sub-alpine community only clipping operated solely indirectly through community biomass. Warming and nitrogen addition had primarily direct and negative effects on diversity. Interestingly, warming had the opposite direct effects on diversity in the two communities.
+We tested if warming, nitrogen addition and clipping operate on Shannon diversity through community biomass using SEMs. As we found with the regression models, in both communities, warming and nitrogen addition had the expected positive effect on community biomass, while clipping had a negative effect (@fig-cut-final-diversity a, b; Table S6). Also as predicted, increasing community biomass had a net negative effect on diversity, albeit weak and non-significant in the sub-alpine community. However, contrary to our prediction, in none of the communities did all three global change drivers impact diversity solely indirectly through community biomass. In the alpine community, nitrogen addition and clipping had only indirect effects on diversity, whereas warming had a substantial positive direct effect on diversity in addition to the negative indirect effect mediated through community biomass. In the sub-alpine community only clipping operated solely indirectly through community biomass. Warming and nitrogen addition had primarily direct and negative effects on diversity. Interestingly, warming had the opposite direct effects on diversity in the two communities.
 
-We found similar patterns for the direct and indirect effects of the global change drivers on species richness and evenness (Figures S5, Table S7). The three drivers had a strong indirect negative effect (via biomass) on evenness in the alpine community, while for richness in the alpine community and evenness in the sub-alpine community these indirect effects through biomass were weaker. Warming increased richness and evenness directly in the alpine community. In contrast, in the sub-alpine community, warming had a negative effect on richness. Nitrogen addition and clipping decreased evenness directly in the sub-alpine community.
+We found similar patterns for the direct and indirect effects of the global change drivers on species richness and evenness (Figures S5, Table S6). The three drivers had a strong indirect negative effect (via biomass) on evenness in the alpine community, while for richness in the alpine community and evenness in the sub-alpine community these indirect effects through biomass were weaker. Warming directly increased richness and evenness in the alpine community and decreased richness directly in the sub-alpine community. Nitrogen addition had a direct negative effect on richness in the alpine community and evenness in the sub-alpine community.
 
-The SEMs including grazing showed very similar patterns to those including clipping, but had slightly weaker indirect biomass-mediated effects (Figure S6, Table S8). The strength of the effect of grazing and clipping on community biomass was very similar.
+The SEMs including grazing showed similar patterns to those including clipping, but had weaker indirect biomass-mediated effects (Figure S6, Table S7). Warming and nitrogen addition had no direct effects on diversity and evenness. Nitrogen had a direct negative effect on species richness in both communities and warming directly decreased richness in the sub-alpine community. The strength of the effect of grazing and clipping on community biomass was very similar, and they were both stronger in the sub-alpine community.
 
 ### Shifts in environmental affinities
 
-We first assessed whether species' environmental affinities were consistent with our hypothesis that increased competition for light and consequent loss of high-light demanding species drive lower diversity associated with increasing community biomass. Indeed, affinities shifted to more shade-tolerant species (lower light indicator values) with increasing biomass, as well as in response to warming and nitrogen addition in both communities (@fig-toenails). Second, we used species' environmental affinities to assess if mechanisms other than biomass could be driving the strong direct effects of warming and nitrogen addition on diversity. We found a shift towards species with high temperature and nitrogen affinities in response to warming in the alpine community but not in the sub-alpine community (@fig-toenails). Instead, warming shifted the sub-alpine community towards species with high moisture affinities. For the nitrogen addition treatment, we found a slight, but significant increase in high-N demanding species with increasing nitrogen in the sub-alpine community. Greater nitrogen addition also resulted in higher abundance of species with affinities for more acid conditions (decreasing reaction indicator) in both communities. With warming and higher biomass, the communities shifted towards species with higher tolerance for grazing in the alpine community (@fig-toenails; Table S9), but none of the affinities showed any response to the grazing treatment (Figure S7, Table S9).
+We first assessed whether species' environmental affinities were consistent with our hypothesis that increased competition for light and consequent loss of high-light demanding species drive lower diversity associated with increasing community biomass. Indeed, affinities shifted to more shade-tolerant species (lower light indicator values) with increasing biomass, as well as in response to warming and nitrogen addition in both communities (@fig-toenails). Second, we used species' environmental affinities to assess if mechanisms other than biomass could be driving the strong direct effects of warming and nitrogen addition on diversity. We found a shift towards species with high temperature and nitrogen affinities in response to warming in the alpine community but not in the sub-alpine community (@fig-toenails). Instead, warming shifted the sub-alpine community towards species with high moisture affinities. For the nitrogen addition treatment, we found a slight, but significant increase in high-N demanding species with increasing nitrogen in the sub-alpine community. Greater nitrogen addition also resulted in higher abundance of species with affinities for more acid conditions (decreasing reaction indicator) in both communities. With warming and higher biomass, the communities shifted towards species with higher tolerance for grazing in the alpine community (@fig-toenails; Table S8). None of the affinities showed any response to the clipping or grazing treatment, except for species with higher grazing tolerance increased with natural grazing in the sub-alpine community (Figure S7, Table S8).

@@ -1,5 +1,13 @@
 ### make climate figures
 
+# Display labels for climate facets (data values stay unchanged)
+climate_variable_labels <- c(
+  air = "air",
+  ground = "ground",
+  soil = "soil",
+  soilmoisture = "moisture"
+)
+
 make_climate_figure <- function(dat1,
                                    x_axis,
                                    yaxislabel,
@@ -36,17 +44,26 @@ make_climate_figure <- function(dat1,
     scale_shape_manual(name = "Clipping", values = shapepalette) +
     # change labels to real values
     scale_x_continuous(breaks = c(log(1), log(5), log(25), log(150)), labels = c(1, 5, 25, 150)) +
-    # facet
-    facet_grid(origSiteID ~ .data[[facet_2]], scales = "free") +
     theme_bw() +
     theme(legend.position = "top",
           legend.box ="vertical",
           text = element_text(size = 12))
 
-  if(is.na(facet_2)){
+  if (is.na(facet_2)) {
     plot + facet_grid(origSiteID ~ "", scales = "free")
   } else {
-    plot
+    # Use vars() + labeller so soilmoisture displays as "moisture"
+    # without renaming the data (extra layers can still use soilmoisture).
+    # Build labeller outside labeller() so the label map is captured now
+    # (nested as_labeller(...) is evaluated lazily when the plot is printed).
+    col_labeller <- ggplot2::as_labeller(climate_variable_labels)
+    plot +
+      facet_grid(
+        rows = ggplot2::vars(origSiteID),
+        cols = ggplot2::vars(!!rlang::sym(facet_2)),
+        scales = "free",
+        labeller = ggplot2::labeller(.cols = col_labeller)
+      )
   }
 
 }
@@ -97,7 +114,8 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     geom_line() +
     scale_color_manual(name = "", values = col_palette) +
     labs(x = "", y = "Temperature (°C)", tag = "a)") +
-    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    facet_grid(variable ~ origSiteID, scales = "free_y",
+               labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(legend.position = "top")
 
@@ -109,7 +127,8 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
     geom_line() +
     scale_color_manual(name = "", values = col_palette) +
     labs(x = "", y = "Soil moisture (%)") +
-    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    facet_grid(variable ~ origSiteID, scales = "free_y",
+               labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(legend.position = "none")
 
@@ -133,11 +152,12 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
   summer_temp_plot <- summer_mean |>
     filter(variable %in% c("air", "ground", "soil")) |>
     ggplot(aes(x = warming, y = value, fill = warming)) +
-    geom_violin(draw_quantiles = c(0.5)) +
+    geom_violin(quantiles = 0.5, quantile.linetype = "solid") +
     scale_fill_manual(name = "", values = col_palette) +
     annotate("text", x = Inf, y = Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
     labs(x = "", y = "Temperature (°C)", tag = "b)") +
-    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    facet_grid(variable ~ origSiteID, scales = "free_y",
+               labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(axis.text.x = element_blank(),
           legend.position = "none")
@@ -145,11 +165,12 @@ make_daily_climate_figure <- function(daily_temp, col_palette){
   summer_moisture_plot <- summer_mean |>
     filter(variable == "soilmoisture") |>
     ggplot(aes(x = warming, y = value, fill = warming)) +
-    geom_violin(draw_quantiles = c(0.5)) +
+    geom_violin(quantiles = 0.5, quantile.linetype = "solid") +
     scale_fill_manual(name = "", values = col_palette) +
     annotate("text", x = Inf, y = Inf, label = "*", hjust = 1, vjust = 1, size = 10, colour = col_palette[2]) +
     labs(x = "", y = "Soil moisture (%)") +
-    facet_grid(variable ~ origSiteID, scales = "free_y") +
+    facet_grid(variable ~ origSiteID, scales = "free_y",
+               labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(axis.text.x = element_blank(),
           legend.position = "none")
@@ -181,11 +202,12 @@ make_climate_treatment_figure <- function(daily_temp){
            warming == "Ambient",
            Namount_kg_ha_y == 0) |>
     ggplot(aes(x = grazing, y = value, fill = grazing)) +
-    geom_violin(draw_quantiles = 0.5) +
+    geom_violin(quantiles = 0.5, quantile.linetype = "solid") +
     scale_fill_manual(values = c("grey", "coral", "coral4")) +
     labs(x = "",
          tag = "a)") +
-    facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y") +
+    facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y",
+                labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(legend.position = "none")
 
@@ -197,11 +219,12 @@ make_climate_treatment_figure <- function(daily_temp){
            warming == "Ambient",
            grazing == "Control") |>
     ggplot(aes(x = factor(Namount_kg_ha_y), y = value, fill = factor(Namount_kg_ha_y))) +
-    geom_violin(draw_quantiles = 0.5) +
+    geom_violin(quantiles = 0.5, quantile.linetype = "solid") +
     scale_fill_viridis_d(option = "inferno", direction = -1) +
     labs(x = bquote(Nitrogen~kg~ha^-1~y^-1),
          tag = "b)") +
-    facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y") +
+    facet_grid2(origSiteID ~ variable, scales = "free_y", independent = "y",
+                labeller = ggplot2::labeller(variable = climate_variable_labels)) +
     theme_bw() +
     theme(legend.position = "none")
 

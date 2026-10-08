@@ -138,10 +138,9 @@ tranformation_plan <- list(
   ),
 
   # run separate models for first and last year
-  # including a correction for nitrogen in 2022
   tar_target(
     name = SB_back_model_22,
-    command = lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = prep_SB_back |>
+    command = lm(biomass_remaining_coll ~ biomass_remaining_calc, data = prep_SB_back |>
       filter(
         grazing == "Control",
         year == 2022

@@ -219,6 +219,7 @@ test_treatment_effects <- function(data, biomass_data,
 traits = c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure")) {
   
   # Filter data for specified traits
+  # Exclude Natural grazing
   trait_data <- data |>
     filter(grazing != "Natural") |>
     filter(trait_trans %in% traits)
@@ -257,8 +258,8 @@ traits = c("temperature", "light", "moisture", "nutrients", "reaction", "grazing
       anova_tidy = map(anova, tidy)
     )
 
-  # Test grazing effects for each trait (excluding Natural)
-  results_grazing <- trait_data |>
+  # Test clipping effects for each trait (excluding Natural)
+  results_clipping <- trait_data |>
     group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
     nest() |>
     mutate(
@@ -268,6 +269,22 @@ traits = c("temperature", "light", "moisture", "nutrients", "reaction", "grazing
       }),
       
       # Get tidy results
+      result = map(model, tidy),
+      anova = map(model, car::Anova),
+      anova_tidy = map(anova, tidy)
+    )
+
+  # Test natural grazing effects (Control vs Natural)
+  results_grazing <- data |>
+    filter(grazing %in% c("Control", "Natural")) |>
+    filter(trait_trans %in% traits) |>
+    mutate(grazing = factor(grazing, levels = c("Control", "Natural"))) |>
+    group_by(trait_trans, trait_fancy, origSiteID, figure_names) |>
+    nest() |>
+    mutate(
+      model = map(data, ~ {
+        lm(mean ~ grazing, data = .x)
+      }),
       result = map(model, tidy),
       anova = map(model, car::Anova),
       anova_tidy = map(anova, tidy)
@@ -298,10 +315,11 @@ traits = c("temperature", "light", "moisture", "nutrients", "reaction", "grazing
 
   # Combine results
   results <- bind_rows(
+    biomass = results_biomass,
     warming = results_warming, 
     nitrogen = results_nitrogen,
+    clipping = results_clipping,
     grazing = results_grazing,
-    biomass = results_biomass,
     .id = "treatment"
   ) |>
     select(-data, -model, -anova)

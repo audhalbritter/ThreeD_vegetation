@@ -71,6 +71,7 @@ tar_load(div_index_figure)
 tar_load(cut_final_richness_evenness)
 tar_load(graz_final_all_div)
 tar_load(traits_clipping_plot)
+tar_load(traits_natural_grazing_plot)
 tar_load(standingB_div_final_figure)
 savefig("Figure_S1_daily_microclimate.png", daily_climate_figure, width = 7, height = 6)
 savefig("Figure_S2_microclimate_treatments.png", climate_figure, width = 7, height = 7)
@@ -78,5 +79,17 @@ savefig("Figure_S3_estimated_vs_collected_biomass.png", standing_biomass_back_fi
 savefig("Figure_S4_richness_evenness.png", div_index_figure, width = 8, height = 7)
 savefig("Figure_S5_SEM_clipping_richness_evenness.png", cut_final_richness_evenness[[1]], width = 10, height = 10)
 savefig("Figure_S6_SEM_grazing_all_indices.png", graz_final_all_div[[1]], width = 10, height = 15)
-savefig("Figure_S7_trait_distributions_clipping.png", traits_clipping_plot, width = 8, height = 5)
+fig_s7_affinities <- {
+  affinity_tag_theme <- ggplot2::theme(
+    legend.position = "bottom",
+    plot.tag.location = "margin",
+    plot.tag.position = "topleft",
+    plot.tag = ggplot2::element_text(size = 12, hjust = 0, vjust = 1),
+    plot.margin = ggplot2::margin(t = 18, r = 5, b = 5, l = 5)
+  )
+  (traits_clipping_plot + ggplot2::labs(tag = "a) Clipping") + affinity_tag_theme) /
+    (traits_natural_grazing_plot + ggplot2::labs(tag = "b) Grazing") + affinity_tag_theme) +
+    patchwork::plot_layout(heights = c(1, 1))
+}
+savefig("Figure_S7_trait_distributions_clipping_grazing.png", fig_s7_affinities, width = 8, height = 12)
 savefig("Figure_S8_biomass_diversity_SEM_raw.png", standingB_div_final_figure, width = 7, height = 5)

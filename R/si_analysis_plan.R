@@ -16,61 +16,38 @@ si_analysis_plan <- list(
     command = summary(SB_back_model_22)
   ),
 
-  # compare biomass models
+  # Mean Carex cover (% of summed vascular cover) across subplots at final survey (2022).
   tar_target(
-    name = biomass_estimation_model_comparison,
-    command = {
-      # Prepare data
-      data <- prep_SB_back |>
-        filter(
-          grazing == "Control",
-          year == 2022
-        )
-      
-      # Fit all models
-      model_full <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log * warming, data = data)
-      model_additive <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log + warming, data = data)
-      model_N <- lm(biomass_remaining_coll ~ biomass_remaining_calc + Nitrogen_log, data = data)
-      model_W <- lm(biomass_remaining_coll ~ biomass_remaining_calc + warming, data = data)
-      model_biomass <- lm(biomass_remaining_coll ~ biomass_remaining_calc, data = data)
-      
-      # Compare by AIC
-      aic_comparison <- data.frame(
-        Model = c("biomass + N * W", "biomass + N + W", "biomass + N", "biomass + W", "biomass"),
-        AIC = c(
-          AIC(model_full),
-          AIC(model_additive),
-          AIC(model_N),
-          AIC(model_W),
-          AIC(model_biomass)
+    name = mean_carex_cover_pct,
+    command = cover_total |>
+      filter(year == 2022) |>
+      group_by(turfID) |>
+      summarise(
+        carex_cover = sum(cover[stringr::str_detect(species, "^Carex")], na.rm = TRUE),
+        total_cover = sum(cover, na.rm = TRUE),
+        carex_pct = if_else(
+          total_cover > 0,
+          100 * carex_cover / total_cover,
+          NA_real_
         ),
-        R2 = c(
-          summary(model_full)$r.squared,
-          summary(model_additive)$r.squared,
-          summary(model_N)$r.squared,
-          summary(model_W)$r.squared,
-          summary(model_biomass)$r.squared
-        )
+        .groups = "drop"
       ) |>
-        arrange(AIC) |>
-        mutate(delta_AIC = AIC - min(AIC))
-      
-      # Return list with models and comparison
-      list(
-        models = list(
-          full = model_full,
-          additive = model_additive,
-          N = model_N,
-          W = model_W,
-          biomass = model_biomass
-        ),
-        aic_comparison = aic_comparison
-      )
-    }
+      summarise(mean_carex_pct = mean(carex_pct, na.rm = TRUE)) |>
+      pull(mean_carex_pct)
   ),
 
-
   # MICROCLIMATE
+  # Summer (May–September) site climate for Table S2 / methods site differences
+  tar_target(
+    name = summer_site_climate,
+    command = summarise_summer_site_climate(daily_temp)
+  ),
+
+  tar_target(
+    name = summer_site_temp_diff,
+    command = summarise_summer_site_temp_diff(summer_site_climate)
+  ),
+
   # run 3-way interaction model for climate
   tar_target(
     name = climate_model,

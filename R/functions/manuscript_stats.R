@@ -55,13 +55,16 @@ count_manuscript_stats <- function(manuscript_files = NULL) {
     "manuscript/introduction.qmd",
     "manuscript/methods.qmd",
     "manuscript/SEM_output.qmd",
-    "manuscript/discussion.qmd"
+    "manuscript/discussion.qmd",
+    "manuscript/figures_main.qmd"
   )
   files <- if (is.null(manuscript_files)) default_files else manuscript_files
   title_file <- files[grepl("title_page\\.qmd$", files)][1]
   abstract_file <- files[grepl("abstract\\.qmd$", files)][1]
   main_text_files <- files[grepl("(introduction|methods|SEM_output|discussion)\\.qmd$", files)]
-  all_ms_files <- c(title_file, abstract_file, main_text_files)
+  # Figures/tables are defined in figures_main.qmd (and rarely elsewhere in main text)
+  figure_files <- files[grepl("(introduction|methods|SEM_output|discussion|figures_main)\\.qmd$", files)]
+  all_ms_files <- unique(c(title_file, abstract_file, main_text_files, figure_files))
 
   # Running title characters
   title_lines <- read_lines_safe(title_file)
@@ -108,15 +111,16 @@ count_manuscript_stats <- function(manuscript_files = NULL) {
   citation_keys <- citation_keys[!str_detect(citation_keys, "^(fig|tbl|eq|sec)-")]
   n_references <- length(citation_keys)
 
-  # Figures/Tables in main text = unique figure/table labels defined in main-text files
-  main_lines_all <- paste(unlist(lapply(main_text_files, read_lines_safe)), collapse = "\n")
+  # Figures/Tables in main text = unique labels in main-text + figures_main.qmd
+  # (captions live in figures_main; do not include that file in word counts above)
+  figure_lines_all <- paste(unlist(lapply(unique(figure_files), read_lines_safe)), collapse = "\n")
   fig_labels <- c(
-    str_match_all(main_lines_all, "#\\|\\s*label:\\s*(fig-[A-Za-z0-9_-]+)")[[1]][, 2],
-    str_match_all(main_lines_all, "\\{#(fig-[A-Za-z0-9_-]+)")[[1]][, 2]
+    str_match_all(figure_lines_all, "#\\|\\s*label:\\s*(fig-[A-Za-z0-9_-]+)")[[1]][, 2],
+    str_match_all(figure_lines_all, "\\{#(fig-[A-Za-z0-9_-]+)")[[1]][, 2]
   )
   tbl_labels <- c(
-    str_match_all(main_lines_all, "#\\|\\s*label:\\s*(tbl-[A-Za-z0-9_-]+)")[[1]][, 2],
-    str_match_all(main_lines_all, "\\{#(tbl-[A-Za-z0-9_-]+)")[[1]][, 2]
+    str_match_all(figure_lines_all, "#\\|\\s*label:\\s*(tbl-[A-Za-z0-9_-]+)")[[1]][, 2],
+    str_match_all(figure_lines_all, "\\{#(tbl-[A-Za-z0-9_-]+)")[[1]][, 2]
   )
   n_figures_main <- length(unique(fig_labels[!is.na(fig_labels) & fig_labels != ""]))
   n_tables_main <- length(unique(tbl_labels[!is.na(tbl_labels) & tbl_labels != ""]))

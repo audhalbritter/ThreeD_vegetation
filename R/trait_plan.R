@@ -65,6 +65,28 @@ trait_plan <- list(
                                                 legend_name = "Clipping",
                                                 figure_names_order = c("Light", "Temperature", "Nutrients", 
                                                "Reaction", "Moisture", "Grazing"))
+        add_significance_stars(base_plot, trait_statistical_analysis, "clipping")
+      }
+    ),
+
+    # natural grazing
+    tar_target(
+      name = traits_natural_grazing_plot,
+      command = {
+        base_plot <- make_trait_ridgeline_plot(
+          trait_mean |>
+            filter(
+              trait_trans %in% c("temperature", "light", "moisture", "nutrients", "reaction", "grazing_pressure"),
+              grazing %in% c("Control", "Natural")
+            ) |>
+            mutate(grazing = factor(grazing, levels = c("Control", "Natural"))),
+          group_var = "grazing",
+          custom_colors = grazing_palette[c(1, 2)],
+          y_axis_label = "Grazing",
+          legend_name = "Grazing",
+          figure_names_order = c("Light", "Temperature", "Nutrients",
+                                 "Reaction", "Moisture", "Grazing")
+        )
         add_significance_stars(base_plot, trait_statistical_analysis, "grazing")
       }
     ),

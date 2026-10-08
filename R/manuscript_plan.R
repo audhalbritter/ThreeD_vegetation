@@ -10,7 +10,8 @@ manuscript_plan <- list(
       "manuscript/introduction.qmd",
       "manuscript/methods.qmd",
       "manuscript/SEM_output.qmd",
-      "manuscript/discussion.qmd"
+      "manuscript/discussion.qmd",
+      "manuscript/figures_main.qmd"
     ),
     format = "file"
   ),
@@ -24,12 +25,25 @@ manuscript_plan <- list(
   ),
 
   # manuscript
-  tar_quarto(name = ms,
-    path = "manuscript/main_manuscript.qmd"),
+  # bibliography/csl are not always auto-discovered by tar_quarto file scanning
+  tar_quarto(
+    name = ms,
+    path = "manuscript/main_manuscript.qmd",
+    extra_files = c(
+      "manuscript/bibliography.bib",
+      "manuscript/ecology-letters.csl"
+    )
+  ),
 
   # SI
-  tar_quarto(name = si,
-    path = "manuscript/SI.qmd")
+  tar_quarto(
+    name = si,
+    path = "manuscript/SI.qmd",
+    extra_files = c(
+      "manuscript/bibliography.bib",
+      "manuscript/ecology-letters.csl"
+    )
+  )
 
   # tar_target(
   #   name = render_manuscript_pdf,
