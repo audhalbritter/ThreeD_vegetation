@@ -93,7 +93,7 @@ registerS3method(
 #| label: fig-daily-climate
 #| fig-height: 6
 #| warning: false
-#| fig-cap: "a) Daily temperature and soil moisture values, measured over the period of the experiment in the alpine and sub-alpine sites and b) average summer temperature and soil moisture between May and September. Shown are air (30 cm), ground (0 cm), soil temperature (-8 cm), and soil moisture measured with Tomst loggers between August 2019 and October 2022 for unfertilized and unclipped/grazed plots. Colour indicates the ambient (black) and warming (red) treatment. Air, ground and soil temperature were higher and soil moisture was lower in the warming treatment, indicated by the star in each panel (P ≤ 0.05)."
+#| fig-cap: "Daily temperature and soil moisture values, measured in unfertilized and unclipped/ungrazed plots in the alpine and sub-alpine sites a) over the period of the experiment (August 2019 - September 2022) and b) over the summer between May and September. Shown are air (15 cm), ground (0 cm), soil temperature (-8 cm), and soil moisture measured with Tomst loggers. Colour indicates the ambient (black) and warming (red) treatment. Air, ground and soil temperature were higher, and soil moisture was lower in the warming treatment, indicated by the star in each panel (P ≤ 0.05)."
 
 tar_load(daily_climate_figure)
 daily_climate_figure
@@ -105,7 +105,7 @@ daily_climate_figure
 
 ```{r}
 #| label: tbl-climate-test
-#| tbl-cap: "Results from linear regression of the effects of warming on air, ground, and soil temperature and soil moisture at the alpine and sub-alpine communities for unfertilized and unclipped/grazed plots. Shown are regeresstion coefficients (estimates), standard error, t statistics and P value."
+#| tbl-cap: "Results from linear regression of the effects of warming on average summer (May - September) air, ground, and soil temperature and soil moisture at the alpine and sub-alpine communities for unfertilized and unclipped/ungrazed plots. Shown are regression coefficients (estimates), standard error, t statistics and P value."
 
 
 tar_load(microclimate_stats)
@@ -120,98 +120,57 @@ microclimate_stats
 #| echo: false
 #| warning: false
 
-tar_load(daily_temp)
-
-daily_temp2 <- as.data.frame(daily_temp)
-
-temp <- daily_temp2 |>
-      mutate(month = month(date),
-             year = year(date)) %>%
-      filter(month %in% c(5, 6, 7, 8, 9),
-             year %in% c(2020, 2021),
-             # only controls
-             Nlevel %in% c(1, 2, 3),
-             grazing == "Control") |> 
-  group_by(destSiteID, origSiteID, variable, warming, .drop = TRUE) %>%
-  summarise(mean = round(mean(value), 2),
-            se = round(sd(value)/sqrt(n()), 1)) |> 
-  filter(!c(origSiteID == "Alpine" & warming == "Warming")) |> 
-  mutate(siteID = case_when(destSiteID == "Liahovden" ~ "Alpine",
-                            destSiteID == "Joasete" ~ "Sub-alpine",
-                            destSiteID == "Vikesland" ~ "Lowland"),
-         siteID = factor(siteID, levels = c("Alpine", "Sub-alpine", "Lowland")))
-
-ta <- temp |> 
-  filter(variable == "air") |> 
-  arrange(siteID)
-  
-
+tar_load(summer_site_climate)
 tar_load(consumption)
-prod <- consumption |> 
-  group_by(siteID) |> 
-  summarise(mean = round(mean(Ungrazed), 2),
-            se = round(sd(Ungrazed)/sqrt(n()), 1))
-
-cons <- consumption |> 
-  group_by(siteID) |> 
-  summarise(mean = round(mean(Consumption), 2),
-            se = round(sd(Consumption)/sqrt(n()), 1))
-
 tar_load(biomass_div)
-div <- biomass_div |> 
+
+ta_table <- summer_site_climate |>
+  filter(variable == "air") |>
+  mutate(
+    siteID = as.character(siteID),
+    temp_mean = round(mean, 2),
+    temp_se = round(se, 1)
+  ) |>
+  select(siteID, temp_mean, temp_se)
+
+prod_table <- consumption |>
+  mutate(siteID = recode(siteID, Lowland = "Boreal")) |>
+  group_by(siteID) |>
+  summarise(
+    prod_mean = round(mean(Ungrazed), 2),
+    prod_se = round(sd(Ungrazed) / sqrt(n()), 1),
+    .groups = "drop"
+  )
+
+cons_table <- consumption |>
+  mutate(siteID = recode(siteID, Lowland = "Boreal")) |>
+  group_by(siteID) |>
+  summarise(
+    cons_mean = round(mean(Consumption), 2),
+    cons_se = round(sd(Consumption) / sqrt(n()), 1),
+    .groups = "drop"
+  )
+
+div_table <- biomass_div |>
   filter(warming == "Ambient", grazing == "Control", Namount_kg_ha_y == 0) |>
-  group_by(origSiteID) |> 
-  summarise(mean = round(mean(final_richness), 2), 
-            se = round(sd(final_richness)/sqrt(n()), 2))
-
-# Create table with site characteristics
-# Ensure siteID names are consistent (Lowland -> Boreal)
-ta_table <- ta |> 
-  mutate(siteID = case_when(
-    siteID == "Lowland" ~ "Boreal",
-    TRUE ~ as.character(siteID)
-  )) |>
-  select(siteID, temp_mean = mean, temp_se = se)
-
-prod_table <- prod |> 
-  mutate(siteID = case_when(
-    siteID == "Lowland" ~ "Boreal",
-    TRUE ~ as.character(siteID)
-  )) |>
-  select(siteID, prod_mean = mean, prod_se = se)
-
-cons_table <- cons |> 
-  mutate(siteID = case_when(
-    siteID == "Lowland" ~ "Boreal",
-    TRUE ~ as.character(siteID)
-  )) |>
-  select(siteID, cons_mean = mean, cons_se = se)
-
-div_table <- div |>
-  mutate(siteID = case_when(
-    origSiteID == "Alpine" ~ "Alpine",
-    origSiteID == "Sub-alpine" ~ "Sub-alpine",
-    TRUE ~ as.character(origSiteID)
-  )) |>
-  select(siteID, div_mean = mean, div_se = se)
+  group_by(origSiteID) |>
+  summarise(
+    div_mean = round(mean(final_richness), 2),
+    div_se = round(sd(final_richness) / sqrt(n()), 2),
+    .groups = "drop"
+  ) |>
+  mutate(siteID = as.character(origSiteID)) |>
+  select(siteID, div_mean, div_se)
 
 site_table <- data.frame(
   Site = c("Alpine", "Sub-alpine", "Boreal"),
   stringsAsFactors = FALSE
 ) |>
-  # Add air temperature
   left_join(ta_table, by = c("Site" = "siteID")) |>
-  # Add precipitation (hardcoded values from text)
-  mutate(
-    Precipitation_mm = c(2089, 1256, 1292)
-  ) |>
-  # Add productivity
+  mutate(Precipitation_mm = c(2089, 1256, 1292)) |>
   left_join(prod_table, by = c("Site" = "siteID")) |>
-  # Add consumption
   left_join(cons_table, by = c("Site" = "siteID")) |>
-  # Add species richness
   left_join(div_table, by = c("Site" = "siteID")) |>
-  # Format values as strings with ± SE
   mutate(
     `Air temperature (°C)` = paste0(temp_mean, " ± ", temp_se),
     `Precipitation (mm)` = as.character(Precipitation_mm),
@@ -219,13 +178,13 @@ site_table <- data.frame(
     `Grazing consumption (g m^-2^ y^-1^)` = paste0(cons_mean, " ± ", cons_se),
     `Species richness` = ifelse(is.na(div_mean), NA_character_, paste0(div_mean, " ± ", div_se))
   ) |>
-  # Select only needed columns in desired order
-  select(Site, `Air temperature (°C)`, `Precipitation (mm)`,
-         `Annual productivity (g m^-2^ y^-1^)`, `Grazing consumption (g m^-2^ y^-1^)`,
-         `Species richness`)
+  select(
+    Site, `Air temperature (°C)`, `Precipitation (mm)`,
+    `Annual productivity (g m^-2^ y^-1^)`, `Grazing consumption (g m^-2^ y^-1^)`,
+    `Species richness`
+  )
 
 ```
-
 ```{r}
 #| label: tbl-site-characteristics
 #| echo: false
@@ -469,7 +428,7 @@ tar_read(div_index_figure)
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and clipping and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, df, and P value. Variables in bold have a significant P value (P ≤ 0.05)."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and clipping and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, degrees of freedom (df), and P value. Variables in bold have a significant P value (P ≤ 0.05)."
 
 tar_load(cut_final_diversity)
 tar_load(cut_final_richness_evenness)
@@ -587,7 +546,7 @@ graz_final_all_div[[1]]
 #| message: false
 #| fig-width: 10
 #| fig-height: 10
-#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, df, and P value. Variables in bold have a significant P value (P ≤ 0.05)."
+#| tbl-cap: "SEM output for direct effects of warming, nitrogen addition, and grazing and indirect effects via community biomass on Shannon diversity, species richness and evenness. Shown are the response, predictors, Std. Estimate, Std. Error, degrees of freedom (df), and P value. Variables in bold have a significant P value (P ≤ 0.05)."
 
 tar_load(graz_final_all_div)
 

@@ -37,6 +37,17 @@ si_analysis_plan <- list(
   ),
 
   # MICROCLIMATE
+  # Summer (May–September) site climate for Table S2 / methods site differences
+  tar_target(
+    name = summer_site_climate,
+    command = summarise_summer_site_climate(daily_temp)
+  ),
+
+  tar_target(
+    name = summer_site_temp_diff,
+    command = summarise_summer_site_temp_diff(summer_site_climate)
+  ),
+
   # run 3-way interaction model for climate
   tar_target(
     name = climate_model,
